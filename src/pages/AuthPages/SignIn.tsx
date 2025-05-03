@@ -6,7 +6,7 @@ export default function SignIn() {
   return (
     <>
       <PageMeta
-        title="Đăng nhập Tài khoản"
+        title="An Khánh Data Management"
         description="Đây là trang đăng nhập của website quản trị dữ liệu sản phẩn An Khánh"
       />
       <AuthLayout>

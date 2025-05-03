@@ -1,18 +1,18 @@
 import { useState } from "react";
 import ComponentCard from "../../../common/ComponentCard.tsx";
 import ProductLabel from "../ProductLabel.tsx";
-import SupplierSelect from "../supplier/SupplierSelect.tsx";
 import ProductMultiSelect from "../ProductMultiSelect.tsx";
+import ReactSelect from 'react-select'
 
 export default function ProductSelectInputs() {
   const options = [
-    { value: "marketing", label: "Marketing" },
-    { value: "template", label: "Template" },
-    { value: "development", label: "Development" },
+    { value: 1, label: "Marketing" },
+    { value: 2, label: "Template" },
+    { value: 3, label: "Development" },
   ];
-  const handleSelectChange = (value: string) => {
-    console.log("Selected value:", value);
-  };
+  // const handleSelectChange = (value: string) => {
+  //   console.log("Selected value:", value);
+  // };
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   const multiOptions = [
@@ -27,10 +27,9 @@ export default function ProductSelectInputs() {
       <div className="space-y-6">
         <div>
           <ProductLabel>SupplierSelect Input</ProductLabel>
-          <SupplierSelect
+          <ReactSelect
             options={options}
             placeholder="SupplierSelect Option"
-            onChange={handleSelectChange}
             className="dark:bg-dark-900"
           />
         </div>

@@ -21,7 +21,7 @@ export default class UserStore {
         }
         if (this.user?.role.includes("Admin")) {
           router.navigate("/");
-        } else if (this.user?.role.includes("Client")) {
+        } else if (this.user?.role.includes("Strategist")) {
           router.navigate("/");
         }
       });

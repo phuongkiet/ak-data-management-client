@@ -1,11 +1,10 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
-import ComponentCard from "../../../components/common/ComponentCard.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
-import ProductTableComponent from "../../../components/tables/BasicTables/ProductTableComponent.tsx";
+import ProductTableComponent from "../../../components/tables/product/ProductTableComponent.tsx";
 import { useStore } from '../../../app/stores/store.ts';
-import Button from '../../../components/ui/button/Button.tsx'
+import TableComponentCard from '../../../components/common/product/TableComponentCard.tsx'
 
 function ProductTable() {
   const { productStore } = useStore();
@@ -36,13 +35,12 @@ function ProductTable() {
   return (
     <>
       <PageMeta
-        title="Mã hàng | An Khánh House"
+        title="An Khánh Data Management"
         description="Đây là bảng mã hàng của website An Khánh House"
       />
       <PageBreadcrumb pageTitle="Mã hàng" />
-      <Button type='button' onClick={() => {}} size='sm' className='mb-3 text-white'>Tạo mã hàng</Button>
       <div className="space-y-6">
-        <ComponentCard title="Bảng mã hàng">
+        <TableComponentCard title="Bảng mã hàng" addButtonText={"Tạo mã hàng"} addButtonLink={"add-product"}>
           <ProductTableComponent
             data={productList}
             loading={loading}
@@ -53,7 +51,7 @@ function ProductTable() {
             totalCount={totalCount}
             searchTerm={term}
           />
-        </ComponentCard>
+        </TableComponentCard>
       </div>
     </>
   );

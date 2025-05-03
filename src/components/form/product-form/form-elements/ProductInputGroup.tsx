@@ -1,7 +1,7 @@
 import ComponentCard from "../../../common/ComponentCard.tsx";
 import ProductLabel from "../ProductLabel.tsx";
-import SupplierSelect from '../supplier/SupplierSelect.tsx'
 import Input from '../input/ProductInputField.tsx'
+import ReactSelect from 'react-select'
 
 interface Option {
   value: number;
@@ -26,7 +26,7 @@ export default function ProductInputGroup() {
         <div>
           <ProductLabel>Tên nhà cung cấp</ProductLabel>
           <div className="relative">
-            <SupplierSelect options={options} onChange={() => {
+            <ReactSelect options={options} onChange={() => {
             }} />
           </div>
         </div>

@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <>
       <PageMeta
-        title="404 | Không tìm thấy trang web"
+        title="An Khánh Data Management"
         description="Đây là trang 404 | Lỗi không tìm thấy trang web"
       />
       <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">

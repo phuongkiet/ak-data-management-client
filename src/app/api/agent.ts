@@ -4,7 +4,20 @@ import {toast} from "react-toastify";
 import {store} from "../stores/store.ts";
 import {User, UserAdminDTO, UserLoginFormValues} from "../models/user/user.model.ts";
 import {PagedModel} from "../models/common/pagedModel.model.ts";
-import { ProductDto, StrategyProductDto } from '../models/product/product.model.ts'
+import { ProductDto, StrategyProductDto } from '../models/product/product.model.ts';
+import { ProductSupplierDto } from '../models/product/productSupplier.model.ts'
+import { ProductMaterialDto } from '../models/product/productMaterial.model.ts'
+import { ProductSurfaceDto } from '../models/product/productSurface.model.ts'
+import { ProductStorageDto } from '../models/product/productStorage.model.ts'
+import { CompanyCodeDto } from '../models/product/companyCode.model.ts'
+import { ProductAntiSlipperyDto } from '../models/product/productAntiSlippery.model.ts'
+import { ProductBodyColorDto } from '../models/product/productBodyColor.model.ts'
+import { ProductColorDto } from '../models/product/productColor.model.ts'
+import { ProductOriginDto } from '../models/product/productOrigin.model.ts'
+import { ProductPatternDto } from '../models/product/productPattern.model.ts'
+import { ProductProcessingDto } from '../models/product/productProcessing.model.ts'
+import { ProductSizeDto } from '../models/product/productSize.model.ts'
+import { ProductWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -123,11 +136,88 @@ const Product = {
   }
 }
 
+const ProductSupplier = {
+  supplierList: (): Promise<ApiResponseModel<ProductSupplierDto[]>> => requests.get<ProductSupplierDto[]>('/suppliers'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductMaterial = {
+  materialList: (): Promise<ApiResponseModel<ProductMaterialDto[]>> => requests.get<ProductMaterialDto[]>('/materials'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductSurface = {
+  surfaceList: (): Promise<ApiResponseModel<ProductSurfaceDto[]>> => requests.get<ProductSurfaceDto[]>('/surfaces'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductStorage = {
+  storageList: (): Promise<ApiResponseModel<ProductStorageDto[]>> => requests.get<ProductStorageDto[]>('/storages'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const CompanyCode = {
+  companyCodeList: (): Promise<ApiResponseModel<CompanyCodeDto[]>> => requests.get<CompanyCodeDto[]>('/company-codes'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const AntiSlippery = {
+  antiSlipperyList: (): Promise<ApiResponseModel<ProductAntiSlipperyDto[]>> => requests.get<ProductAntiSlipperyDto[]>('/anti-slipperys'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductBodyColor = {
+  bodyColorList: (): Promise<ApiResponseModel<ProductBodyColorDto[]>> => requests.get<ProductBodyColorDto[]>('/body-colors'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductColor = {
+  colorList: (): Promise<ApiResponseModel<ProductColorDto[]>> => requests.get<ProductColorDto[]>('/colors'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductOrigin = {
+  originList: (): Promise<ApiResponseModel<ProductOriginDto[]>> => requests.get<ProductOriginDto[]>('/origins'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductPattern = {
+  patternList: (): Promise<ApiResponseModel<ProductPatternDto[]>> => requests.get<ProductPatternDto[]>('/patterns'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductProcessing = {
+  processingList: (): Promise<ApiResponseModel<ProductProcessingDto[]>> => requests.get<ProductProcessingDto[]>('/processings'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductSize = {
+  sizeList: (): Promise<ApiResponseModel<ProductSizeDto[]>> => requests.get<ProductSizeDto[]>('/sizes'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductWaterAbsorption = {
+  waterAbsorptionList: (): Promise<ApiResponseModel<ProductWaterAbsorptionDto[]>> => requests.get<ProductWaterAbsorptionDto[]>('/water-absorption'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
 const agent = {
   Account,
   UserAdmin,
   Product,
-
+  ProductSupplier,
+  ProductMaterial,
+  ProductSurface,
+  ProductStorage,
+  CompanyCode,
+  AntiSlippery,
+  ProductBodyColor,
+  ProductColor,
+  ProductOrigin,
+  ProductPattern,
+  ProductProcessing,
+  ProductSize,
+  ProductWaterAbsorption
 }
 
 export default agent;

@@ -1,12 +1,9 @@
 import { useState } from "react";
+import { ProductSupplierDto } from '../../../../app/models/product/productSupplier.model.ts'
 
-interface Option {
-  value: number;
-  label: string;
-}
 
 interface SelectProps {
-  options: Option[];
+  options: ProductSupplierDto[];
   placeholder?: string;
   onChange: (value: string) => void;
   className?: string;
@@ -50,11 +47,11 @@ const SupplierSelect: React.FC<SelectProps> = ({
       {/* Map over options */}
       {options.map((option) => (
         <option
-          key={option.value}
-          value={option.value}
+          key={option.id}
+          value={option.id}
           className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
         >
-          {option.label}
+          {option.supplierName}
         </option>
       ))}
     </select>

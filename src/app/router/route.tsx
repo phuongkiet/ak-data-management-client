@@ -19,6 +19,20 @@ import StrategyProductTable from '../../pages/Tables/product/StrategyProductTabl
 import FormElements from '../../pages/Forms/FormElements'
 import Blank from '../../pages/Blank'
 import ProductDetail from '../../pages/Tables/product/product-detail/ProductDetail.tsx'
+import AddProduct from '../../pages/Tables/product/add-product/AddProduct.tsx'
+import SupplierTable from '../../pages/Tables/supplier/SupplierTable.tsx'
+import PatternTable from '../../pages/Tables/pattern/PatternTable.tsx'
+import ColorTable from '../../pages/Tables/color/ColorTable.tsx'
+import BodyColorTable from '../../pages/Tables/body-color/BodyColorTable.tsx'
+import MaterialTable from '../../pages/Tables/material/MaterialTable.tsx'
+import SizeTable from '../../pages/Tables/size/SizeTable.tsx'
+import OriginTable from '../../pages/Tables/origin/OriginTable.tsx'
+import StorageTable from '../../pages/Tables/storage/StorageTable.tsx'
+import SurfaceTable from '../../pages/Tables/surface/SurfaceTable.tsx'
+import WaterAbsorptionTable from '../../pages/Tables/water-absorption/WaterAbsorptionTable.tsx'
+import AntiSlipperyTable from '../../pages/Tables/anti-slippery/AntiSlipperyTable.tsx'
+import ProcessingTable from '../../pages/Tables/processing/ProcessingTable.tsx'
+import CompanyCodeTable from '../../pages/Tables/company-code/CompanyCodeTable.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -36,11 +50,50 @@ export const routes: RouteObject[] = [
       // Forms
       { path: 'form-elements', element: <FormElements /> },
 
-      // Tables
+      // Tables - Products
       { path: 'products', element: <ProductTable /> },
+      { path: 'add-product', element: <AddProduct />},
       { path: 'strategy-products', element: <StrategyProductTable /> },
-
       { path: 'products/detail/:id', element: <ProductDetail/>},
+      // Tables - Suppliers
+      { path: 'suppliers', element: <SupplierTable /> },
+      // { path: 'add-supplier', element: <AddProduct />},
+
+      // Tables - Patterns
+      { path: 'patterns', element: <PatternTable /> },
+
+      // Tables - Color
+      { path: 'colors', element: <ColorTable /> },
+
+      // Tables - Body Color
+      { path: 'body-colors', element: <BodyColorTable /> },
+
+      // Tables - Material
+      { path: 'materials', element: <MaterialTable /> },
+
+      // Tables - Size
+      { path: 'sizes', element: <SizeTable /> },
+
+      // Tables - Origin
+      { path: 'origins', element: <OriginTable /> },
+
+      // Tables - Storage
+      { path: 'storages', element: <StorageTable /> },
+
+      // Tables - Surface
+      { path: 'surfaces', element: <SurfaceTable /> },
+
+      // Tables - Water Absorption
+      { path: 'water-absorptions', element: <WaterAbsorptionTable /> },
+
+      // Tables - Anti Slippery
+      { path: 'anti-slipperys', element: <AntiSlipperyTable /> },
+
+      // Tables - Processing
+      { path: 'processings', element: <ProcessingTable /> },
+
+      // Tables - Company Code
+      { path: 'company-codes', element: <CompanyCodeTable /> },
 
       // UI Elements
       { path: 'alerts', element: <Alerts /> },

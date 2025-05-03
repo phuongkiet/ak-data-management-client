@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
       <PageMeta
-        title="Trang chủ | An Khánh House"
+        title="An Khánh Data Management"
         description="Đây là trang chủ của trang quản lý dữ liệu sản phẩm An Khánh"
       />
       <div className="grid grid-cols-12 gap-4 md:gap-6">

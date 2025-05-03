@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
-import { ProductDto, StrategyProductDto } from '../models/product/product.model'
+import { AddProductDto, ProductDto, StrategyProductDto } from '../models/product/product.model'
 import { toast } from 'react-toastify'
 
 export default class ProductStore {
@@ -14,6 +14,8 @@ export default class ProductStore {
   totalPages = 0;
   totalCount = 0;
   term: string = '';
+
+  productForm: AddProductDto = {} as AddProductDto;
 
   constructor() {
     makeAutoObservable(this);
@@ -79,11 +81,15 @@ export default class ProductStore {
         this.loading = false;
       });
       console.error("Failed to load products", error);
-      toast.error("Lỗi khi tải dữ liệu sản phẩm.")
     }
   };
 
   getProductById = (id: number): ProductDto | undefined => {
     return this.productRegistry.get(id);
   };
+
+  updateProductForm = <K extends keyof AddProductDto>(field: K, value: AddProductDto[K]) => {
+    this.productForm[field] = value;
+    console.log(this.productForm)
+  }
 }

@@ -101,7 +101,6 @@ export interface ProductDetail {
   supplierItemCode: string;
   productProcessingCode: string;
   confirmSupplierItemCode: string;
-  supplerCode: string;
   confirmSupplierCode?: string;
   productOrderNumber?: number;
   productCode?: string;
@@ -162,4 +161,66 @@ export interface ProductDetail {
   secondDiscountConditions?: string;
   processingDescription: string;
 }
+
+import { PriceDetermination, NoticeDataWebsite, UploadWebsiteStatus, DiscountConditions } from "./enum/product.enum.ts";
+
+export interface AddProductDto {
+  // Foreign Keys
+  originCountryId: number;
+  actualSizeId: number;
+  brickPatternId: number;
+  colorId: number;
+  surfaceFeatureId: number;
+  materialId: number;
+  brickBodyId: number;
+  storageId: number;
+  antiSlipId: number;
+  supplierId: number;
+  companyCodeId: number;
+  processingId: number;
+  waterAbsorptionId: number;
+
+  // Enum values
+  priceDetermination: PriceDetermination;
+  noticeDataWebsite: NoticeDataWebsite;
+  uploadWebsiteStatus: UploadWebsiteStatus;
+  discountConditions?: DiscountConditions;
+  secondDiscountConditions?: DiscountConditions;
+
+  // Basic info
+  supplierItemCode: string;
+  supplerCode: string;
+  productCode: string;
+  autoBarCode: string;
+  displayWebsiteName: string;
+  webProductPrice?: number;
+  webDiscountedPrice?: number;
+  secondWebDiscountedPrice?: number;
+  autoCalculatedUnit: string;
+  calculatedUnit: string;
+  productSpecialNote: string;
+  diameterSize?: number;
+  wideSize: number;
+  lengthSize: number;
+  thicknessSize: number;
+  otherSize?: number;
+  weightPerUnit: number;
+  weightPerBox: number;
+  quantityPerBox: number;
+  porcelainWarrantyPeriod?: number;
+  accessoryWarrantyPeriod?: number;
+  patternQuantity: number;
+  isInside: boolean;
+  isOutside: boolean;
+  isFlooring: boolean;
+  isWalling: boolean;
+  isCOCQ: boolean;
+  isScratchResist: boolean;
+  isAntiFouling: boolean;
+  isEdgeGrinding: boolean;
+  hardnessMOHS: number;
+  otherNote: string;
+  deliveryEstimatedDate: string;
+}
+
 
