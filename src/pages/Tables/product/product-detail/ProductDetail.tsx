@@ -8,38 +8,50 @@ import SurfaceGroup from '../../../../components/form/product-form/surface/Surfa
 import MaterialGroup from '../../../../components/form/product-form/material/Material.tsx'
 import ColorGroup from '../../../../components/form/product-form/color/Color.tsx'
 import ProductInputGroupRight from '../../../../components/form/product-form/form-elements/ProductInputGroupRight.tsx'
+import { useStore } from '../../../../app/stores/store.ts'
+import { useParams } from 'react-router'
+import { useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 
 const ProductDetail = () => {
-  const product = "RVTD1.12"
+  const { productStore } = useStore();
+  const { productDetail, loadProductDetail } = productStore;
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      loadProductDetail(+id);
+    }
+  }, [id, loadProductDetail]);
   return (
     <div>
       <PageMeta
         title="An Khánh Data Management"
-        description={"Sản phẩm " + product}
+        description={"Sản phẩm " + productDetail.productCode}
       />
-      <span>Sản phẩm <PageBreadcrumb pageTitle={product} /></span>
+      <span>Sản phẩm <PageBreadcrumb pageTitle={productDetail.productCode ? productDetail.productCode : "..."} /></span>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 mb-6">
         <div className='space-y-6'>
-          <MaterialGroup/>
-          <SupplierGroup />
-          <SizeGroup />
+          <MaterialGroup product={productDetail} isCreateMode={false}/>
+          <SupplierGroup product={productDetail} isCreateMode={false}/>
+          <SizeGroup product={productDetail} isCreateMode={false}/>
         </div>
         <div className="space-y-6">
-          <SurfaceGroup/>
-          <PatternGroup />
-          <ColorGroup/>
+          <SurfaceGroup product={productDetail} isCreateMode={false}/>
+          <PatternGroup product={productDetail} isCreateMode={false}/>
+          <ColorGroup product={productDetail} isCreateMode={false}/>
         </div>
       </div>
-      <div className='grid grid-cols-12 gap-6'>
+      <div className='grid grid-cols-1 xl:grid-cols-12 gap-6'>
         <div className="col-span-8 space-y-6">
-          <ProductDefaultInputs />
+          <ProductDefaultInputs product={productDetail} isCreateMode={false}/>
         </div>
-        <div className="col-span-4 space-y-6">
-          <ProductInputGroupRight />
+        <div className="col-span-8 xl:col-span-4 space-y-6">
+          <ProductInputGroupRight product={productDetail} isCreateMode={false}/>
         </div>
       </div>
     </div>
   );
 }
 
-export default ProductDetail;
+export default observer(ProductDetail);

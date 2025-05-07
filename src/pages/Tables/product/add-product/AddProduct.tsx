@@ -19,22 +19,22 @@ const AddProduct = () => {
       <PageBreadcrumb pageTitle={"Thêm sản phẩm"} />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 mb-6">
         <div className='space-y-6'>
-          <MaterialGroup/>
-          <SupplierGroup />
-          <SizeGroup />
+          <MaterialGroup isCreateMode={true}/>
+          <SupplierGroup isCreateMode={true}/>
+          <SizeGroup isCreateMode={true}/>
         </div>
         <div className="space-y-6">
-          <SurfaceGroup/>
-          <PatternGroup />
-          <ColorGroup/>
+          <SurfaceGroup isCreateMode={true}/>
+          <PatternGroup isCreateMode={true}/>
+          <ColorGroup isCreateMode={true}/>
         </div>
       </div>
       <div className='grid grid-cols-12 gap-6'>
         <div className="col-span-8 space-y-6">
-          <ProductDefaultInputs />
+          <ProductDefaultInputs isCreateMode={true}/>
         </div>
         <div className="col-span-4 space-y-6">
-          <ProductInputGroupRight />
+          <ProductInputGroupRight isCreateMode={true}/>
         </div>
       </div>
     </div>

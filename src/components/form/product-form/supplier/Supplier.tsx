@@ -4,29 +4,53 @@ import Input from '../input/ProductInputField.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { ProductSupplierDto } from '../../../../app/models/product/productSupplier.model.ts'
-import ReactSelect from 'react-select' // Đây nè!
+import ReactSelect from 'react-select'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts' // Đây nè!
 
 interface Option {
   value: number;
   label: string;
 }
 
-const SupplierGroup = () => {
-  const { supplierStore } = useStore()
-  const { loadSuppliers, productSupplierList } = supplierStore
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
 
-  const [selectedSupplier, setSelectedSupplier] = useState<ProductSupplierDto | null>(null)
+const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
+  const { supplierStore, productStore } = useStore()
+  const { loadSuppliers, productSupplierList } = supplierStore
+  const { productForm, getNextOrderNumberAuto } = productStore
+  const [autoSupplierCode, setAutoSupplierCode] = useState<string>('');
+  const [selectedSupplier, setSelectedSupplier] = useState<Option | null>(null)
 
   useEffect(() => {
-    loadSuppliers()
-  }, [])
+    loadSuppliers();
+
+    if (!isCreateMode && product?.supplierId) {
+      productForm.supplierId = product.supplierId;
+    }
+  }, [isCreateMode, product]);
+
 
   // Mapping list
   const supplierOptions: Option[] = productSupplierList.map(supplier => ({
     value: supplier.id,
     label: supplier.supplierName
   }))
+
+  useEffect(() => {
+    if (!product?.supplierId || supplierOptions.length === 0) return;
+
+    const selected = supplierOptions.find(option => option.value === product.supplierId) || null;
+
+    // Chỉ set lại nếu khác với current state
+    if (selected?.value !== selectedSupplier?.value) {
+      setSelectedSupplier(selected);
+      setAutoSupplierCode(product?.supplierCode || '');
+    }
+  }, [product?.supplierId, product?.supplierCode, supplierOptions.length]);
+
 
   return (
     <ComponentCard title="Nhà cung cấp">
@@ -36,12 +60,30 @@ const SupplierGroup = () => {
           <div className="relative">
             <ReactSelect
               options={supplierOptions}
-              onChange={(selectedOption) => {
-                const supplierId = selectedOption ? selectedOption.value : null
-                const supplier = productSupplierList.find(x => x.id === supplierId) || null
-                setSelectedSupplier(supplier)
+              value={selectedSupplier}
+              onChange={async (selectedOption) => {
+                if (!selectedOption) {
+                  // Khi người dùng xóa chọn
+                  setSelectedSupplier(null)
+                  productForm.supplierId = 0 // hoặc null tùy logic backend
+                  setAutoSupplierCode('')
+
+                  return
+                }
+
+                setSelectedSupplier(selectedOption)
+                const supplierId = selectedOption.value
+                productForm.supplierId = supplierId
+                const supplier = productSupplierList.find(x => x.id === supplierId)
+                setAutoSupplierCode(supplier?.supplierCode || '')
+                productStore.updateProductForm("supplierId", supplierId)
+
+                if (isCreateMode) {
+                  await getNextOrderNumberAuto()
+                }
               }}
               placeholder="Chọn nhà cung cấp..."
+              isClearable={true}
               className="react-select-container"
               classNamePrefix="react-select"
               styles={{
@@ -77,7 +119,7 @@ const SupplierGroup = () => {
             <Input
               placeholder="Tự động điền"
               disabled
-              value={selectedSupplier?.supplierCode || ''}
+              value={isCreateMode ? autoSupplierCode : product?.supplierCode || ''}
             />
           </div>
         </div>

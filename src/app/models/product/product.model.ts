@@ -1,3 +1,5 @@
+import { PriceDetermination, NoticeDataWebsite, UploadWebsiteStatus, DiscountConditions } from "./enum/product.enum.ts";
+
 export interface ProductDto {
   id: number;
   createdDate: string; // DateTime => string (ISO format)
@@ -94,12 +96,11 @@ export interface StrategyProductDto {
 
 export interface ProductDetail {
   id: number;
-  createdDate: string; // or Date if you parse it
-  supplierName: string;
+  createdDate: string; // vẫn giữ là string nếu bạn không parse sang Date
+
+  supplierId: number;
   supplierCode: string;
-  companyCode: string;
   supplierItemCode: string;
-  productProcessingCode: string;
   confirmSupplierItemCode: string;
   confirmSupplierCode?: string;
   productOrderNumber?: number;
@@ -111,8 +112,6 @@ export interface ProductDetail {
   productPrice?: number;
   discountedPrice?: number;
   secondDiscountedPrice?: number;
-  autoCalculatedUnit: string;
-  calculatedUnit: string;
   productSpecialNote: string;
   diameterSize?: number;
   wideSize: number;
@@ -142,27 +141,30 @@ export interface ProductDetail {
   otherNote: string;
   deliveryEstimatedDate: string;
 
-  // Foreign key display names
-  originCountryName: string;
-  actualSizeName: string;
-  brickPatternName: string;
-  colorName: string;
-  surfaceFeatureName: string;
-  materialName: string;
-  brickBodyName: string;
-  storageName: string;
-  antiSlipLevelName: string;
+  originCountryId: number;
+  actualSizeId: number;
+  brickPatternId: number;
+  colorId: number;
+  surfaceFeatureId: number;
+  materialId: number;
+  brickBodyId: number;
+  storageId: number;
+  antiSlipLevelId: number;
+  waterAbsorptionId: number;
+  taxId: number;
+  taxRate: number;
+  calculatedUnitId: number;
+  companyCodeId: number;
+  processingId: number;
 
-  // Enum values as strings
-  priceDetermination: string;
-  noticeDataWebsite: string;
-  uploadWebsiteStatus: string;
-  discountConditions?: string;
-  secondDiscountConditions?: string;
+  priceDetermination: PriceDetermination;
+  noticeDataWebsite: NoticeDataWebsite;
+  uploadWebsiteStatus: UploadWebsiteStatus;
+  discountConditions?: DiscountConditions;
+  secondDiscountConditions?: DiscountConditions;
+
   processingDescription: string;
 }
-
-import { PriceDetermination, NoticeDataWebsite, UploadWebsiteStatus, DiscountConditions } from "./enum/product.enum.ts";
 
 export interface AddProductDto {
   // Foreign Keys
@@ -177,8 +179,10 @@ export interface AddProductDto {
   antiSlipId: number;
   supplierId: number;
   companyCodeId: number;
-  processingId: number;
+  processingId: number | null;
   waterAbsorptionId: number;
+  taxId: number;
+  calculatedUnitId: number;
 
   // Enum values
   priceDetermination: PriceDetermination;
@@ -190,6 +194,7 @@ export interface AddProductDto {
   // Basic info
   supplierItemCode: string;
   supplerCode: string;
+  productOrderNumber?: number;
   productCode: string;
   autoBarCode: string;
   displayWebsiteName: string;
@@ -209,7 +214,7 @@ export interface AddProductDto {
   quantityPerBox: number;
   porcelainWarrantyPeriod?: number;
   accessoryWarrantyPeriod?: number;
-  patternQuantity: number;
+  patternQuantity: number | null;
   isInside: boolean;
   isOutside: boolean;
   isFlooring: boolean;
@@ -218,7 +223,7 @@ export interface AddProductDto {
   isScratchResist: boolean;
   isAntiFouling: boolean;
   isEdgeGrinding: boolean;
-  hardnessMOHS: number;
+  hardnessMOHS: number | null;
   otherNote: string;
   deliveryEstimatedDate: string;
 }

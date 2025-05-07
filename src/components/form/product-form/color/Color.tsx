@@ -5,13 +5,19 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const ColorGroup = () => {
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const ColorGroup = ({product, isCreateMode}: ProductProps) => {
   const { colorStore } = useStore()
   const { loadColors, productColorList } = colorStore
 
@@ -26,13 +32,16 @@ const ColorGroup = () => {
     label: color.name
   }))
 
+  const selectedColor = colorOptions.find(
+    (option) => option.value === product?.colorId
+  )
   return (
     <ComponentCard title="Màu gạch">
       <div className="space-y-6">
         <div>
           <ProductLabel>Tên màu</ProductLabel>
           <div className="relative">
-            <ReactSelect options={colorOptions} onChange={() => {
+            <ReactSelect options={colorOptions} value={selectedColor} onChange={() => {
             }} placeholder={'Chọn màu gạch...'} styles={{
               control: (base) => ({
                 ...base,
@@ -62,7 +71,7 @@ const ColorGroup = () => {
         <div>
           <ProductLabel>Mã màu</ProductLabel>
           <div className="relative">
-            <Input placeholder="Tự động điền" disabled value="Đỏ" />
+            <Input placeholder="Tự động điền" disabled value={isCreateMode ? 'Tự động điền' :selectedColor?.label} />
           </div>
         </div>
       </div>

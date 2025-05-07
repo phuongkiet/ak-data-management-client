@@ -2,13 +2,18 @@ import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../../../app/stores/store.ts'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const WaterAbsorptionGroup = () => {
+interface ProductProps{
+  product?: ProductDetail
+}
+
+const WaterAbsorptionGroup = ({product}: ProductProps) => {
   const { waterAbsorptionStore } = useStore()
   const { loadWaterAbsorption, productWaterAbsorptionList } = waterAbsorptionStore
 
@@ -23,10 +28,14 @@ const WaterAbsorptionGroup = () => {
     label: waterAbsorption.waterAbsoprtionLevel
   }))
 
+  const selectedWaterAbsorption = waterAbsorptionOptions.find(
+    (option) => option.value === product?.waterAbsorptionId
+  )
+
   return (
         <div>
           <div className="relative">
-            <ReactSelect options={waterAbsorptionOptions} onChange={() => {
+            <ReactSelect options={waterAbsorptionOptions} value={selectedWaterAbsorption} onChange={() => {
             }} placeholder={'Chọn...'} styles={{
               control: (base) => ({
                 ...base,

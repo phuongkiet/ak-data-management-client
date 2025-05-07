@@ -15,6 +15,7 @@ import OriginStore from './originStore.ts'
 import ProcessingStore from './processingStore.ts'
 import CompanyCodeStore from './companyCodeStore.ts'
 import StorageStore from './storageStore.ts'
+import CalculatedUnitStore from './calculatedUnitStore.ts'
 
 interface Store {
   userStore: UserStore;
@@ -33,6 +34,7 @@ interface Store {
   processingStore: ProcessingStore;
   companyCodeStore: CompanyCodeStore;
   storageStore: StorageStore;
+  calculatedUnitStore: CalculatedUnitStore;
 }
 
 export const store: Store = {
@@ -52,6 +54,7 @@ export const store: Store = {
   processingStore: new ProcessingStore(),
   companyCodeStore: new CompanyCodeStore(),
   storageStore: new StorageStore(),
+  calculatedUnitStore: new CalculatedUnitStore(),
 }
 
 export const StoreContext = createContext(store);

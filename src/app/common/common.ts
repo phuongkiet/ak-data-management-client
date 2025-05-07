@@ -1,0 +1,1 @@
+export const appCurrency: string = '₫';

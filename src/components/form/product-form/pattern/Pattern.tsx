@@ -2,21 +2,25 @@ import ComponentCard from '../../../common/ComponentCard.tsx'
 import ProductLabel from '../ProductLabel.tsx'
 import Input from '../input/ProductInputField.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import ReactSelect from 'react-select'
-import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
+// import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const PatternGroup = () => {
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean
+}
+
+const PatternGroup = ({product, isCreateMode}: ProductProps) => {
   const { patternStore } = useStore()
   const { loadPatterns, productPatternList } = patternStore
-  const [selectedPattern, setSelectedPattern] = useState<ProductPatternDto | null>(null)
-
 
   useEffect(() => {
     loadPatterns()
@@ -28,6 +32,10 @@ const PatternGroup = () => {
     label: pattern.name
   }))
 
+  const selectedPattern = patternOptions.find(
+    (option) => option.value === product?.brickPatternId
+  )
+
   return (
     <ComponentCard title="Hệ vân gạch">
       <div className="space-y-6">
@@ -35,11 +43,12 @@ const PatternGroup = () => {
           <ProductLabel>Tên hệ vân</ProductLabel>
           <div className="relative">
             <ReactSelect options={patternOptions}
-                         onChange={(selectedOption) => {
-                           const patternId = selectedOption ? selectedOption.value : null
-                           const pattern = productPatternList.find(x => x.id === patternId) || null
-                           setSelectedPattern(pattern)
+                         onChange={() => {
+                           // const patternId = selectedOption ? selectedOption.value : null
+                           // const pattern = productPatternList.find(x => x.id === patternId) || null
+                           // setSelectedPattern(pattern)
                          }}
+                         value={selectedPattern}
                          placeholder={'Chọn hệ vân...'}
                          className="react-select-container"
                          classNamePrefix="react-select"
@@ -73,7 +82,7 @@ const PatternGroup = () => {
         <div>
           <ProductLabel>Mã ngắn hệ vân</ProductLabel>
           <div className="relative">
-            <Input placeholder="Tự động điền" disabled value={selectedPattern?.shortCode || ''} />
+            <Input placeholder="Tự động điền" disabled value={isCreateMode ? 'Tự động điền' : product?.brickPatternShortName || ''} />
           </div>
         </div>
       </div>

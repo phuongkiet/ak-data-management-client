@@ -3,20 +3,25 @@ import { observer } from 'mobx-react-lite'
 import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const MaterialGroup = () => {
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const MaterialGroup = ({ product, isCreateMode }: ProductProps) => {
   const { materialStore } = useStore()
   const { loadMaterials, productMaterialList } = materialStore
 
-
   useEffect(() => {
     loadMaterials()
-  }, [])
+  }, [loadMaterials])
 
   // Mapping list
   const materialOptions: Option[] = productMaterialList.map(material => ({
@@ -24,12 +29,16 @@ const MaterialGroup = () => {
     label: material.name
   }))
 
+  const selectedMaterial = materialOptions.find(
+    (option) => option.value === product?.materialId
+  )
+
   return (
     <ComponentCard title="Chất liệu">
       <div className="space-y-6">
         <div>
           <div className="relative">
-            <ReactSelect options={materialOptions} onChange={() => {
+            <ReactSelect options={materialOptions} value={selectedMaterial} onChange={() => {
             }} placeholder={'Chọn chất liệu...'} styles={{
               control: (base) => ({
                 ...base,

@@ -5,13 +5,19 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const SizeGroup = () => {
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const SizeGroup = ({product, isCreateMode}: ProductProps) => {
   const { sizeStore } = useStore()
   const { loadSizes, productSizeList } = sizeStore
 
@@ -26,13 +32,16 @@ const SizeGroup = () => {
     label: size.autoSized
   }))
 
+  const selectedSize = sizeOptions.find(
+    (option) => option.value === product?.actualSizeId
+  )
   return (
     <ComponentCard title="Kích thước thực tế">
       <div className="space-y-6">
         <div>
           <ProductLabel>Dài x Rộng</ProductLabel>
           <div className="relative">
-            <ReactSelect options={sizeOptions} onChange={() => {
+            <ReactSelect options={sizeOptions} value={selectedSize} onChange={() => {
             }} placeholder={'Chọn kích thước...'} styles={{
               control: (base) => ({
                 ...base,
@@ -60,10 +69,16 @@ const SizeGroup = () => {
           </div>
         </div>
         <div>
-          <ProductLabel>Độ dày</ProductLabel>
-          <div className="relative">
-            <Input type="number" placeholder="9mm" />
-          </div>
+          <ProductLabel>Độ dày (mm)</ProductLabel>
+          {isCreateMode ? (
+            <div className="relative">
+              <Input type="number" placeholder="9mm" value={''} />
+            </div>
+          ) : (
+            <div className="relative">
+              <Input type="number" placeholder="9mm" value={product?.thicknessSize} />
+            </div>
+          )}
         </div>
       </div>
     </ComponentCard>

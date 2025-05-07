@@ -3,13 +3,19 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const SurfaceGroup = () => {
+interface ProductProps {
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const SurfaceGroup = ({product, isCreateMode}: ProductProps) => {
   const { surfaceStore } = useStore()
   const { loadSurfaces, productSurfaceList } = surfaceStore
 
@@ -24,12 +30,15 @@ const SurfaceGroup = () => {
     label: surface.name
   }))
 
+  const selectedSurface = surfaceOptions.find(
+    (option) => option.value === product?.surfaceFeatureId
+  )
   return (
     <ComponentCard title="Bề mặt">
       <div className="space-y-6">
         <div>
           <div className="relative">
-            <ReactSelect options={surfaceOptions} onChange={() => {
+            <ReactSelect options={surfaceOptions} value={selectedSurface} onChange={() => {
             }} placeholder={'Chọn bề mặt...'} styles={{
               control: (base) => ({
                 ...base,

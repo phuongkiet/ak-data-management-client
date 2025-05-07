@@ -4,7 +4,7 @@ import {toast} from "react-toastify";
 import {store} from "../stores/store.ts";
 import {User, UserAdminDTO, UserLoginFormValues} from "../models/user/user.model.ts";
 import {PagedModel} from "../models/common/pagedModel.model.ts";
-import { ProductDto, StrategyProductDto } from '../models/product/product.model.ts';
+import { ProductDetail, ProductDto, StrategyProductDto } from '../models/product/product.model.ts'
 import { ProductSupplierDto } from '../models/product/productSupplier.model.ts'
 import { ProductMaterialDto } from '../models/product/productMaterial.model.ts'
 import { ProductSurfaceDto } from '../models/product/productSurface.model.ts'
@@ -18,6 +18,7 @@ import { ProductPatternDto } from '../models/product/productPattern.model.ts'
 import { ProductProcessingDto } from '../models/product/productProcessing.model.ts'
 import { ProductSizeDto } from '../models/product/productSize.model.ts'
 import { ProductWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
+import { CalculatedUnitDto } from '../models/product/calculatedUnit.model.ts'
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -133,7 +134,11 @@ const Product = {
     if (term) params.append("term", term);
 
     return requests.get<PagedModel<StrategyProductDto>>(`/products/strategy-products?${params.toString()}`);
-  }
+  },
+
+  getProductById: (id: number): Promise<ApiResponseModel<ProductDetail>> => requests.get<ProductDetail>('/products/product-detail?productId=' + id),
+
+  getNextOrderNumber: (supplierId: number): Promise<ApiResponseModel<number>> => requests.get<number>('/products/suppliers-order?supplierId=' + supplierId),
 }
 
 const ProductSupplier = {
@@ -158,6 +163,11 @@ const ProductStorage = {
 
 const CompanyCode = {
   companyCodeList: (): Promise<ApiResponseModel<CompanyCodeDto[]>> => requests.get<CompanyCodeDto[]>('/company-codes'),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const CalculatedUnit = {
+  calculatedUnitList: (): Promise<ApiResponseModel<CalculatedUnitDto[]>> => requests.get<CalculatedUnitDto[]>('/calculated-units'),
   //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
 }
 
@@ -217,7 +227,8 @@ const agent = {
   ProductPattern,
   ProductProcessing,
   ProductSize,
-  ProductWaterAbsorption
+  ProductWaterAbsorption,
+  CalculatedUnit
 }
 
 export default agent;

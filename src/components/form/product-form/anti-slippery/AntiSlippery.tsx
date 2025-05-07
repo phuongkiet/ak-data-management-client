@@ -2,14 +2,20 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const AntiSlipperyGroup = () => {
-  const { antiSlipperyStore } = useStore()
+interface ProductProps{
+  product?: ProductDetail
+  isCreateMode: boolean;
+}
+
+const AntiSlipperyGroup = ({product, isCreateMode}: ProductProps) => {
+  const { antiSlipperyStore, productStore } = useStore()
   const { loadAntiSlipperys, productAntiSlipperyList } = antiSlipperyStore
 
 
@@ -23,11 +29,27 @@ const AntiSlipperyGroup = () => {
     label: antiSlippery.antiSlipLevel
   }))
 
+  const selectedAntiSlippery = antiSlipperyOptions.find(
+    (option) => option.value === product?.antiSlipLevelId
+  )
+
   return (
     <div>
       <div className="relative">
-        <ReactSelect options={antiSlipperyOptions} onChange={() => {
-        }} placeholder={'Chọn độ chống trượt...'} styles={{
+        <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery}
+                     onChange={(selected) => {
+                        if(!selected) {
+                          productStore.productForm.antiSlipId = 0
+                          return;
+                        }
+
+                        if(isCreateMode) {
+                          const antiId = selected.value;
+                          productStore.updateProductForm("antiSlipId", antiId);
+                        }
+                     }}
+                     isClearable={true}
+                     placeholder={'Chọn độ chống trượt...'} styles={{
           control: (base) => ({
             ...base,
             minHeight: '44px', // Chiều cao tổng thể

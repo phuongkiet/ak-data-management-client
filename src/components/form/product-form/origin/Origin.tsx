@@ -2,14 +2,20 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const OriginGroup = () => {
-  const { originStore } = useStore()
+interface ProductProps{
+  product?: ProductDetail
+  isCreateMode: boolean
+}
+
+const OriginGroup = ({product, isCreateMode}: ProductProps) => {
+  const { originStore, productStore } = useStore()
   const { loadOrigins, productOriginList } = originStore
 
 
@@ -23,11 +29,27 @@ const OriginGroup = () => {
     label: origin.name
   }))
 
+  const selectedOrigin = originOptions.find(
+    (option) => option.value === product?.originCountryId
+  )
+
   return (
     <div>
       <div className="relative">
-        <ReactSelect options={originOptions} onChange={() => {
-        }} placeholder={'Chọn xuất xứ...'} styles={{
+        <ReactSelect options={originOptions} value={selectedOrigin}
+                     onChange={(selected) => {
+                        if(!selected) {
+                          productStore.productForm.originCountryId = 0;
+                          return;
+                        }
+
+                        if(isCreateMode) {
+                          const originId = selected.value;
+                          productStore.updateProductForm("originCountryId", originId)
+                        }
+                     }}
+                     isClearable={true}
+                     placeholder={'Chọn xuất xứ...'} styles={{
           control: (base) => ({
             ...base,
             minHeight: '44px', // Chiều cao tổng thể

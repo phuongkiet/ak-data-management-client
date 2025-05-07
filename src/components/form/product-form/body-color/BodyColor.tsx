@@ -2,32 +2,56 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const BodyColorGroup = () => {
-  const { colorStore } = useStore()
-  const { loadColors, productColorList } = colorStore
+interface ProductProps{
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const BodyColorGroup = ({product, isCreateMode}: ProductProps) => {
+  const { bodyColorStore, productStore } = useStore()
+  const { loadBodyColors, productBodyColorList } = bodyColorStore
 
 
   useEffect(() => {
-    loadColors()
+    loadBodyColors()
   }, [])
 
   // Mapping list
-  const bodyColorOptions: Option[] = productColorList.map(bodyColor => ({
+  const bodyColorOptions: Option[] = productBodyColorList.map(bodyColor => ({
     value: bodyColor.id,
     label: bodyColor.name
   }))
 
+  const selectedBodyColor = bodyColorOptions.find(
+    (option) => option.value === product?.brickBodyId
+  )
+
   return (
         <div>
           <div className="relative">
-            <ReactSelect options={bodyColorOptions} onChange={() => {
-            }} placeholder={"Chọn màu thân gạch..."} styles={{
+            <ReactSelect options={bodyColorOptions}
+                         value={selectedBodyColor}
+                         onChange={(selected) => {
+                            if(!selected) {
+                              productStore.productForm.brickBodyId = 0;
+                              return;
+                            }
+
+                            if(isCreateMode) {
+                              const bodyColorId = selected.value;
+                              productStore.updateProductForm("brickBodyId", bodyColorId);
+                            }
+                         }}
+                         isClearable={true}
+                         placeholder={"Chọn màu thân gạch..."}
+                         styles={{
               control: (base) => ({
                 ...base,
                 minHeight: '44px', // Chiều cao tổng thể

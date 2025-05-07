@@ -2,14 +2,20 @@ import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
+import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
 interface Option {
   value: number;
   label: string;
 }
 
-const StorageGroup = () => {
-  const { storageStore } = useStore()
+interface ProductProps{
+  product?: ProductDetail;
+  isCreateMode: boolean;
+}
+
+const StorageGroup = ({product, isCreateMode}: ProductProps) => {
+  const { storageStore, productStore } = useStore()
   const { loadStorages, productStorageList } = storageStore
 
 
@@ -23,12 +29,30 @@ const StorageGroup = () => {
     label: storage.name
   }))
 
+  const selectedStorage = storageOptions.find(
+    (option) => option.value === product?.storageId
+  )
+
   return (
 
     <div>
       <div className="relative">
-        <ReactSelect options={storageOptions} onChange={() => {
-        }} placeholder={'Chọn phương thức...'} styles={{
+        <ReactSelect options={storageOptions}
+                     value={selectedStorage}
+                     onChange={(selected) => {
+                        if(!selected) {
+                          productStore.productForm.storageId = 0;
+                          return;
+                        }
+
+                        if(isCreateMode) {
+                          const storageId = selected.value;
+                          productStore.updateProductForm("storageId", storageId);
+                        }
+                     }}
+                     placeholder={'Chọn phương thức...'}
+                     isClearable={true}
+                     styles={{
           control: (base) => ({
             ...base,
             minHeight: '44px', // Chiều cao tổng thể
