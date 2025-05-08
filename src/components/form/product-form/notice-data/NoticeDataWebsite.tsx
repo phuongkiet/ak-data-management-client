@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 import { NoticeDataWebsite } from '../../../../app/models/product/enum/product.enum.ts'
+import { useStore } from '../../../../app/stores/store.ts';
 
 interface Option {
   value: number;
@@ -10,6 +11,7 @@ interface Option {
 
 interface ProductProps {
   product?: ProductDetail;
+  isCreateMode: boolean;
 }
 
 const noticeOptions: Option[] = Object.values(NoticeDataWebsite)
@@ -19,7 +21,8 @@ const noticeOptions: Option[] = Object.values(NoticeDataWebsite)
     label: NoticeDataWebsite[value as number].replace(/([A-Z])/g, ' $1').trim()
   }))
 
-const NoticeDataWebsiteGroup = ({ product }: ProductProps) => {
+const NoticeDataWebsiteGroup = ({ product, isCreateMode }: ProductProps) => {
+  const { productStore } = useStore();
   const selectedNotice = noticeOptions.find(
     (option) => option.value === product?.noticeDataWebsite
   )
@@ -30,7 +33,14 @@ const NoticeDataWebsiteGroup = ({ product }: ProductProps) => {
         <ReactSelect
           options={noticeOptions}
           value={selectedNotice}
-          onChange={() => {
+          onChange={(selected) => {
+            if(!selected){
+              productStore.updateProductForm("noticeDataWebsite", 0)
+            }
+
+            if(isCreateMode){
+              productStore.updateProductForm("noticeDataWebsite", selected?.value || 0)
+            }
           }}
           placeholder={'Chọn ...'}
           styles={{

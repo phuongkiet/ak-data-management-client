@@ -35,16 +35,17 @@ export default class ProductStore {
         antiSlipId: 0,
         supplierId: 0,
         companyCodeId: 0,
-        processingId: 0,
+        processingId: null,
         waterAbsorptionId: 0,
-        taxId: 0,
+        taxId: null,
         calculatedUnitId: 0,
+        productFactoryId: 0,
 
         priceDetermination: 0,
         noticeDataWebsite: 0,
         uploadWebsiteStatus: UploadWebsiteStatus.NotCaptured,
-        discountConditions: undefined,
-        secondDiscountConditions: undefined,
+        discountConditions: 0,
+        secondDiscountConditions: 0,
 
         supplierItemCode: '',
         supplerCode: '',
@@ -52,17 +53,14 @@ export default class ProductStore {
         productCode: '',
         autoBarCode: '',
         displayWebsiteName: '',
-        webProductPrice: undefined,
-        webDiscountedPrice: undefined,
-        secondWebDiscountedPrice: undefined,
+        webProductPrice: null,
+        webDiscountedPrice: null,
+        secondWebDiscountedPrice: null,
         autoCalculatedUnit: '',
         calculatedUnit: '',
         productSpecialNote: '',
         diameterSize: undefined,
-        wideSize: 0,
-        lengthSize: 0,
         thicknessSize: 0,
-        otherSize: undefined,
         weightPerUnit: 0,
         weightPerBox: 0,
         quantityPerBox: 0,
@@ -79,7 +77,7 @@ export default class ProductStore {
         isEdgeGrinding: false,
         hardnessMOHS: 0,
         otherNote: '',
-        deliveryEstimatedDate: ''
+        deliveryEstimatedDate: '',
       }
     })
   }
@@ -206,6 +204,36 @@ export default class ProductStore {
     } catch (error) {
       console.error('Error getting next order number:', error);
       this.productForm.productOrderNumber = 0; // fallback
+    }
+  }
+
+  createProduct = async () => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.addNewProduct(this.productForm);
+      if (response.data) {
+        runInAction(() => {
+          toast.success(response.data);
+          this.resetProductForm();
+        });
+        return response.data;
+      } else {
+        runInAction(() => {
+          toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi tạo sản phẩm');
+        });
+        return null;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error('Error creating product:', error);
+      toast.error('Có lỗi xảy ra khi tạo sản phẩm');
+      return null;
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
     }
   }
 }

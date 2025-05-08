@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 import { UploadWebsiteStatus } from '../../../../app/models/product/enum/product.enum.ts'
-
+import { useStore } from '../../../../app/stores/store.ts';
 interface Option {
   value: number;
   label: string;
@@ -10,6 +10,7 @@ interface Option {
 
 interface ProductProps {
   product?: ProductDetail;
+  isCreateMode: boolean;
 }
 
 const statusOptions: Option[] = Object.values(UploadWebsiteStatus)
@@ -20,7 +21,8 @@ const statusOptions: Option[] = Object.values(UploadWebsiteStatus)
   }))
 
 
-const UploadWebSiteStatusGroup = ({ product }: ProductProps) => {
+const UploadWebSiteStatusGroup = ({ product, isCreateMode }: ProductProps) => {
+  const { productStore } = useStore();
   const selectedStatus = statusOptions.find(
     (option) => option.value === product?.uploadWebsiteStatus
   )
@@ -31,7 +33,14 @@ const UploadWebSiteStatusGroup = ({ product }: ProductProps) => {
         <ReactSelect
           options={statusOptions}
           value={selectedStatus}
-          onChange={() => {
+          onChange={(selected) => {
+            if(!selected){
+              productStore.updateProductForm("uploadWebsiteStatus", 6)
+            }
+
+            if(isCreateMode){
+              productStore.updateProductForm("uploadWebsiteStatus", selected?.value || 0)
+            }
           }}
           placeholder={'Chọn trạng thái...'}
           styles={{

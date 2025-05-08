@@ -36,7 +36,7 @@ const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
   // Mapping list
   const supplierOptions: Option[] = productSupplierList.map(supplier => ({
     value: supplier.id,
-    label: supplier.supplierName
+    label: supplier.supplierCodeName
   }))
 
   useEffect(() => {
@@ -75,7 +75,7 @@ const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
                 const supplierId = selectedOption.value
                 productForm.supplierId = supplierId
                 const supplier = productSupplierList.find(x => x.id === supplierId)
-                setAutoSupplierCode(supplier?.supplierCode || '')
+                setAutoSupplierCode(supplier?.supplierShortCode || '')
                 productStore.updateProductForm("supplierId", supplierId)
 
                 if (isCreateMode) {

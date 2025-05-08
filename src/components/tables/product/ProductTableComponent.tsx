@@ -70,8 +70,8 @@ export default function ProductTableComponent({ data }: ProductTableComponentPro
       sortable: true,
     },
     {
-      name: 'Kích thước thực tế',
-      selector: row => row.actualSizeName,
+      name: 'Người đăng',
+      selector: row => row.creator,
     },
     {
       name: 'Tình trạng Upload',

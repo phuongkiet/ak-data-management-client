@@ -1,12 +1,12 @@
-import ComponentCard from '../../../common/ComponentCard.tsx'
-import ProductLabel from '../ProductLabel.tsx'
-import Input from '../input/ProductInputField.tsx'
-import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
-import ReactSelect from 'react-select'
+import ComponentCard from "../../../common/ComponentCard.tsx";
+import ProductLabel from "../ProductLabel.tsx";
+import Input from "../input/ProductInputField.tsx";
+import { useStore } from "../../../../app/stores/store.ts";
+import { useEffect, useState } from "react";
+import ReactSelect from "react-select";
 // import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
-import { observer } from 'mobx-react-lite'
-import { ProductDetail } from '../../../../app/models/product/product.model.ts'
+import { observer } from "mobx-react-lite";
+import { ProductDetail } from "../../../../app/models/product/product.model.ts";
 
 interface Option {
   value: number;
@@ -15,26 +15,27 @@ interface Option {
 
 interface ProductProps {
   product?: ProductDetail;
-  isCreateMode: boolean
+  isCreateMode: boolean;
 }
 
-const PatternGroup = ({product, isCreateMode}: ProductProps) => {
-  const { patternStore } = useStore()
-  const { loadPatterns, productPatternList } = patternStore
+const PatternGroup = ({ product, isCreateMode }: ProductProps) => {
+  const { patternStore, productStore } = useStore();
+  const { loadPatterns, productPatternList } = patternStore;
+  const [selectedPatternShortCode, setSelectedPatternShortCode] = useState<string>("");
 
   useEffect(() => {
-    loadPatterns()
-  }, [])
+    loadPatterns();
+  }, []);
 
   // Mapping list
-  const patternOptions: Option[] = productPatternList.map(pattern => ({
+  const patternOptions: Option[] = productPatternList.map((pattern) => ({
     value: pattern.id,
-    label: pattern.name
-  }))
+    label: pattern.name,
+  }));
 
   const selectedPattern = patternOptions.find(
-    (option) => option.value === product?.brickPatternId
-  )
+    (option) => option.value === (isCreateMode ? productStore.productForm.brickPatternId : product?.brickPatternId)
+  );
 
   return (
     <ComponentCard title="Hệ vân gạch">
@@ -42,52 +43,69 @@ const PatternGroup = ({product, isCreateMode}: ProductProps) => {
         <div>
           <ProductLabel>Tên hệ vân</ProductLabel>
           <div className="relative">
-            <ReactSelect options={patternOptions}
-                         onChange={() => {
-                           // const patternId = selectedOption ? selectedOption.value : null
-                           // const pattern = productPatternList.find(x => x.id === patternId) || null
-                           // setSelectedPattern(pattern)
-                         }}
-                         value={selectedPattern}
-                         placeholder={'Chọn hệ vân...'}
-                         className="react-select-container"
-                         classNamePrefix="react-select"
-                         styles={{
-                           control: (base) => ({
-                             ...base,
-                             minHeight: '44px', // Chiều cao tổng thể
-                             height: '44px',
-                             fontFamily: 'Roboto, sans-serif',
-                             fontSize: '14px'
-                           }),
-                           valueContainer: (base) => ({
-                             ...base,
-                             height: '44px',
-                             padding: '0 8px'
-                           }),
-                           indicatorsContainer: (base) => ({
-                             ...base,
-                             height: '44px'
-                           }),
-                           option: (base, state) => ({
-                             ...base,
-                             fontFamily: 'Roboto, sans-serif',
-                             backgroundColor: state.isFocused ? '#f3f4f6' : 'white',
-                             color: 'black'
-                           })
-                         }}
+            <ReactSelect
+              options={patternOptions}
+              onChange={(selected) => {
+                if (!selected) {
+                  productStore.updateProductForm("brickPatternId", 0);
+                  setSelectedPatternShortCode("");
+                  return;
+                }
+                if (isCreateMode) {
+                  productStore.updateProductForm("brickPatternId", selected.value);
+                  const pattern = patternStore.productPatternList.find(x => x.id === selected.value);
+                  setSelectedPatternShortCode(pattern?.shortCode || "");
+                }
+              }}
+              value={selectedPattern}
+              isClearable={true}
+              placeholder={"Chọn hệ vân..."}
+              className="react-select-container"
+              classNamePrefix="react-select"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  minHeight: "44px",
+                  height: "44px",
+                  fontFamily: "Roboto, sans-serif",
+                  fontSize: "14px",
+                }),
+                valueContainer: (base) => ({
+                  ...base,
+                  height: "44px",
+                  padding: "0 8px",
+                }),
+                indicatorsContainer: (base) => ({
+                  ...base,
+                  height: "44px",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  fontFamily: "Roboto, sans-serif",
+                  backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                  color: "black",
+                }),
+              }}
             />
           </div>
         </div>
         <div>
           <ProductLabel>Mã ngắn hệ vân</ProductLabel>
           <div className="relative">
-            <Input placeholder="Tự động điền" disabled value={isCreateMode ? 'Tự động điền' : product?.brickPatternShortName || ''} />
+            <Input
+              placeholder="Tự động điền"
+              disabled
+              value={
+                isCreateMode
+                  ? selectedPatternShortCode
+                  : product?.brickPatternShortName || ""
+              }
+            />
           </div>
         </div>
       </div>
     </ComponentCard>
-  )
-}
+  );
+};
 
-export default observer(PatternGroup)
+export default observer(PatternGroup);

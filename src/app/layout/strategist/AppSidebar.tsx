@@ -42,6 +42,7 @@ const navItems: NavItem[] = [
     icon: <TableIcon />,
     subItems: [{ icon: <ChevronRightIcon />, name: 'Hệ vân', path: '/patterns', pro: false },
       { icon: <ChevronRightIcon />, name: 'Nhà cung cấp', path: '/suppliers', pro: false },
+      { icon: <ChevronRightIcon />, name: 'Nhà máy', path: '/factories', pro: false },
       { icon: <ChevronRightIcon />, name: 'Bề mặt', path: '/surfaces', pro: false },
       { icon: <ChevronRightIcon />, name: 'Chất liệu', path: '/materials', pro: false },
       { icon: <ChevronRightIcon />, name: 'Màu sắc', path: '/colors', pro: false },

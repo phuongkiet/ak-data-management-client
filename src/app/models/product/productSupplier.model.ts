@@ -1,5 +1,6 @@
 export interface ProductSupplierDto {
   id: number;
   supplierName: string;
-  supplierCode: string;
+  supplierCodeName: string;
+  supplierShortCode: string;
 }

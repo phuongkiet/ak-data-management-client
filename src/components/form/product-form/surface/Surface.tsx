@@ -16,7 +16,7 @@ interface ProductProps {
 }
 
 const SurfaceGroup = ({product, isCreateMode}: ProductProps) => {
-  const { surfaceStore } = useStore()
+  const { surfaceStore, productStore } = useStore()
   const { loadSurfaces, productSurfaceList } = surfaceStore
 
 
@@ -38,8 +38,17 @@ const SurfaceGroup = ({product, isCreateMode}: ProductProps) => {
       <div className="space-y-6">
         <div>
           <div className="relative">
-            <ReactSelect options={surfaceOptions} value={selectedSurface} onChange={() => {
-            }} placeholder={'Chọn bề mặt...'} styles={{
+            <ReactSelect options={surfaceOptions} value={selectedSurface} 
+            onChange={(selected) => {
+              if(!selected){
+                productStore.updateProductForm("surfaceFeatureId", 0)
+              }
+
+              if(isCreateMode){
+                productStore.updateProductForm("surfaceFeatureId", selected?.value || 0)
+              }
+            }}
+             placeholder={'Chọn bề mặt...'} styles={{
               control: (base) => ({
                 ...base,
                 minHeight: '44px', // Chiều cao tổng thể

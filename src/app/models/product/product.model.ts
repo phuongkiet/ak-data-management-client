@@ -23,6 +23,7 @@ export interface ProductDto {
   patternQuantity: number;
   brickPatternShortName: string;
   deliveryEstimatedDate: string;
+  creator: string;
 
   // Foreign key display names
   originCountryName: string;
@@ -140,6 +141,7 @@ export interface ProductDetail {
   brickPatternShortName: string;
   otherNote: string;
   deliveryEstimatedDate: string;
+  autoCalculatedUnit: string;
 
   originCountryId: number;
   actualSizeId: number;
@@ -156,6 +158,7 @@ export interface ProductDetail {
   calculatedUnitId: number;
   companyCodeId: number;
   processingId: number;
+  productFactoryId: number;
 
   priceDetermination: PriceDetermination;
   noticeDataWebsite: NoticeDataWebsite;
@@ -181,15 +184,16 @@ export interface AddProductDto {
   companyCodeId: number;
   processingId: number | null;
   waterAbsorptionId: number;
-  taxId: number;
+  taxId: number | null;
   calculatedUnitId: number;
+  productFactoryId: number;
 
   // Enum values
   priceDetermination: PriceDetermination;
   noticeDataWebsite: NoticeDataWebsite;
   uploadWebsiteStatus: UploadWebsiteStatus;
-  discountConditions?: DiscountConditions;
-  secondDiscountConditions?: DiscountConditions;
+  discountConditions: DiscountConditions | null;
+  secondDiscountConditions: DiscountConditions | null;
 
   // Basic info
   supplierItemCode: string;
@@ -198,17 +202,14 @@ export interface AddProductDto {
   productCode: string;
   autoBarCode: string;
   displayWebsiteName: string;
-  webProductPrice?: number;
-  webDiscountedPrice?: number;
-  secondWebDiscountedPrice?: number;
+  webProductPrice: number | null;
+  webDiscountedPrice: number | null;
+  secondWebDiscountedPrice: number | null;
   autoCalculatedUnit: string;
   calculatedUnit: string;
   productSpecialNote: string;
   diameterSize?: number;
-  wideSize: number;
-  lengthSize: number;
   thicknessSize: number;
-  otherSize?: number;
   weightPerUnit: number;
   weightPerBox: number;
   quantityPerBox: number;

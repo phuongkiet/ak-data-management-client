@@ -2,7 +2,7 @@ import ComponentCard from '../../../common/ComponentCard.tsx'
 import ProductLabel from '../ProductLabel.tsx'
 import Input from '../input/ProductInputField.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
@@ -18,8 +18,9 @@ interface ProductProps {
 }
 
 const ColorGroup = ({product, isCreateMode}: ProductProps) => {
-  const { colorStore } = useStore()
+  const { colorStore, productStore } = useStore()
   const { loadColors, productColorList } = colorStore
+  const [ hexColor, setHexColor ] = useState<string>("")
 
 
   useEffect(() => {
@@ -41,8 +42,18 @@ const ColorGroup = ({product, isCreateMode}: ProductProps) => {
         <div>
           <ProductLabel>Tên màu</ProductLabel>
           <div className="relative">
-            <ReactSelect options={colorOptions} value={selectedColor} onChange={() => {
-            }} placeholder={'Chọn màu gạch...'} styles={{
+            <ReactSelect options={colorOptions} value={selectedColor} 
+            onChange={(selected) => {
+              if(!selected){
+                productStore.updateProductForm("colorId", 0)
+              }
+
+              if(isCreateMode){
+                productStore.updateProductForm("colorId", selected?.value || 0)
+                setHexColor(selected?.label || "")
+              }
+            }}
+             placeholder={'Chọn màu gạch...'} styles={{
               control: (base) => ({
                 ...base,
                 minHeight: '44px', // Chiều cao tổng thể
@@ -71,7 +82,7 @@ const ColorGroup = ({product, isCreateMode}: ProductProps) => {
         <div>
           <ProductLabel>Mã màu</ProductLabel>
           <div className="relative">
-            <Input placeholder="Tự động điền" disabled value={isCreateMode ? 'Tự động điền' :selectedColor?.label} />
+            <Input placeholder="Tự động điền" disabled value={isCreateMode ? hexColor : selectedColor?.label} />
           </div>
         </div>
       </div>

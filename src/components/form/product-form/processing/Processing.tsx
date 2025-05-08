@@ -49,7 +49,8 @@ const ProcessingGroup = ({ product, isCreateMode }: ProductProps) => {
               const processingId = selected?.value || 0
               productStore.updateProductForm("processingId", processingId)
 
-              productForm.productOrderNumber = 0 // hoặc null
+              productForm.productOrderNumber = 0 
+              productForm.productCode = ""
             }
           }}
           placeholder={'Chọn gia công...'}

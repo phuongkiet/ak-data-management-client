@@ -19,6 +19,8 @@ import { ProductProcessingDto } from '../models/product/productProcessing.model.
 import { ProductSizeDto } from '../models/product/productSize.model.ts'
 import { ProductWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
 import { CalculatedUnitDto } from '../models/product/calculatedUnit.model.ts'
+import { ProductFactoryDto } from "../models/product/productFactory.model.ts";
+import { AddProductDto } from '../models/product/product.model.ts'
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -139,6 +141,9 @@ const Product = {
   getProductById: (id: number): Promise<ApiResponseModel<ProductDetail>> => requests.get<ProductDetail>('/products/product-detail?productId=' + id),
 
   getNextOrderNumber: (supplierId: number): Promise<ApiResponseModel<number>> => requests.get<number>('/products/suppliers-order?supplierId=' + supplierId),
+
+  addNewProduct: (product: AddProductDto): Promise<ApiResponseModel<string>> => 
+    requests.post<string>('/products/add-new', product),
 }
 
 const ProductSupplier = {
@@ -211,6 +216,13 @@ const ProductWaterAbsorption = {
   //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
 }
 
+const ProductFactory = {
+  factoryList: (): Promise<ApiResponseModel<ProductFactoryDto[]>> => requests.get<ProductFactoryDto[]>('/factories'),
+  getFactoriesBySupplier: (supplierId: number): Promise<ApiResponseModel<ProductFactoryDto[]>> => 
+    requests.get<ProductFactoryDto[]>(`/factories/supplier?supplierId=${supplierId}`),
+  //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
 const agent = {
   Account,
   UserAdmin,
@@ -228,7 +240,8 @@ const agent = {
   ProductProcessing,
   ProductSize,
   ProductWaterAbsorption,
-  CalculatedUnit
+  CalculatedUnit,
+  ProductFactory
 }
 
 export default agent;

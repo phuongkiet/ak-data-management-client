@@ -33,6 +33,7 @@ import WaterAbsorptionTable from '../../pages/Tables/water-absorption/WaterAbsor
 import AntiSlipperyTable from '../../pages/Tables/anti-slippery/AntiSlipperyTable.tsx'
 import ProcessingTable from '../../pages/Tables/processing/ProcessingTable.tsx'
 import CompanyCodeTable from '../../pages/Tables/company-code/CompanyCodeTable.tsx'
+import FactoryTable from '../../pages/Tables/factory/FactoryTable.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -95,6 +96,8 @@ export const routes: RouteObject[] = [
       // Tables - Company Code
       { path: 'company-codes', element: <CompanyCodeTable /> },
 
+      // Tables - Factory
+      { path: 'factories', element: <FactoryTable /> },
       // UI Elements
       { path: 'alerts', element: <Alerts /> },
       { path: 'avatars', element: <Avatars /> },

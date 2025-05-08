@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 import { PriceDetermination } from '../../../../app/models/product/enum/product.enum.ts'
-
+import { useStore } from '../../../../app/stores/store.ts';
 interface Option {
   value: number;
   label: string;
@@ -10,6 +10,7 @@ interface Option {
 
 interface ProductProps {
   product?: ProductDetail;
+  isCreateMode: boolean;
 }
 
 const priceDeterminationOptions: Option[] = Object.values(PriceDetermination)
@@ -19,7 +20,8 @@ const priceDeterminationOptions: Option[] = Object.values(PriceDetermination)
     label: PriceDetermination[value as number].replace(/([A-Z])/g, ' $1').trim()
   }))
 
-const PriceDeterminationGroup = ({ product }: ProductProps) => {
+const PriceDeterminationGroup = ({ product, isCreateMode }: ProductProps) => {
+  const { productStore } = useStore();
   const selectedPriceDetermination = priceDeterminationOptions.find(
     (option) => option.value === product?.priceDetermination
   )
@@ -30,7 +32,14 @@ const PriceDeterminationGroup = ({ product }: ProductProps) => {
         <ReactSelect
           options={priceDeterminationOptions}
           value={selectedPriceDetermination}
-          onChange={() => {
+          onChange={(selected) => {
+            if(!selected){
+              productStore.updateProductForm("priceDetermination", 0)
+            }
+
+            if(isCreateMode){
+              productStore.updateProductForm("priceDetermination", selected?.value || 0)
+            }
           }}
           placeholder={'Chọn ...'}
           styles={{

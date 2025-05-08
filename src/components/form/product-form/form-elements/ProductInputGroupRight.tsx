@@ -42,18 +42,18 @@ export default function ProductInputGroupRight({ product, isCreateMode }: Produc
       <div className="grid grid-cols-1 gap-6">
         <div className="space-y-6">
           <ProductLabel htmlFor="input">Tình trạng sản phẩm và website</ProductLabel>
-          <UploadWebsiteStatus product={product} />
+          <UploadWebsiteStatus product={product} isCreateMode={isCreateMode} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
           <div>
             <ProductLabel htmlFor="input">Xác định giá</ProductLabel>
-            <PriceDetermination product={product} />
+            <PriceDetermination product={product} isCreateMode={isCreateMode}/>
           </div>
           <div>
             <ProductLabel htmlFor="input">Độ hút nước</ProductLabel>
-            <WaterAbsorptionGroup product={product} />
+            <WaterAbsorptionGroup product={product} isCreateMode={isCreateMode}/>
           </div>
           <div>
             <ProductLabel htmlFor="input">Trong nhà</ProductLabel>
@@ -92,7 +92,7 @@ export default function ProductInputGroupRight({ product, isCreateMode }: Produc
         <div className="space-y-6">
           <div>
             <ProductLabel htmlFor="input">Thông báo website</ProductLabel>
-            <NoticeDataWebsite product={product} />
+            <NoticeDataWebsite product={product} isCreateMode={isCreateMode}/>
           </div>
           <div>
             <ProductLabel htmlFor="input">Random</ProductLabel>

@@ -16,7 +16,7 @@ interface ProductProps {
 }
 
 const MaterialGroup = ({ product, isCreateMode }: ProductProps) => {
-  const { materialStore } = useStore()
+  const { materialStore, productStore } = useStore()
   const { loadMaterials, productMaterialList } = materialStore
 
   useEffect(() => {
@@ -38,8 +38,17 @@ const MaterialGroup = ({ product, isCreateMode }: ProductProps) => {
       <div className="space-y-6">
         <div>
           <div className="relative">
-            <ReactSelect options={materialOptions} value={selectedMaterial} onChange={() => {
-            }} placeholder={'Chọn chất liệu...'} styles={{
+            <ReactSelect options={materialOptions} value={selectedMaterial} 
+            onChange={(selected) => {
+              if(!selected){
+                productStore.updateProductForm("materialId", 0)
+              }
+
+              if(isCreateMode){
+                productStore.updateProductForm("materialId", selected?.value || 0)
+              }
+            }}
+             placeholder={'Chọn chất liệu...'} styles={{
               control: (base) => ({
                 ...base,
                 minHeight: '44px', // Chiều cao tổng thể

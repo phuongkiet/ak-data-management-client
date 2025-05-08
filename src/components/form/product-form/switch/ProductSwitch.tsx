@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { useState } from "react";
 
 interface SwitchProps {
@@ -69,4 +70,4 @@ const ProductSwitch: React.FC<SwitchProps> = ({
   );
 };
 
-export default ProductSwitch;
+export default observer(ProductSwitch);

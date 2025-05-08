@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
-import { ProductSupplierDto } from '../../../app/models/product/productSupplier.model.ts'
 import { useNavigate } from 'react-router'
+import { ProductFactoryDto } from '../../../app/models/product/productFactory.model.ts';
 
-interface SupplierTableComponentProps {
-  data: ProductSupplierDto[];
+interface FactoryTableComponentProps {
+  data: ProductFactoryDto[];
   loading: boolean;
   totalPages: number;
   currentPage: number;
@@ -14,25 +14,25 @@ interface SupplierTableComponentProps {
   searchTerm: string;
 }
 
-export default function SupplierTableComponent({ data }: SupplierTableComponentProps) {
-  const [selectedProducts, setSelectedProducts] = useState<ProductSupplierDto[]>([]);
+export default function FactoryTableComponent({ data }: FactoryTableComponentProps) {
+  const [selectedProducts, setSelectedProducts] = useState<ProductFactoryDto[]>([]);
   const navigate = useNavigate();
 
-  const handleView = (supplier: ProductSupplierDto) => {
-    navigate("/suppliers/detail/" + supplier.id);
+  const handleView = (factory: ProductFactoryDto) => {
+    navigate("/factories/detail/" + factory.id);
   };
 
   const handleSelectedRowsChange = (state: {
     allSelected: boolean;
     selectedCount: number;
-    selectedRows: ProductSupplierDto[];
+    selectedRows: ProductFactoryDto[];
   }) => {
     setSelectedProducts(state.selectedRows);
-    console.log('Selected Suppliers:', state.selectedRows);
+    console.log('Selected Materials:', state.selectedRows);
     console.log(selectedProducts)
   };
 
-  const columns: TableColumn<ProductSupplierDto>[] = [
+  const columns: TableColumn<ProductFactoryDto>[] = [
     {
       name: 'STT',
       selector: row => row.id,
@@ -41,17 +41,7 @@ export default function SupplierTableComponent({ data }: SupplierTableComponentP
     },
     {
       name: 'Tên',
-      selector: row => row.supplierName,
-      sortable: true,
-    },
-    {
-      name: 'Mã nhà cung cấp',
-      selector: row => row.supplierCodeName,
-      sortable: true,
-    },
-    {
-      name: 'Mã ngắn',
-      selector: row => row.supplierShortCode,
+      selector: row => row.name,
       sortable: true,
     },
     {

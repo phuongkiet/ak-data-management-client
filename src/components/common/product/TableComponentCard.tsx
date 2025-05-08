@@ -1,3 +1,4 @@
+import { useStore } from '../../../app/stores/store.ts';
 import Button from '../../ui/button/Button.tsx'
 import { useNavigate } from 'react-router'
 
@@ -20,6 +21,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
                                                           }) => {
 
   const navigate = useNavigate()
+  const { productStore } = useStore()
 
   return (
     <div
@@ -32,6 +34,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
         </h3>
         <Button type="button" onClick={() => {
           navigate('/'+ addButtonLink)
+          productStore.resetProductForm()
         }} className="ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800">
           {addButtonText}
         </Button>
