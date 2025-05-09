@@ -1,12 +1,17 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { ProductOriginDto } from '../models/product/productOrigin.model.ts'
+import { AddOriginDto, ProductOriginDto } from '../models/product/productOrigin.model.ts'
 
 export default class OriginStore {
   productOriginList: ProductOriginDto[] = [];
   productOriginRegistry = new Map<number, ProductOriginDto>();
   loading = false;
+
+  originForm: AddOriginDto = {
+    name: "",
+    upperName: ""
+  };
 
   constructor() {
     makeAutoObservable(this);
@@ -35,4 +40,38 @@ export default class OriginStore {
       toast.error("Lỗi khi tải dữ liệu xuất xứ.")
     }
   };
+
+  updateOriginForm = (key: keyof AddOriginDto, value: any) => {
+    this.originForm[key] = value;
+  };
+
+  resetOriginForm = () => {
+    this.originForm = {
+      name: "",
+      upperName: ""
+    };
+  };
+
+  addOrigin = async () => {
+    this.loading = true;
+    try{
+      const result = await agent.ProductOrigin.addOrigin(this.originForm);
+      if (result.success) {
+        toast.success("Thêm xuất xứ thành công.");
+        this.loadOrigins();
+        this.resetOriginForm();
+        this.loading = false;
+        return true;
+      }else{
+        toast.error("Lỗi khi thêm xuất xứ.");
+        this.loading = false;
+        return false;
+      }
+    }catch(error){
+      console.error("Failed to add origin", error);
+      toast.error("Lỗi khi thêm xuất xứ.");
+    }finally{
+      this.loading = false;
+    }
+  }
 }

@@ -45,6 +45,10 @@ export default function ColorTableComponent({ data }: ColorTableComponentProps) 
       sortable: true,
     },
     {
+      name: 'Mã màu',
+      selector: row => row.colorHexCode || 'Không tìm thấy',
+    },
+    {
       name: 'Hành động',
       cell: row => (
         <button

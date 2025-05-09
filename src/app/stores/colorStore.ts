@@ -1,15 +1,27 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { ProductColorDto } from '../models/product/productColor.model.ts'
+import { AddColorDto, ProductColorDto } from '../models/product/productColor.model.ts'
 
 export default class ColorStore {
   productColorList: ProductColorDto[] = [];
   productColorRegistry = new Map<number, ProductColorDto>();
   loading = false;
 
+  colorForm: AddColorDto = {
+    name: "",
+    colorHexCode: null
+  };
+
   constructor() {
     makeAutoObservable(this);
+  }
+
+  resetColorForm = () => {
+    this.colorForm = {
+      name: "",
+      colorHexCode: null
+    };
   }
 
   loadColors = async () => {
@@ -35,4 +47,31 @@ export default class ColorStore {
       toast.error("Lỗi khi tải dữ liệu màu sắc.")
     }
   };
+
+  updateColorForm = (key: keyof AddColorDto, value: any) => {
+    this.colorForm[key] = value;
+  }
+
+  addColor = async () => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductColor.addColor(this.colorForm);
+      if (result.success) {
+        toast.success("Thêm màu sắc thành công.");
+        this.loadColors();
+        this.resetColorForm();
+        this.loading = false;
+        return true;
+      } else{
+        toast.error("Lỗi khi thêm màu sắc.");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      console.error("Failed to add color", error);
+      toast.error("Lỗi khi thêm màu sắc.");
+    } finally {
+      this.loading = false;
+    }
+  }
 }

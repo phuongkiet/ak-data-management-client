@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
+import { ChromePicker } from 'react-color'
 
 interface Option {
   value: number;
@@ -81,8 +82,18 @@ const ColorGroup = ({product, isCreateMode}: ProductProps) => {
         </div>
         <div>
           <ProductLabel>Mã màu</ProductLabel>
-          <div className="relative">
+          <div className="flex items-center gap-4">
             <Input placeholder="Tự động điền" disabled value={isCreateMode ? hexColor : selectedColor?.label} />
+            <ChromePicker
+              color={hexColor}
+              onChangeComplete={(color) => {
+                setHexColor(color.hex);
+                productStore.updateProductForm('colorHexCode', color.hex);
+              }}
+              disableAlpha
+              styles={{ default: { picker: { width: '200px' } } }}
+            />
+            <div style={{ width: 32, height: 32, background: hexColor, border: '1px solid #ccc', borderRadius: 4 }} />
           </div>
         </div>
       </div>

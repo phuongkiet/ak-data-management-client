@@ -1,16 +1,28 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { ProductSurfaceDto } from '../models/product/productSurface.model.ts'
+import { AddSurfaceDto, ProductSurfaceDto } from '../models/product/productSurface.model.ts'
 
 export default class SurfaceStore {
   productSurfaceList: ProductSurfaceDto[] = [];
   productSurfaceRegistry = new Map<number, ProductSurfaceDto>();
   loading = false;
 
+  surfaceForm: AddSurfaceDto = {
+    name: "",
+    description: null,
+  };
+
   constructor() {
     makeAutoObservable(this);
   }
+
+  resetSurfaceForm = () => {
+    this.surfaceForm = {
+      name: "",
+      description: null,
+    };
+  };
 
   loadSurfaces = async () => {
     this.loading = true;
@@ -35,4 +47,33 @@ export default class SurfaceStore {
       toast.error("Lỗi khi tải dữ liệu bề mặt.")
     }
   };
+
+  updateSurfaceForm = (key: keyof AddSurfaceDto, value: string) => {
+    this.surfaceForm[key] = value;
+  };
+
+  addSurface = async () => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductSurface.addSurface(this.surfaceForm);
+      console.log(result);
+      if (result.success) {
+        toast.success("Bề mặt đã được tạo thành công.");
+        this.loading = false;
+        this.resetSurfaceForm();
+        this.loadSurfaces();
+        return true;
+      }else{
+        toast.error("Lỗi khi tạo bề mặt.");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Failed to add surface", error);
+      toast.error("Lỗi khi tạo bề mặt.");
+    }
+  }
 }

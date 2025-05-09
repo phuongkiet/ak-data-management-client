@@ -1,12 +1,17 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { ProductMaterialDto } from '../models/product/productMaterial.model.ts'
+import { AddMaterialDto, ProductMaterialDto } from '../models/product/productMaterial.model.ts'
 
 export default class MaterialStore {
   productMaterialList: ProductMaterialDto[] = [];
   productMaterialRegistry = new Map<number, ProductMaterialDto>();
   loading = false;
+
+  materialForm: AddMaterialDto = {
+    name: "",
+    description: null
+  };
 
   constructor() {
     makeAutoObservable(this);
@@ -35,4 +40,34 @@ export default class MaterialStore {
       toast.error("Lỗi khi tải dữ liệu chất liệu.")
     }
   };
+
+  resetMaterialForm = () => {
+    this.materialForm = {
+      name: "",
+      description: null
+    };
+  }
+
+  updateMaterialForm = (key: keyof AddMaterialDto, value: any) => {
+    this.materialForm[key] = value;
+  }
+
+  addMaterial = async () => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductMaterial.addMaterial(this.materialForm);
+      if (result.success) {
+        toast.success("Thêm chất liệu thành công.");
+        this.loadMaterials();
+        this.resetMaterialForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      console.error("Failed to add material", error);
+      toast.error("Lỗi khi thêm chất liệu.");
+    } finally {
+      this.loading = false;
+    }
+  }
 }
