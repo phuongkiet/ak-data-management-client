@@ -1,12 +1,16 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { ProductFactoryDto } from '../models/product/productFactory.model.ts';
+import { AddFactoryDto, ProductFactoryDto } from '../models/product/productFactory.model.ts';
 
 export default class FactoryStore {
   productFactoryList: ProductFactoryDto[] = [];
   productFactoryRegistry = new Map<number, ProductFactoryDto>();
   loading = false;
+
+  factoryForm: AddFactoryDto = {
+    name: '',
+  };
 
   constructor() {
     makeAutoObservable(this);
@@ -60,4 +64,39 @@ export default class FactoryStore {
       return [];
     }
   };
+
+  updateFactoryForm = <K extends keyof AddFactoryDto>(field: K, value: AddFactoryDto[K]) => {
+    runInAction(() => {
+      this.factoryForm[field] = value;
+    });
+  };
+
+  resetFactoryForm = () => {
+    runInAction(() => {
+      this.factoryForm = {
+        name: '',
+      };
+    });
+  };
+
+  addFactory = async () => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductFactory.addFactory(this.factoryForm);
+      if (result.success) {
+        toast.success("Nhà máy đã được tạo thành công.");
+        this.loading = false;
+        this.factoryForm.name = '';
+        this.loadFactories();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Failed to add factory", error);
+      toast.error("Lỗi khi tạo nhà máy.")
+    }
+  }
 }

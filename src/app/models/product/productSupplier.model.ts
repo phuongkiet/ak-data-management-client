@@ -4,3 +4,10 @@ export interface ProductSupplierDto {
   supplierCodeName: string;
   supplierShortCode: string;
 }
+
+export interface AddSupplierDto{
+  supplierName: string;
+  supplierCodeName: string;
+  supplierShortCode: string;
+  formula: string;
+}

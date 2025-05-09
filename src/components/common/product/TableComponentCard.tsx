@@ -1,6 +1,8 @@
 import { useStore } from '../../../app/stores/store.ts';
 import Button from '../../ui/button/Button.tsx'
 import { useNavigate } from 'react-router'
+import { useState } from 'react';
+import Modal from '../../ui/modal';
 
 interface ComponentCardProps {
   title: string;
@@ -9,6 +11,12 @@ interface ComponentCardProps {
   desc?: string; // Description text,
   addButtonLink: string;
   addButtonText: string;
+  modalContent?: React.ReactNode;
+  modalClose?: () => void;
+  onModalOpen?: () => void;
+  modalStyle?: string;
+  useModal?: boolean;
+  isModalOpen?: boolean;
 }
 
 const TableComponentCard: React.FC<ComponentCardProps> = ({
@@ -17,11 +25,28 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
                                                             className = '',
                                                             desc = '',
                                                             addButtonLink = '',
-                                                            addButtonText = ''
+                                                            addButtonText = '',
+                                                            modalContent,
+                                                            modalClose,
+                                                            onModalOpen,
+                                                            modalStyle = '',
+                                                            useModal = false,
+                                                            isModalOpen: externalIsModalOpen
                                                           }) => {
-
+  const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
+  const isModalOpen = externalIsModalOpen !== undefined ? externalIsModalOpen : internalIsModalOpen;
   const navigate = useNavigate()
   const { productStore } = useStore()
+
+  const handleAddClick = () => {
+    if (useModal && modalContent) {
+      if (onModalOpen) onModalOpen();
+      setInternalIsModalOpen(true);
+    } else {
+      navigate('/' + addButtonLink);
+      productStore.resetProductForm();
+    }
+  };
 
   return (
     <div
@@ -32,10 +57,11 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
         <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
           {title}
         </h3>
-        <Button type="button" onClick={() => {
-          navigate('/'+ addButtonLink)
-          productStore.resetProductForm()
-        }} className="ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800">
+        <Button 
+          type="button" 
+          onClick={handleAddClick} 
+          className="ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+        >
           {addButtonText}
         </Button>
       </div>
@@ -49,6 +75,20 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
       <div className="p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
         <div className="space-y-6">{children}</div>
       </div>
+
+      {/* Modal */}
+      {useModal && modalContent && (
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => { 
+            setInternalIsModalOpen(false);
+            if (modalClose) modalClose(); 
+          }}
+          className={modalStyle}
+        >
+          {modalContent}
+        </Modal>
+      )}
     </div>
   )
 }

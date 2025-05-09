@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import { useRef, useEffect } from "react";
 
 interface ModalProps {
@@ -9,7 +10,7 @@ interface ModalProps {
   isFullscreen?: boolean; // Default to false for backwards compatibility
 }
 
-export const Modal: React.FC<ModalProps> = ({
+const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   children,
@@ -92,3 +93,5 @@ export const Modal: React.FC<ModalProps> = ({
     </div>
   );
 };
+
+export default observer(Modal)

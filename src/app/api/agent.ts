@@ -14,13 +14,15 @@ import { ProductAntiSlipperyDto } from '../models/product/productAntiSlippery.mo
 import { ProductBodyColorDto } from '../models/product/productBodyColor.model.ts'
 import { ProductColorDto } from '../models/product/productColor.model.ts'
 import { ProductOriginDto } from '../models/product/productOrigin.model.ts'
-import { ProductPatternDto } from '../models/product/productPattern.model.ts'
+import { AddPatternDto, ProductPatternDto } from '../models/product/productPattern.model.ts'
 import { ProductProcessingDto } from '../models/product/productProcessing.model.ts'
 import { ProductSizeDto } from '../models/product/productSize.model.ts'
 import { ProductWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
 import { CalculatedUnitDto } from '../models/product/calculatedUnit.model.ts'
-import { ProductFactoryDto } from "../models/product/productFactory.model.ts";
+import { AddFactoryDto, ProductFactoryDto } from "../models/product/productFactory.model.ts";
 import { AddProductDto } from '../models/product/product.model.ts'
+import { AddSupplierDto } from '../models/product/productSupplier.model.ts'
+import { ProductAreaDto } from "../models/product/productArea.model.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -148,6 +150,10 @@ const Product = {
 
 const ProductSupplier = {
   supplierList: (): Promise<ApiResponseModel<ProductSupplierDto[]>> => requests.get<ProductSupplierDto[]>('/suppliers'),
+  addSupplier: (supplier: AddSupplierDto): Promise<ApiResponseModel<string>> => 
+    requests.post<string>('/suppliers/add-supplier', supplier),
+  getNextSupplierOrderNumber: (term: string): Promise<ApiResponseModel<number>> => 
+    requests.get<number>(`/suppliers/get-order?term=${term}`),
   //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
 }
 
@@ -198,6 +204,8 @@ const ProductOrigin = {
 
 const ProductPattern = {
   patternList: (): Promise<ApiResponseModel<ProductPatternDto[]>> => requests.get<ProductPatternDto[]>('/patterns'),
+  addPattern: (pattern: AddPatternDto): Promise<ApiResponseModel<string>> => 
+    requests.post<string>('/patterns/add-pattern', pattern),
   //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
 }
 
@@ -220,7 +228,14 @@ const ProductFactory = {
   factoryList: (): Promise<ApiResponseModel<ProductFactoryDto[]>> => requests.get<ProductFactoryDto[]>('/factories'),
   getFactoriesBySupplier: (supplierId: number): Promise<ApiResponseModel<ProductFactoryDto[]>> => 
     requests.get<ProductFactoryDto[]>(`/factories/supplier?supplierId=${supplierId}`),
+  addFactory: (factory: AddFactoryDto): Promise<ApiResponseModel<string>> => 
+    requests.post<string>('/factories/add-factory', factory),
   //getMovieDetail: (id: number): Promise<ApiResponseModel<MovieDetailDTO>> => requests.get<MovieDetailDTO>(`/movie/movie-detail?id=${id}`),
+}
+
+const ProductArea = {
+  areaList: (): Promise<ApiResponseModel<ProductAreaDto[]>> => requests.get<ProductAreaDto[]>('/areas'),
+
 }
 
 const agent = {
@@ -241,7 +256,8 @@ const agent = {
   ProductSize,
   ProductWaterAbsorption,
   CalculatedUnit,
-  ProductFactory
+  ProductFactory,
+  ProductArea
 }
 
 export default agent;
