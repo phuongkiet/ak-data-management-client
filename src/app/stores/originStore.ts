@@ -41,8 +41,10 @@ export default class OriginStore {
     }
   };
 
-  updateOriginForm = (key: keyof AddOriginDto, value: any) => {
-    this.originForm[key] = value;
+  updateOriginForm = <K extends keyof AddOriginDto>(field: K, value: AddOriginDto[K]) => {
+    runInAction(() => {
+      this.originForm[field] = value;
+    });
   };
 
   resetOriginForm = () => {

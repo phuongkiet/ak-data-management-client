@@ -48,8 +48,10 @@ export default class MaterialStore {
     };
   }
 
-  updateMaterialForm = (key: keyof AddMaterialDto, value: any) => {
-    this.materialForm[key] = value;
+  updateMaterialForm = <K extends keyof AddMaterialDto>(field: K, value: AddMaterialDto[K]) => {
+    runInAction(() => {
+      this.materialForm[field] = value;
+    });
   }
 
   addMaterial = async () => {

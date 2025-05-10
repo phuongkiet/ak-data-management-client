@@ -3,9 +3,29 @@ import { ApexOptions } from "apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useStore } from "../../app/stores/store";
 
 export default function MonthlySalesChart() {
+  const { productStore } = useStore();
+  const { productList, loadProducts } = productStore;
+
+  useEffect(() => {
+    loadProducts(); // Ensure products are loaded
+  }, [loadProducts]);
+
+  function getMonthlyCounts(products: any[]) {
+    const counts = Array(12).fill(0);
+    products.forEach(product => {
+      const date = new Date(product.createdAt); // adjust field as needed
+      const month = date.getMonth();
+      counts[month]++;
+    });
+    return counts;
+  }
+
+  const monthlyCounts = getMonthlyCounts(productList);
+
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {
@@ -85,10 +105,11 @@ export default function MonthlySalesChart() {
       },
     },
   };
+
   const series = [
     {
       name: "Đã thêm",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      data: monthlyCounts,
     },
   ];
   const [isOpen, setIsOpen] = useState(false);

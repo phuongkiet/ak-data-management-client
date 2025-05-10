@@ -235,5 +235,20 @@ export default class ProductStore {
         this.loading = false;
       });
     }
+  };
+
+  getTotalProducts = async () => {
+    try {
+      const response = await agent.Product.getTotalProducts();
+      runInAction(() => {
+        if (response.success) {
+          this.totalCount = response.data || 0;
+        } else {
+          toast.error(response.errors?.[0] || 'Không lấy được tổng số sản phẩm');
+        }
+      });
+    } catch (error) {
+      console.error('Error getting total products:', error);
+    }
   }
 }

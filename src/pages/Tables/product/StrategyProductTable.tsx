@@ -4,8 +4,9 @@ import StrategyProductTableComponent from "../../../components/tables/product/St
 import { useStore } from '../../../app/stores/store.ts'
 import { useEffect } from 'react'
 import ComponentCard from '../../../components/common/ComponentCard.tsx'
+import { observer } from "mobx-react-lite";
 
-export default function ProductTable() {
+const StrategyProductTable = () => {
   const { productStore } = useStore();
   const {
     strategyProductList,
@@ -53,3 +54,5 @@ export default function ProductTable() {
     </>
   );
 }
+
+export default observer(StrategyProductTable);

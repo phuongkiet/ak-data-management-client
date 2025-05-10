@@ -50,8 +50,10 @@ export default class BodyColorStore {
     };
   };
 
-  updateBodyColorForm = (key: keyof AddBodyColorDto, value: any) => {
-    this.bodyColorForm[key] = value;
+  updateBodyColorForm = <K extends keyof AddBodyColorDto>(field: K, value: AddBodyColorDto[K]) => {
+    runInAction(() => {
+      this.bodyColorForm[field] = value;
+    });
   };
 
   addBodyColor = async () => {

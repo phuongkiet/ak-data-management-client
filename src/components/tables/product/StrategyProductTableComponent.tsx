@@ -2,6 +2,8 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 // import Badge from '../../ui/badge/Badge';
 import { StrategyProductDto } from '../../../app/models/product/product.model.ts'
+import { appCurrency } from '../../../app/common/common.ts';
+import { observer } from 'mobx-react-lite';
 
 interface StrategyProductTableComponentProps {
   data: StrategyProductDto[];
@@ -14,7 +16,7 @@ interface StrategyProductTableComponentProps {
   searchTerm: string;
 }
 
-export default function StrategyProductTableComponent({ data }: StrategyProductTableComponentProps) {
+const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentProps) => {
   const [selectedStrategyProducts, setSelectedStrategyProducts] = useState<StrategyProductDto[]>([]);
 
   const handleView = (product: StrategyProductDto) => {
@@ -39,15 +41,6 @@ export default function StrategyProductTableComponent({ data }: StrategyProductT
       sortable: true,
       maxWidth: '5px'
     },
-    // {
-    //   name: 'Mã vạch',
-    //   selector: row => row.confirmAutoBarCode,
-    //   sortable: true,
-    // },
-    // {
-    //   name: 'Tên nhà cung cấp',
-    //   selector: row => row.supplierName,
-    // },
     {
       name: 'Mã nhà cung cấp',
       selector: row => row.supplierItemCode,
@@ -59,12 +52,12 @@ export default function StrategyProductTableComponent({ data }: StrategyProductT
     },
     {
       name: 'Giá trên web',
-      selector: row => row.webProductPrice?.toLocaleString() ?? '',
+      selector: row => appCurrency + row.webProductPrice?.toLocaleString(),
       sortable: true,
     },
     {
       name: 'Giá khuyến mãi',
-      selector: row => row.webDiscountedPrice?.toLocaleString() ?? '',
+      selector: row => appCurrency + row.webDiscountedPrice?.toLocaleString(),
       sortable: true,
     },
     {
@@ -102,3 +95,5 @@ export default function StrategyProductTableComponent({ data }: StrategyProductT
     </div>
   );
 }
+
+export default observer(StrategyProductTableComponent);

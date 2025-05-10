@@ -1,12 +1,21 @@
+import { useEffect } from 'react';
+import { useStore } from '../../app/stores/store';
 import {
   // ArrowDownIcon,
   // ArrowUpIcon,
   BoxIconLine, ListIcon
   // GroupIcon,
 } from '../../icons'
+import { observer } from 'mobx-react-lite';
 // import Badge from "../ui/badge/Badge";
 
-export default function EcommerceMetrics() {
+const EcommerceMetrics = () => {
+  const { productStore } = useStore();
+
+  useEffect(() => {
+    productStore.getTotalProducts();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* <!-- Metric Item Start --> */}
@@ -22,7 +31,7 @@ export default function EcommerceMetrics() {
               Sản phẩm
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              210
+              {productStore.totalCount}
             </h4>
           </div>
           {/*<Badge color="success">*/}
@@ -57,3 +66,5 @@ export default function EcommerceMetrics() {
     </div>
   );
 }
+
+export default observer(EcommerceMetrics);

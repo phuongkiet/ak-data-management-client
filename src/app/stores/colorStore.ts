@@ -48,8 +48,10 @@ export default class ColorStore {
     }
   };
 
-  updateColorForm = (key: keyof AddColorDto, value: any) => {
-    this.colorForm[key] = value;
+  updateColorForm = <K extends keyof AddColorDto>(field: K, value: AddColorDto[K]) => {
+    runInAction(() => {
+      this.colorForm[field] = value;
+    });
   }
 
   addColor = async () => {
