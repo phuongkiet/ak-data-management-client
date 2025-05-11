@@ -11,10 +11,12 @@ import ProductInputGroupRight from '../../../../components/form/product-form/for
 import { useStore } from '../../../../app/stores/store'
 import { observer } from 'mobx-react-lite'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const AddProduct = () => {
   const { productStore } = useStore();
   const navigate = useNavigate();
+  const [thicknessError, setThicknessError] = useState<string>('');
 
   const handleSubmit = async () => {
     const result = await productStore.createProduct();
@@ -34,7 +36,7 @@ const AddProduct = () => {
         <div className='space-y-6'>
           <MaterialGroup isCreateMode={true}/>
           <SupplierGroup isCreateMode={true}/>
-          <SizeGroup isCreateMode={true}/>
+          <SizeGroup isCreateMode={true} thicknessError={thicknessError} setThicknessError={setThicknessError} />
         </div>
         <div className="space-y-6">
           <SurfaceGroup isCreateMode={true}/>
@@ -53,8 +55,8 @@ const AddProduct = () => {
       <div className="mt-6 flex justify-start">
         <button
           onClick={handleSubmit}
-          disabled={productStore.loading}
-          className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-medium text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!!thicknessError || productStore.loading}
+          className={`inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-medium text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed ${!!thicknessError ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {productStore.loading ? (
             <>

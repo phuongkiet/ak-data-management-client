@@ -148,6 +148,8 @@ const Product = {
 
   addNewProduct: (product: AddProductDto): Promise<ApiResponseModel<string>> => 
     requests.post<string>('/products/add-new', product),
+
+  checkSupplierItemCode: (itemCode: string): Promise<ApiResponseModel<boolean>> => requests.get<boolean>('/products/check-supplier-item-code?supplierItemCode=' + itemCode),
 }
 
 const ProductSupplier = {

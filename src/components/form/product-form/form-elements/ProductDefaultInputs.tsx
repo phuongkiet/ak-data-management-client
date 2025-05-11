@@ -32,6 +32,7 @@ const ProductDefaultInputs = ({ product, isCreateMode }: ProductProps) => {
     string | undefined
   >("");
   const [supplierItemCode, setSupplierItemCode] = useState<string>("");
+  const [isValidSupplierCode, setIsValidSupplierCode] = useState<boolean | null>(null);
   const [productCode, setProductCode] = useState<string>("");
   const [websiteProductName, setWebsiteProductName] = useState<string>("");
   const [otherNote, setOtherNote] = useState<string>(product?.otherNote || "");
@@ -164,6 +165,19 @@ const ProductDefaultInputs = ({ product, isCreateMode }: ProductProps) => {
     productStore.updateProductForm("deliveryEstimatedDate", e.target.value);
   };
 
+  const handleSupplierItemCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSupplierItemCode(newValue);
+    productStore.updateProductForm("supplierItemCode", newValue);
+    
+    if (newValue) {
+      const isValid = await productStore.checkSupplierItemCode(newValue);
+      setIsValidSupplierCode(isValid ?? false);
+    } else {
+      setIsValidSupplierCode(null);
+    }
+  };
+
   return (
     <ComponentCard title="Thông tin mã hàng">
       {isCreateMode ? (
@@ -171,8 +185,10 @@ const ProductDefaultInputs = ({ product, isCreateMode }: ProductProps) => {
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-6">
               {/* Cột trái */}
-              <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
-              <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
+              <div className="space-y-0">
+                <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
+                <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
+              </div>
 
               <div>
                 <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
@@ -286,11 +302,8 @@ const ProductDefaultInputs = ({ product, isCreateMode }: ProductProps) => {
                     id="input"
                     value={supplierItemCode}
                     placeholder="Mã số sản phẩm của nhà cung cấp"
-                    onChange={(e) => {
-                      const newValue = e.target.value;
-                      setSupplierItemCode(newValue);
-                      productStore.updateProductForm("supplerCode", newValue);
-                    }}
+                    onChange={handleSupplierItemCodeChange}
+                    className={`${isValidSupplierCode === null ? '' : isValidSupplierCode ? 'text-blue-500' : 'text-red-500'}`}
                   />
                 </div>
 
@@ -417,8 +430,10 @@ const ProductDefaultInputs = ({ product, isCreateMode }: ProductProps) => {
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-6">
               {/* Cột trái */}
-              <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
-              <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
+              <div className="space-y-2">
+                <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
+                <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
+              </div>
 
               <div>
                 <ProductLabel htmlFor="input">Mã SKU</ProductLabel>

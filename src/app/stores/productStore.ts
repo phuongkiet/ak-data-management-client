@@ -251,4 +251,13 @@ export default class ProductStore {
       console.error('Error getting total products:', error);
     }
   }
+
+  checkSupplierItemCode = async (supplierItemCode: string) => {
+    try {
+      const response = await agent.Product.checkSupplierItemCode(supplierItemCode);
+      return response.data;
+    } catch (error) {
+      console.error('Error checking SKU:', error);
+    }
+  }
 }

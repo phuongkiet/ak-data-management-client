@@ -6,18 +6,28 @@ import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
+import * as yup from 'yup';
 
 interface Option {
   value: number;
   label: string;
 }
 
-interface ProductProps {
+interface SizeGroupProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  thicknessError: string;
+  setThicknessError: (err: string) => void;
 }
 
-const SizeGroup = ({product, isCreateMode}: ProductProps) => {
+const thicknessSchema = yup
+  .number()
+  .typeError('Độ dày phải là số')
+  .required('Độ dày là bắt buộc')
+  .min(1, 'Độ dày tối thiểu là 1mm')
+  .max(100, 'Độ dày tối đa là 100mm');
+
+const SizeGroup = ({product, isCreateMode, thicknessError, setThicknessError}: SizeGroupProps) => {
   const { sizeStore, productStore } = useStore()
   const { loadSizes, productSizeList } = sizeStore
   const [thickness, setThickness] = useState<string>(product?.thicknessSize?.toString() || '')
@@ -42,11 +52,17 @@ const SizeGroup = ({product, isCreateMode}: ProductProps) => {
     }
   }
 
-  const handleThicknessChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThicknessChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setThickness(value)
     const numericValue = value ? parseFloat(value) : 0
     productStore.updateProductForm('thicknessSize', numericValue)
+    try {
+      await thicknessSchema.validate((numericValue === undefined ? '' : numericValue) as unknown)
+      setThicknessError('')
+    } catch (err: any) {
+      setThicknessError(err.message)
+    }
   }
 
   return (
@@ -95,6 +111,8 @@ const SizeGroup = ({product, isCreateMode}: ProductProps) => {
               placeholder="9mm" 
               value={isCreateMode ? thickness : product?.thicknessSize} 
               onChange={isCreateMode ? handleThicknessChange : undefined}
+              error={!!thicknessError}
+              hint={thicknessError}
             />
           </div>
         </div>
