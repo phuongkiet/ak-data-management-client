@@ -88,20 +88,20 @@ export default class ProductStore {
   }
 
   setPageNumber = (page: number) => {
-    this.pageNumber = page
-    this.loadProducts()
+    this.pageNumber = page;
+    this.loadProducts(this.pageSize, this.pageNumber, this.term);
   }
 
   setTerm = (term: string) => {
-    this.term = term
-    this.pageNumber = 1
-    this.loadProducts()
+    this.term = term;
+    this.pageNumber = 1;
+    this.loadProducts(this.pageSize, this.pageNumber, this.term);
   }
 
-  loadProducts = async () => {
+  loadProducts = async (pageSize: number, pageNumber: number, term?: string) => {
     this.loading = true
     try {
-      const result = await agent.Product.productList(10, 1, this.term)
+      const result = await agent.Product.productList(pageSize, pageNumber, term)
       console.log(result)
       runInAction(() => {
         this.productList = result.data?.results || []
@@ -125,10 +125,10 @@ export default class ProductStore {
   }
 
   //Strategy Products
-  loadStrategyProducts = async () => {
+  loadStrategyProducts = async (pageSize: number, pageNumber: number, term?: string) => {
     this.loading = true
     try {
-      const result = await agent.Product.strategyProductList(10, 1, this.term)
+      const result = await agent.Product.strategyProductList(pageSize, pageNumber, term)
       console.log(result)
       runInAction(() => {
         this.strategyProductList = result.data?.results || []
@@ -258,6 +258,30 @@ export default class ProductStore {
       return response.data;
     } catch (error) {
       console.error('Error checking SKU:', error);
+    }
+  }
+
+  importProducts = async (file: File) => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.importProducts(file);
+      if (response.success) {
+        runInAction(() => {
+          toast.success(`Successfully imported ${response.data} products`);
+          this.loadProducts(this.pageSize, this.pageNumber, this.term); // Reload the product list after import
+        });
+      } else {
+        runInAction(() => {
+          toast.error(response.errors?.[0] || 'Failed to import products');
+        });
+      }
+    } catch (error) {
+      console.error('Error importing products:', error);
+      toast.error('Failed to import products');
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
     }
   }
 }

@@ -7,6 +7,7 @@ export default class SizeStore {
   productSizeList: ProductSizeDto[] = [];
   productSizeRegistry = new Map<number, ProductSizeDto>();
   loading = false;
+  term: string = '';
 
   sizeForm: AddSizeDto = {
     wide: 0,
@@ -18,10 +19,15 @@ export default class SizeStore {
     makeAutoObservable(this);
   }
 
-  loadSizes = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadSizes(this.term);
+  }
+
+  loadSizes = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductSize.sizeList();
+      const result = await agent.ProductSize.sizeList(term);
       console.log(result);
       runInAction(() => {
         this.productSizeList = result.data || [];

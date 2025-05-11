@@ -128,6 +128,9 @@ function SizeTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            sizeStore.setTerm(term);
+          }}
         >
           <SizeTableComponent
             data={productSizeList}
