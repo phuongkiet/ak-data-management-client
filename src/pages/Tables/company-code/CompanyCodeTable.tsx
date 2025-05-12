@@ -99,6 +99,9 @@ function CompanyCodeTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            companyCodeStore.setTerm(term);
+          }}
         >
           <CompanyCodeTableComponent
             data={productCompanyCodeList}

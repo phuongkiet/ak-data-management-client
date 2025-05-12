@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { CompanyCodeDto } from '../../../app/models/product/companyCode.model.ts'
 import { useNavigate } from 'react-router'
+import { useStore } from '../../../app/stores/store.ts';
 
 interface CompanyCodeTableComponentProps {
   data: CompanyCodeDto[];
@@ -15,6 +16,8 @@ interface CompanyCodeTableComponentProps {
 }
 
 export default function CompanyCodeTableComponent({ data }: CompanyCodeTableComponentProps) {
+  const { companyCodeStore } = useStore();
+  const { loading } = companyCodeStore;
   const [selectedProducts, setSelectedProducts] = useState<CompanyCodeDto[]>([]);
   const navigate = useNavigate();
 
@@ -71,6 +74,8 @@ export default function CompanyCodeTableComponent({ data }: CompanyCodeTableComp
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

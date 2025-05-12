@@ -109,6 +109,9 @@ function SurfaceTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            surfaceStore.setTerm(term);
+          }}
         >
           <SurfaceTableComponent
             data={productSurfaceList}

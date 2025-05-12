@@ -7,15 +7,20 @@ export default class CalculatedUnitStore {
   productCalculatedUnitList: CalculatedUnitDto[] = [];
   productCalculatedUnitRegistry = new Map<number, CalculatedUnitDto>();
   loading = false;
-
+  term: string = '';
   constructor() {
     makeAutoObservable(this);
   }
 
-  loadCalculatedUnits = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadCalculatedUnits(this.term);
+  }
+
+  loadCalculatedUnits = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.CalculatedUnit.calculatedUnitList();
+      const result = await agent.CalculatedUnit.calculatedUnitList(term);
       console.log(result);
       runInAction(() => {
         this.productCalculatedUnitList = result.data || [];

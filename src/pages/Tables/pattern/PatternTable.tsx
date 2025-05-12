@@ -123,6 +123,9 @@ function PatternTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            patternStore.setTerm(term);
+          }}
         >
           <PatternTableComponent
             data={productPatternList}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductMaterialDto } from '../../../app/models/product/productMaterial.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';  
 interface MaterialTableComponentProps {
   data: ProductMaterialDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface MaterialTableComponentProps {
 }
 
 export default function MaterialTableComponent({ data }: MaterialTableComponentProps) {
+  const { materialStore } = useStore();
+  const { loading } = materialStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductMaterialDto[]>([]);
   const navigate = useNavigate();
 
@@ -76,6 +78,8 @@ export default function MaterialTableComponent({ data }: MaterialTableComponentP
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

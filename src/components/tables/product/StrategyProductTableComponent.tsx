@@ -4,6 +4,7 @@ import DataTable, { TableColumn } from 'react-data-table-component';
 import { StrategyProductDto } from '../../../app/models/product/product.model.ts'
 import { appCurrency } from '../../../app/common/common.ts';
 import { observer } from 'mobx-react-lite';
+import { useStore } from '../../../app/stores/store.ts';
 
 interface StrategyProductTableComponentProps {
   data: StrategyProductDto[];
@@ -17,6 +18,8 @@ interface StrategyProductTableComponentProps {
 }
 
 const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentProps) => {
+  const { productStore } = useStore();
+  const { loading } = productStore;
   const [selectedStrategyProducts, setSelectedStrategyProducts] = useState<StrategyProductDto[]>([]);
 
   const handleView = (product: StrategyProductDto) => {
@@ -91,6 +94,8 @@ const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentPr
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

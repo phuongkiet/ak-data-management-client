@@ -7,6 +7,7 @@ export default class MaterialStore {
   productMaterialList: ProductMaterialDto[] = [];
   productMaterialRegistry = new Map<number, ProductMaterialDto>();
   loading = false;
+  term: string = '';
 
   materialForm: AddMaterialDto = {
     name: "",
@@ -17,10 +18,15 @@ export default class MaterialStore {
     makeAutoObservable(this);
   }
 
-  loadMaterials = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadMaterials(this.term);
+  }
+
+  loadMaterials = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductMaterial.materialList();
+      const result = await agent.ProductMaterial.materialList(term);
       console.log(result);
       runInAction(() => {
         this.productMaterialList = result.data || [];

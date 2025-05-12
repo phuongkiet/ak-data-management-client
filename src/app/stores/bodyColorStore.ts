@@ -10,6 +10,7 @@ export default class BodyColorStore {
   productBodyColorList: ProductBodyColorDto[] = [];
   productBodyColorRegistry = new Map<number, ProductBodyColorDto>();
   loading = false;
+  term: string = '';
 
   bodyColorForm: AddBodyColorDto = {
     name: "",
@@ -19,10 +20,15 @@ export default class BodyColorStore {
     makeAutoObservable(this);
   }
 
-  loadBodyColors = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadBodyColors(this.term);
+  }
+
+  loadBodyColors = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductBodyColor.bodyColorList();
+      const result = await agent.ProductBodyColor.bodyColorList(term);
       console.log(result);
       runInAction(() => {
         this.productBodyColorList = result.data || [];

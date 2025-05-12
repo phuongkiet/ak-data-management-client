@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductPatternDto } from '../../../app/models/product/productPattern.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';  
 interface PatternTableComponentProps {
   data: ProductPatternDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface PatternTableComponentProps {
 }
 
 export default function PatternTableComponent({ data }: PatternTableComponentProps) {
+  const { patternStore } = useStore();
+  const { loading } = patternStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductPatternDto[]>([]);
   const navigate = useNavigate();
 
@@ -81,6 +83,8 @@ export default function PatternTableComponent({ data }: PatternTableComponentPro
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

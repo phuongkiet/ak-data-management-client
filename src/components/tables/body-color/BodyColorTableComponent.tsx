@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductBodyColorDto } from '../../../app/models/product/productBodyColor.model.ts'
 import { useNavigate } from 'react-router'
+import { useStore } from '../../../app/stores/store.ts';
 
 interface BodyColorTableComponentProps {
   data: ProductBodyColorDto[];
@@ -15,6 +16,8 @@ interface BodyColorTableComponentProps {
 }
 
 export default function BodyColorTableComponent({ data }: BodyColorTableComponentProps) {
+  const { bodyColorStore } = useStore();
+  const { loading } = bodyColorStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductBodyColorDto[]>([]);
   const navigate = useNavigate();
 
@@ -71,6 +74,8 @@ export default function BodyColorTableComponent({ data }: BodyColorTableComponen
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

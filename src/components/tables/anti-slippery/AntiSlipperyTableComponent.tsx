@@ -2,6 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductAntiSlipperyDto } from '../../../app/models/product/productAntiSlippery.model.ts'
 import { useNavigate } from 'react-router'
+import { useStore } from '../../../app/stores/store.ts';
 
 interface AntiSlipperyTableComponentProps {
   data: ProductAntiSlipperyDto[];
@@ -15,6 +16,8 @@ interface AntiSlipperyTableComponentProps {
 }
 
 export default function AntiSlipperyTableComponent({ data }: AntiSlipperyTableComponentProps) {
+  const { antiSlipperyStore } = useStore();
+  const { loading } = antiSlipperyStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductAntiSlipperyDto[]>([]);
   const navigate = useNavigate();
 
@@ -76,6 +79,8 @@ export default function AntiSlipperyTableComponent({ data }: AntiSlipperyTableCo
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

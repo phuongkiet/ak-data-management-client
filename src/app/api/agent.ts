@@ -250,8 +250,14 @@ const Product = {
 };
 
 const ProductSupplier = {
-  supplierList: (): Promise<ApiResponseModel<ProductSupplierDto[]>> =>
-    requests.get<ProductSupplierDto[]>("/suppliers"),
+  supplierList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductSupplierDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductSupplierDto[]>(`/suppliers?${params.toString()}`);
+  },
   addSupplier: (supplier: AddSupplierDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/suppliers/add-supplier", supplier),
   getNextSupplierOrderNumber: (
@@ -261,29 +267,55 @@ const ProductSupplier = {
 };
 
 const ProductMaterial = {
-  materialList: (): Promise<ApiResponseModel<ProductMaterialDto[]>> =>
-    requests.get<ProductMaterialDto[]>("/materials"),
+  materialList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductMaterialDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductMaterialDto[]>(`/materials?${params.toString()}`);
+  },
   addMaterial: (material: AddMaterialDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/materials/add-material", material),
 };
 
 const ProductSurface = {
-  surfaceList: (): Promise<ApiResponseModel<ProductSurfaceDto[]>> =>
-    requests.get<ProductSurfaceDto[]>("/surfaces"),
+  surfaceList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductSurfaceDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductSurfaceDto[]>(`/surfaces?${params.toString()}`);
+  },
   addSurface: (surface: AddSurfaceDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/surfaces/add-surface", surface),
 };
 
 const ProductStorage = {
-  storageList: (): Promise<ApiResponseModel<ProductStorageDto[]>> =>
-    requests.get<ProductStorageDto[]>("/storages"),
+  storageList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductStorageDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductStorageDto[]>(`/storages?${params.toString()}`);
+  },
   addStorage: (storage: AddStorageDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/storages/add-storage", storage),
 };
 
 const CompanyCode = {
-  companyCodeList: (): Promise<ApiResponseModel<CompanyCodeDto[]>> =>
-    requests.get<CompanyCodeDto[]>("/company-codes"),
+  companyCodeList: (
+    term?: string
+  ): Promise<ApiResponseModel<CompanyCodeDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<CompanyCodeDto[]>(
+      `/company-codes?${params.toString()}`
+    );
+  },
   addCompanyCode: (
     companyCode: AddCompanyCodeDto
   ): Promise<ApiResponseModel<string>> =>
@@ -291,8 +323,16 @@ const CompanyCode = {
 };
 
 const CalculatedUnit = {
-  calculatedUnitList: (): Promise<ApiResponseModel<CalculatedUnitDto[]>> =>
-    requests.get<CalculatedUnitDto[]>("/calculated-units"),
+  calculatedUnitList: (
+    term?: string
+  ): Promise<ApiResponseModel<CalculatedUnitDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<CalculatedUnitDto[]>(
+      `/calculated-units?${params.toString()}`
+    );
+  },
   addCalculatedUnit: (
     calculatedUnit: AddCalculatedUnitDto
   ): Promise<ApiResponseModel<string>> =>
@@ -303,8 +343,16 @@ const CalculatedUnit = {
 };
 
 const AntiSlippery = {
-  antiSlipperyList: (): Promise<ApiResponseModel<ProductAntiSlipperyDto[]>> =>
-    requests.get<ProductAntiSlipperyDto[]>("/anti-slipperys"),
+  antiSlipperyList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductAntiSlipperyDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductAntiSlipperyDto[]>(
+      `/anti-slipperys?${params.toString()}`
+    );
+  },
   addAntiSlippery: (
     antiSlippery: AddAntiSlipperyDto
   ): Promise<ApiResponseModel<string>> =>
@@ -312,8 +360,16 @@ const AntiSlippery = {
 };
 
 const ProductBodyColor = {
-  bodyColorList: (): Promise<ApiResponseModel<ProductBodyColorDto[]>> =>
-    requests.get<ProductBodyColorDto[]>("/body-colors"),
+  bodyColorList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductBodyColorDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductBodyColorDto[]>(
+      `/body-colors?${params.toString()}`
+    );
+  },
   addBodyColor: (
     bodyColor: AddBodyColorDto
   ): Promise<ApiResponseModel<string>> =>
@@ -321,29 +377,55 @@ const ProductBodyColor = {
 };
 
 const ProductColor = {
-  colorList: (): Promise<ApiResponseModel<ProductColorDto[]>> =>
-    requests.get<ProductColorDto[]>("/colors"),
+  colorList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductColorDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductColorDto[]>(`/colors?${params.toString()}`);
+  },
   addColor: (color: AddColorDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/colors/add-color", color),
 };
 
 const ProductOrigin = {
-  originList: (): Promise<ApiResponseModel<ProductOriginDto[]>> =>
-    requests.get<ProductOriginDto[]>("/origins"),
+  originList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductOriginDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductOriginDto[]>(`/origins?${params.toString()}`);
+  },
   addOrigin: (origin: AddOriginDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/origins/add-origin", origin),
 };
 
 const ProductPattern = {
-  patternList: (): Promise<ApiResponseModel<ProductPatternDto[]>> =>
-    requests.get<ProductPatternDto[]>("/patterns"),
+  patternList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductPatternDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductPatternDto[]>(`/patterns?${params.toString()}`);
+  },
   addPattern: (pattern: AddPatternDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/patterns/add-pattern", pattern),
 };
 
 const ProductProcessing = {
-  processingList: (): Promise<ApiResponseModel<ProductProcessingDto[]>> =>
-    requests.get<ProductProcessingDto[]>("/processings"),
+  processingList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductProcessingDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductProcessingDto[]>(
+      `/processings?${params.toString()}`
+    );
+  },
   addProcessing: (
     processing: AddProcessingDto
   ): Promise<ApiResponseModel<string>> =>
@@ -365,21 +447,36 @@ const ProductSize = {
 };
 
 const ProductWaterAbsorption = {
-  waterAbsorptionList: (): Promise<
-    ApiResponseModel<ProductWaterAbsorptionDto[]>
-  > => requests.get<ProductWaterAbsorptionDto[]>("/water-absorption"),
+  waterAbsorptionList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductWaterAbsorptionDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductWaterAbsorptionDto[]>(
+      `/water-absorptions?${params.toString()}`
+    );
+  },
   addWaterAbsorption: (
     waterAbsorption: AddWaterAbsorptionDto
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>(
-      "/water-absorption/add-water-absorption",
+      "/water-absorptions/add-water-absorption",
       waterAbsorption
     ),
 };
 
 const ProductFactory = {
-  factoryList: (): Promise<ApiResponseModel<ProductFactoryDto[]>> =>
-    requests.get<ProductFactoryDto[]>("/factories"),
+  factoryList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductFactoryDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductFactoryDto[]>(
+      `/factories?${params.toString()}`
+    );
+  },
   getFactoriesBySupplier: (
     supplierId: number
   ): Promise<ApiResponseModel<ProductFactoryDto[]>> =>
@@ -391,8 +488,14 @@ const ProductFactory = {
 };
 
 const ProductArea = {
-  areaList: (): Promise<ApiResponseModel<ProductAreaDto[]>> =>
-    requests.get<ProductAreaDto[]>("/areas"),
+  areaList: (
+    term?: string
+  ): Promise<ApiResponseModel<ProductAreaDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<ProductAreaDto[]>(`/areas?${params.toString()}`);
+  },
   addArea: (area: AddAreaDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/areas/add-area", area),
 };

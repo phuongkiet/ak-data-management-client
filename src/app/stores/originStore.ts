@@ -7,6 +7,7 @@ export default class OriginStore {
   productOriginList: ProductOriginDto[] = [];
   productOriginRegistry = new Map<number, ProductOriginDto>();
   loading = false;
+  term: string = '';
 
   originForm: AddOriginDto = {
     name: "",
@@ -17,10 +18,15 @@ export default class OriginStore {
     makeAutoObservable(this);
   }
 
-  loadOrigins = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadOrigins(this.term);
+  }
+
+  loadOrigins = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductOrigin.originList();
+      const result = await agent.ProductOrigin.originList(term);
       console.log(result);
       runInAction(() => {
         this.productOriginList = result.data || [];

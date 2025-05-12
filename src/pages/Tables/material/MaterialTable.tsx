@@ -109,6 +109,9 @@ function MaterialTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            materialStore.setTerm(term);
+          }}
         >
           <MaterialTableComponent
             data={productMaterialList}

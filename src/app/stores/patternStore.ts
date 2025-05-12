@@ -7,6 +7,7 @@ export default class PatternStore {
   productPatternList: ProductPatternDto[] = [];
   productPatternRegistry = new Map<number, ProductPatternDto>();
   loading = false;
+  term: string = '';
 
   patternForm: AddPatternDto = {
     name: '',
@@ -18,6 +19,11 @@ export default class PatternStore {
     makeAutoObservable(this);
   }
 
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadPatterns(this.term);
+  }
+
   resetPatternForm = () => {
     this.patternForm = {
       name: '',
@@ -26,10 +32,10 @@ export default class PatternStore {
     };
   };
 
-  loadPatterns = async () => {
+  loadPatterns = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductPattern.patternList();
+      const result = await agent.ProductPattern.patternList(term);
       console.log(result);
       runInAction(() => {
         this.productPatternList = result.data || [];

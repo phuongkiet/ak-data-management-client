@@ -7,15 +7,21 @@ export default class AreaStore {
   productAreaList: ProductAreaDto[] = [];
   productAreaRegistry = new Map<number, ProductAreaDto>();
   loading = false;
+  term: string = '';
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  loadAreas = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadAreas(this.term);
+  }
+
+  loadAreas = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductArea.areaList();
+      const result = await agent.ProductArea.areaList(term);
       console.log(result);
       runInAction(() => {
         this.productAreaList = result.data || [];

@@ -281,6 +281,9 @@ function SupplierTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            supplierStore.setTerm(term);
+          }}
         >
           <SupplierTableComponent
             data={productSupplierList}

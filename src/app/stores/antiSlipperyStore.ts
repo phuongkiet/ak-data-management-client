@@ -7,6 +7,7 @@ export default class AntiSlipperyStore {
   productAntiSlipperyList: ProductAntiSlipperyDto[] = [];
   productAntiSlipperyRegistry = new Map<number, ProductAntiSlipperyDto>();
   loading = false;
+  term: string = '';
 
   antiSlipperyForm: AddAntiSlipperyDto = {
     antiSlipLevel: "",
@@ -17,10 +18,15 @@ export default class AntiSlipperyStore {
     makeAutoObservable(this);
   }
 
-  loadAntiSlipperys = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadAntiSlipperys(this.term);
+  }
+
+  loadAntiSlipperys = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.AntiSlippery.antiSlipperyList();
+      const result = await agent.AntiSlippery.antiSlipperyList(term);
       console.log(result);
       runInAction(() => {
         this.productAntiSlipperyList = result.data || [];

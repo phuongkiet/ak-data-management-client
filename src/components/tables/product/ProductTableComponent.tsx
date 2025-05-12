@@ -134,6 +134,7 @@ export default function ProductTableComponent({
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

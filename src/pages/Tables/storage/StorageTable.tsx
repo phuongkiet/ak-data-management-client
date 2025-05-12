@@ -98,6 +98,9 @@ function StorageTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            storageStore.setTerm(term);
+          }}
         >
           <StorageTableComponent
             data={productStorageList}

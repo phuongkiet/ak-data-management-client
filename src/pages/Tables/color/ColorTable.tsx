@@ -120,6 +120,9 @@ function ColorTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            colorStore.setTerm(term);
+          }}
         >
           <ColorTableComponent
             data={productColorList}

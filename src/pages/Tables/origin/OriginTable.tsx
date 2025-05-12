@@ -108,6 +108,9 @@ function OriginTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            originStore.setTerm(term);
+          }}
         >
           <OriginTableComponent
             data={productOriginList}

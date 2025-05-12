@@ -267,17 +267,17 @@ export default class ProductStore {
       const response = await agent.Product.importProducts(file);
       if (response.success) {
         runInAction(() => {
-          toast.success(`Successfully imported ${response.data} products`);
+          toast.success(`Đã nhập ${response.data} sản phẩm thành công.`);
           this.loadProducts(this.pageSize, this.pageNumber, this.term); // Reload the product list after import
         });
       } else {
         runInAction(() => {
-          toast.error(response.errors?.[0] || 'Failed to import products');
+          toast.error(response.errors?.[0] || 'Lỗi khi nhập sản phẩm');
         });
       }
     } catch (error) {
       console.error('Error importing products:', error);
-      toast.error('Failed to import products');
+      toast.error('Lỗi khi nhập sản phẩm');
     } finally {
       runInAction(() => {
         this.loading = false;

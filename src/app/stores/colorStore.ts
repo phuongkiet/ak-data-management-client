@@ -7,6 +7,7 @@ export default class ColorStore {
   productColorList: ProductColorDto[] = [];
   productColorRegistry = new Map<number, ProductColorDto>();
   loading = false;
+  term: string = '';
 
   colorForm: AddColorDto = {
     name: "",
@@ -17,6 +18,11 @@ export default class ColorStore {
     makeAutoObservable(this);
   }
 
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadColors(this.term);
+  }
+
   resetColorForm = () => {
     this.colorForm = {
       name: "",
@@ -24,10 +30,10 @@ export default class ColorStore {
     };
   }
 
-  loadColors = async () => {
+  loadColors = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductColor.colorList();
+      const result = await agent.ProductColor.colorList(term);
       console.log(result);
       runInAction(() => {
         this.productColorList = result.data || [];

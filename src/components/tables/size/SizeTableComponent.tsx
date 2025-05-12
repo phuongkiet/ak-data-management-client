@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductSizeDto } from '../../../app/models/product/productSize.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';
 interface SizeTableComponentProps {
   data: ProductSizeDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface SizeTableComponentProps {
 }
 
 export default function SizeTableComponent({ data }: SizeTableComponentProps) {
+  const { sizeStore } = useStore();
+  const { loading } = sizeStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductSizeDto[]>([]);
   const navigate = useNavigate();
 
@@ -81,6 +83,8 @@ export default function SizeTableComponent({ data }: SizeTableComponentProps) {
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

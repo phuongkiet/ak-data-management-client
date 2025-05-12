@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductWaterAbsorptionDto } from '../../../app/models/product/productWaterAbsorption.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';
 interface WaterAbsorptionTableComponentProps {
   data: ProductWaterAbsorptionDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface WaterAbsorptionTableComponentProps {
 }
 
 export default function WaterAbsorptionTableComponent({ data }: WaterAbsorptionTableComponentProps) {
+  const { waterAbsorptionStore } = useStore();
+  const { loading } = waterAbsorptionStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductWaterAbsorptionDto[]>([]);
   const navigate = useNavigate();
 
@@ -71,6 +73,8 @@ export default function WaterAbsorptionTableComponent({ data }: WaterAbsorptionT
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

@@ -10,6 +10,7 @@ export default class StorageStore {
   productStorageList: ProductStorageDto[] = [];
   productStorageRegistry = new Map<number, ProductStorageDto>();
   loading = false;
+  term: string = '';
 
   storageForm: AddStorageDto = {
     name: "",
@@ -19,10 +20,15 @@ export default class StorageStore {
     makeAutoObservable(this);
   }
 
-  loadStorages = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadStorages(this.term);
+  }
+
+  loadStorages = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductStorage.storageList();
+      const result = await agent.ProductStorage.storageList(term);
       console.log(result);
       runInAction(() => {
         this.productStorageList = result.data || [];

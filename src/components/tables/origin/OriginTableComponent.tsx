@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductOriginDto } from '../../../app/models/product/productOrigin.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';
 interface OriginTableComponentProps {
   data: ProductOriginDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface OriginTableComponentProps {
 }
 
 export default function OriginTableComponent({ data }: OriginTableComponentProps) {
+  const { originStore } = useStore();
+  const { loading } = originStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductOriginDto[]>([]);
   const navigate = useNavigate();
 
@@ -76,6 +78,8 @@ export default function OriginTableComponent({ data }: OriginTableComponentProps
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

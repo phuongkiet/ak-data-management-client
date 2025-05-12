@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductSurfaceDto } from '../../../app/models/product/productSurface.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';
 interface SurfaceTableComponentProps {
   data: ProductSurfaceDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface SurfaceTableComponentProps {
 }
 
 export default function SurfaceTableComponent({ data }: SurfaceTableComponentProps) {
+  const { surfaceStore } = useStore();
+  const { loading } = surfaceStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductSurfaceDto[]>([]);
   const navigate = useNavigate();
 
@@ -76,6 +78,8 @@ export default function SurfaceTableComponent({ data }: SurfaceTableComponentPro
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

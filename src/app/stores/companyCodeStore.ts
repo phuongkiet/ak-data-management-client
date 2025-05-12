@@ -7,6 +7,7 @@ export default class CompanyCodeStore {
   productCompanyCodeList: CompanyCodeDto[] = [];
   productCompanyCodeRegistry = new Map<number, CompanyCodeDto>();
   loading = false;
+  term: string = '';
 
   companyCodeForm: AddCompanyCodeDto = {
     codeName: "",
@@ -16,10 +17,15 @@ export default class CompanyCodeStore {
     makeAutoObservable(this);
   }
 
-  loadCompanyCodes = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadCompanyCodes(this.term);
+  }
+
+  loadCompanyCodes = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.CompanyCode.companyCodeList();
+      const result = await agent.CompanyCode.companyCodeList(term);
       console.log(result);
       runInAction(() => {
         this.productCompanyCodeList = result.data || [];

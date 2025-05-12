@@ -98,6 +98,9 @@ function BodyColorTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            bodyColorStore.setTerm(term);
+          }}
         >
           <BodyColorTableComponent
             data={productBodyColorList}

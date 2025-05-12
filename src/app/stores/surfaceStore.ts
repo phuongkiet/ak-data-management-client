@@ -7,6 +7,7 @@ export default class SurfaceStore {
   productSurfaceList: ProductSurfaceDto[] = [];
   productSurfaceRegistry = new Map<number, ProductSurfaceDto>();
   loading = false;
+  term: string = '';
 
   surfaceForm: AddSurfaceDto = {
     name: "",
@@ -24,10 +25,15 @@ export default class SurfaceStore {
     };
   };
 
-  loadSurfaces = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadSurfaces(this.term);
+  }
+
+  loadSurfaces = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductSurface.surfaceList();
+      const result = await agent.ProductSurface.surfaceList(term);
       console.log(result);
       runInAction(() => {
         this.productSurfaceList = result.data || [];

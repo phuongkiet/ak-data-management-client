@@ -9,6 +9,7 @@ export default class SupplierStore {
   productSupplierRegistry = new Map<number, ProductSupplierDto>();
   loading = false;
   orderNumber = 0;
+  term: string = '';
   areaValue: ProductAreaDto = {
     id: 0,
     areaName: '',
@@ -26,10 +27,15 @@ export default class SupplierStore {
     makeAutoObservable(this);
   }
 
-  loadSuppliers = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadSuppliers(this.term);
+  }
+
+  loadSuppliers = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductSupplier.supplierList();
+      const result = await agent.ProductSupplier.supplierList(term);
       console.log(result);
       runInAction(() => {
         this.productSupplierList = result.data || [];

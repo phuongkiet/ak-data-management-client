@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductProcessingDto } from '../../../app/models/product/productProcessing.model.ts'
 import { useNavigate } from 'react-router'
-
+import { useStore } from '../../../app/stores/store.ts';
 interface ProcessingTableComponentProps {
   data: ProductProcessingDto[];
   loading: boolean;
@@ -15,6 +15,8 @@ interface ProcessingTableComponentProps {
 }
 
 export default function ProcessingTableComponent({ data }: ProcessingTableComponentProps) {
+  const { processingStore } = useStore();
+  const { loading } = processingStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductProcessingDto[]>([]);
   const navigate = useNavigate();
 
@@ -76,6 +78,8 @@ export default function ProcessingTableComponent({ data }: ProcessingTableCompon
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
+        progressPending={loading}
+        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
       />
     </div>
   );

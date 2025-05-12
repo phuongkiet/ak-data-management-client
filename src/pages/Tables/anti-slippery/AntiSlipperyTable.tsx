@@ -110,6 +110,9 @@ function AntiSlipperyTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            antiSlipperyStore.setTerm(term);
+          }}
         >
           <AntiSlipperyTableComponent
             data={productAntiSlipperyList}

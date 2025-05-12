@@ -7,6 +7,7 @@ export default class FactoryStore {
   productFactoryList: ProductFactoryDto[] = [];
   productFactoryRegistry = new Map<number, ProductFactoryDto>();
   loading = false;
+  term: string = '';
 
   factoryForm: AddFactoryDto = {
     name: '',
@@ -16,10 +17,15 @@ export default class FactoryStore {
     makeAutoObservable(this);
   }
 
-  loadFactories = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadFactories(this.term);
+  }
+
+  loadFactories = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductFactory.factoryList();
+      const result = await agent.ProductFactory.factoryList(term);
       console.log(result);
       runInAction(() => {
         this.productFactoryList = result.data || [];

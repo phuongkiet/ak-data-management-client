@@ -7,6 +7,7 @@ export default class ProcessingStore {
   productProcessingList: ProductProcessingDto[] = [];
   productProcessingRegistry = new Map<number, ProductProcessingDto>();
   loading = false;
+  term: string = '';
 
   processingForm: AddProcessingDto = {
     processingCode: "",
@@ -17,10 +18,15 @@ export default class ProcessingStore {
     makeAutoObservable(this);
   }
 
-  loadProcessings = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadProcessings(this.term);
+  }
+
+  loadProcessings = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductProcessing.processingList();
+      const result = await agent.ProductProcessing.processingList(term);
       console.log(result);
       runInAction(() => {
         this.productProcessingList = result.data || [];

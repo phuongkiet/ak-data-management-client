@@ -7,6 +7,7 @@ export default class WaterAbsorptionStore {
   productWaterAbsorptionList: ProductWaterAbsorptionDto[] = [];
   productWaterAbsorptionRegistry = new Map<number, ProductWaterAbsorptionDto>();
   loading = false;
+  term: string = '';
 
   waterAbsorptionForm: AddWaterAbsorptionDto = {
     waterAbsoprtionLevel: ""
@@ -16,10 +17,15 @@ export default class WaterAbsorptionStore {
     makeAutoObservable(this);
   }
 
-  loadWaterAbsorption = async () => {
+  setTerm = (term: string) => {
+    this.term = term;
+    this.loadWaterAbsorption(this.term);
+  }
+
+  loadWaterAbsorption = async (term?: string) => {
     this.loading = true;
     try {
-      const result = await agent.ProductWaterAbsorption.waterAbsorptionList();
+      const result = await agent.ProductWaterAbsorption.waterAbsorptionList(term);
       console.log(result);
       runInAction(() => {
         this.productWaterAbsorptionList = result.data || [];

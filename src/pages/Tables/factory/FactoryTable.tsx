@@ -110,6 +110,9 @@ function FactoryTable() {
               </div>
             </div>
           }
+          onSearch={(term) => {
+            factoryStore.setTerm(term);
+          }}
         >
           <FactoryTableComponent
             data={productFactoryList}
