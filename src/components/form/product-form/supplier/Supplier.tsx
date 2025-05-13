@@ -15,9 +15,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
+const SupplierGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { supplierStore, productStore } = useStore()
   const { loadSuppliers, productSupplierList } = supplierStore
   const { productForm, getNextOrderNumberAuto } = productStore
@@ -63,23 +64,26 @@ const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
               value={selectedSupplier}
               onChange={async (selectedOption) => {
                 if (!selectedOption) {
-                  // Khi người dùng xóa chọn
-                  setSelectedSupplier(null)
-                  productForm.supplierId = 0 // hoặc null tùy logic backend
-                  setAutoSupplierCode('')
-
-                  return
+                  if (onChange) {
+                    onChange("supplierId", product?.supplierId);
+                  } else if (isCreateMode) {
+                    productStore.updateProductForm("supplierId", null);
+                  }
+                  setSelectedSupplier(null);
+                  setAutoSupplierCode('');
+                  return;
                 }
-
-                setSelectedSupplier(selectedOption)
-                const supplierId = selectedOption.value
-                productForm.supplierId = supplierId
-                const supplier = productSupplierList.find(x => x.id === supplierId)
-                setAutoSupplierCode(supplier?.supplierShortCode || '')
-                productStore.updateProductForm("supplierId", supplierId)
-
-                if (isCreateMode) {
-                  await getNextOrderNumberAuto()
+                if (onChange) {
+                  onChange("supplierId", selectedOption.value);
+                  setSelectedSupplier(selectedOption);
+                  const supplier = productSupplierList.find(x => x.id === selectedOption.value);
+                  setAutoSupplierCode(supplier?.supplierShortCode || '');
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("supplierId", selectedOption.value);
+                  setSelectedSupplier(selectedOption);
+                  const supplier = productSupplierList.find(x => x.id === selectedOption.value);
+                  setAutoSupplierCode(supplier?.supplierShortCode || '');
+                  await getNextOrderNumberAuto();
                 }
               }}
               placeholder="Chọn nhà cung cấp..."
@@ -89,7 +93,7 @@ const SupplierGroup = ({product, isCreateMode}: ProductProps) => {
               styles={{
                 control: (base) => ({
                   ...base,
-                  minHeight: '44px', // Chiều cao tổng thể
+                  minHeight: '44px',
                   height: '44px',
                   fontFamily: 'Roboto, sans-serif',
                   fontSize: '14px'

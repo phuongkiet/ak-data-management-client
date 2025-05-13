@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const WaterAbsorptionGroup = ({ product, isCreateMode }: ProductProps) => {
+const WaterAbsorptionGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { waterAbsorptionStore, productStore } = useStore();
   const { loadWaterAbsorption, productWaterAbsorptionList } =
     waterAbsorptionStore;
@@ -43,11 +44,19 @@ const WaterAbsorptionGroup = ({ product, isCreateMode }: ProductProps) => {
           value={selectedWaterAbsorption}
           onChange={(selected) => {
             if(!selected){
-              productStore.updateProductForm("waterAbsorptionId", 0);
+              if (onChange) {
+                onChange("waterAbsorptionId", product?.waterAbsorptionId);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("waterAbsorptionId", null);
+              }
               return;
             }
             if(isCreateMode){
-              productStore.updateProductForm("waterAbsorptionId", selected.value | 0);
+              if (onChange) {
+                onChange("waterAbsorptionId", selected.value | 0);
+              } else {
+                productStore.updateProductForm("waterAbsorptionId", selected.value | 0);
+              }
             }
           }}
           placeholder={"Chọn..."}

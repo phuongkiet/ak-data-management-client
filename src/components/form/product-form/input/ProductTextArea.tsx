@@ -4,7 +4,7 @@ interface TextareaProps {
   placeholder?: string; // Placeholder text
   rows?: number; // Number of rows
   value?: string; // Current value
-  onChange?: (value: string) => void; // Change handler
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; // Change handler
   className?: string; // Additional CSS classes
   disabled?: boolean; // Disabled state
   error?: boolean; // Error state
@@ -23,11 +23,11 @@ const ProductTextArea: React.FC<TextareaProps> = ({
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (onChange) {
-      onChange(e.target.value);
+      onChange(e);
     }
   };
 
-  let textareaClasses = `w-full rounded-lg border px-4 py-2.5 text-sm shadow-theme-xs focus:outline-hidden ${className} `;
+  let textareaClasses = `w-full rounded-lg border px-4 py-2.5 shadow-theme-xs focus:outline-hidden ${className} `;
 
   if (disabled) {
     textareaClasses += ` bg-gray-100 opacity-50 text-gray-500 border-gray-300 cursor-not-allowed opacity40 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;

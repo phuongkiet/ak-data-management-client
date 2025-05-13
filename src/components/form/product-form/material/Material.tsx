@@ -13,9 +13,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const MaterialGroup = ({ product, isCreateMode }: ProductProps) => {
+const MaterialGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { materialStore, productStore } = useStore()
   const { loadMaterials, productMaterialList } = materialStore
 
@@ -40,12 +41,18 @@ const MaterialGroup = ({ product, isCreateMode }: ProductProps) => {
           <div className="relative">
             <ReactSelect options={materialOptions} value={selectedMaterial} 
             onChange={(selected) => {
-              if(!selected){
-                productStore.updateProductForm("materialId", 0)
+              if (!selected) {
+                if (onChange) {
+                  onChange("materialId", product?.materialId);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("materialId", null);
+                }
+                return;
               }
-
-              if(isCreateMode){
-                productStore.updateProductForm("materialId", selected?.value || 0)
+              if (onChange) {
+                onChange("materialId", selected.value);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("materialId", selected.value);
               }
             }}
              placeholder={'Chọn chất liệu...'} styles={{

@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import agent from '../api/agent'
-import { AddProductDto, ProductDetail, ProductDto, StrategyProductDto } from '../models/product/product.model'
+import { AddProductDto, EditProductDto, ProductDetail, ProductDto, StrategyProductDto } from '../models/product/product.model'
 import { toast } from 'react-toastify'
 import { UploadWebsiteStatus } from '../models/product/enum/product.enum.ts'
 
@@ -278,6 +278,35 @@ export default class ProductStore {
     } catch (error) {
       console.error('Error importing products:', error);
       toast.error('Lỗi khi nhập sản phẩm');
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  editProduct = async (productId: number, product: EditProductDto) => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.editProduct(productId, product);
+      if (response.success) {
+        runInAction(() => {
+          toast.success(response.data);
+          this.loadProducts(this.pageSize, 1, this.term);
+          this.loading = false;
+        });
+        return true;
+      } else {
+        runInAction(() => {
+          toast.error(response.errors?.[0] || 'Lỗi khi sửa sản phẩm');
+          this.loading = false;
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error editing product:', error);
+      toast.error('Lỗi khi sửa sản phẩm');
+      return false;
     } finally {
       runInAction(() => {
         this.loading = false;

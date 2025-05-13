@@ -80,6 +80,7 @@ export default function ProcessingTableComponent({ data }: ProcessingTableCompon
         onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
+        noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}
       />
     </div>
   );

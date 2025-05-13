@@ -4,27 +4,25 @@ import DataTable, { TableColumn } from 'react-data-table-component';
 import { StrategyProductDto } from '../../../app/models/product/product.model.ts'
 import { appCurrency } from '../../../app/common/common.ts';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '../../../app/stores/store.ts';
+import {  useNavigate } from 'react-router';
 
 interface StrategyProductTableComponentProps {
   data: StrategyProductDto[];
   loading: boolean;
-  totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
+  onPageSizeChange: (newPageSize: number, page: number) => void;
   totalCount: number;
   searchTerm: string;
 }
 
-const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentProps) => {
-  const { productStore } = useStore();
-  const { loading } = productStore;
+const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChange, onPageSizeChange, totalCount }: StrategyProductTableComponentProps) => {
   const [selectedStrategyProducts, setSelectedStrategyProducts] = useState<StrategyProductDto[]>([]);
+  const navigate = useNavigate();
 
   const handleView = (product: StrategyProductDto) => {
-    console.log('Xem sản phẩm:', product);
-    // hoặc điều hướng sang trang chi tiết, mở modal,...
+      console.log('Xem sản phẩm:', product);
+    navigate("/strategy-products/detail/" + product.id);
   };
 
   const handleSelectedRowsChange = (state: {
@@ -55,12 +53,17 @@ const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentPr
     },
     {
       name: 'Giá trên web',
-      selector: row => appCurrency + row.webProductPrice?.toLocaleString(),
+      selector: row => row.webProductPrice?.toLocaleString() ? appCurrency + row.webProductPrice?.toLocaleString() : 'Chưa có',
       sortable: true,
     },
     {
       name: 'Giá khuyến mãi',
-      selector: row => appCurrency + row.webDiscountedPrice?.toLocaleString(),
+      selector: row => row.webDiscountedPrice?.toLocaleString() ? appCurrency + row.webDiscountedPrice?.toLocaleString() : 'Chưa có',
+      sortable: true,
+    },
+    {
+      name: 'Giá bán lẻ của NCC',
+      selector: row => row.retailPrice?.toLocaleString() ? appCurrency + row.retailPrice?.toLocaleString() : 'Chưa có',
       sortable: true,
     },
     {
@@ -89,13 +92,29 @@ const StrategyProductTableComponent = ({ data }: StrategyProductTableComponentPr
         columns={columns}
         data={data}
         pagination
+        paginationServer
+        paginationTotalRows={totalCount}
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 20, 50, 100]}
+        paginationDefaultPage={currentPage}
+        onChangePage={onPageChange}
+        onChangeRowsPerPage={onPageSizeChange}
         responsive
         highlightOnHover
         striped
         selectableRows
         onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
-        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
+        progressComponent={
+          <div className="py-8 text-center font-semibold font-roboto w-full">
+            Đang chờ...
+          </div>
+        }
+        noDataComponent={
+          <div className="py-8 text-center font-semibold font-roboto w-full">
+            Không có dữ liệu.
+          </div>
+        }
       />
     </div>
   );

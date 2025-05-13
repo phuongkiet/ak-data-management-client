@@ -1,12 +1,12 @@
-import ComponentCard from '../../../common/ComponentCard.tsx'
-import ProductLabel from '../ProductLabel.tsx'
-import Input from '../input/ProductInputField.tsx'
-import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect, useState } from 'react'
-import { observer } from 'mobx-react-lite'
-import ReactSelect from 'react-select'
-import { ProductDetail } from '../../../../app/models/product/product.model.ts'
-import * as yup from 'yup';
+import ComponentCard from "../../../common/ComponentCard.tsx";
+import ProductLabel from "../ProductLabel.tsx";
+import Input from "../input/ProductInputField.tsx";
+import { useStore } from "../../../../app/stores/store.ts";
+import { useEffect, useState } from "react";
+import { observer } from "mobx-react-lite";
+import ReactSelect from "react-select";
+import { ProductDetail } from "../../../../app/models/product/product.model.ts";
+import * as yup from "yup";
 
 interface Option {
   value: number;
@@ -18,52 +18,116 @@ interface SizeGroupProps {
   isCreateMode: boolean;
   thicknessError: string;
   setThicknessError: (err: string) => void;
+  onChange?: (field: string, value: any) => void;
 }
 
 const thicknessSchema = yup
   .number()
-  .typeError('Độ dày phải là số')
-  .required('Độ dày là bắt buộc')
-  .min(1, 'Độ dày tối thiểu là 1mm')
-  .max(100, 'Độ dày tối đa là 100mm');
+  .typeError("Độ dày phải là số")
+  .required("Độ dày là bắt buộc")
+  .min(1, "Độ dày tối thiểu là 1mm")
+  .max(100, "Độ dày tối đa là 100mm");
 
-const SizeGroup = ({product, isCreateMode, thicknessError, setThicknessError}: SizeGroupProps) => {
-  const { sizeStore, productStore } = useStore()
-  const { loadSizes, productSizeList } = sizeStore
-  const [thickness, setThickness] = useState<string>(product?.thicknessSize?.toString() || '')
+const SizeGroup = ({
+  product,
+  isCreateMode,
+  thicknessError,
+  setThicknessError,
+  onChange,
+}: SizeGroupProps) => {
+  const { sizeStore, productStore } = useStore();
+  const { loadSizes, productSizeList } = sizeStore;
+  const [thickness, setThickness] = useState<string>(
+    product?.thicknessSize?.toString() || ""
+  );
 
   useEffect(() => {
-    loadSizes()
-  }, [])
+    loadSizes();
+  }, []);
 
   // Mapping list
-  const sizeOptions: Option[] = productSizeList.map(size => ({
+  const sizeOptions: Option[] = productSizeList.map((size) => ({
     value: size.id,
-    label: size.autoSized
-  }))
+    label: size.autoSized,
+  }));
 
   const selectedSize = sizeOptions.find(
-    (option) => option.value === (isCreateMode ? productStore.productForm.actualSizeId : product?.actualSizeId)
-  )
+    (option) =>
+      option.value ===
+      (isCreateMode
+        ? productStore.productForm.actualSizeId
+        : product?.actualSizeId)
+  );
 
   const handleSizeChange = (selectedOption: Option | null) => {
+    console.log('Selected size option:', selectedOption);
+    
     if (selectedOption) {
-      productStore.updateProductForm('actualSizeId', selectedOption.value)
+      const size = productSizeList.find(s => s.id === selectedOption.value);
+      console.log('Found size:', size);
+      
+      if (size) {
+        // Update size ID
+        if (onChange) {
+          onChange("actualSizeId", selectedOption.value);
+          // Calculate and update areas
+          const areaPerUnit = (size.length * size.wide) / 1000000; // Convert mm² to m²
+          const areaPerBox = areaPerUnit * (product?.quantityPerBox || 1);
+          onChange("areaPerUnit", Number(areaPerUnit.toFixed(2)));
+          onChange("areaPerBox", Number(areaPerBox.toFixed(2)));
+        } else if (isCreateMode) {
+          console.log('Updating form with size ID:', selectedOption.value);
+          productStore.updateProductForm("actualSizeId", selectedOption.value);
+        }
+      }
+    } else {
+      // Handle clearing the size
+      if (onChange) {
+        onChange("actualSizeId", null);
+        onChange("areaPerUnit", null);
+        onChange("areaPerBox", null);
+      } else if (isCreateMode) {
+        productStore.updateProductForm("actualSizeId", null);
+      }
     }
-  }
+  };
 
-  const handleThicknessChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setThickness(value)
-    const numericValue = value ? parseFloat(value) : 0
-    productStore.updateProductForm('thicknessSize', numericValue)
-    try {
-      await thicknessSchema.validate((numericValue === undefined ? '' : numericValue) as unknown)
-      setThicknessError('')
-    } catch (err: any) {
-      setThicknessError(err.message)
+  // Add debug logging for selected size
+  useEffect(() => {
+    console.log('Current form state:', productStore.productForm);
+    console.log('Selected size ID:', isCreateMode ? productStore.productForm.actualSizeId : product?.actualSizeId);
+  }, [productStore.productForm.actualSizeId, product?.actualSizeId]);
+
+  const handleThicknessChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setThickness(value);
+    const numericValue = value ? parseFloat(value) : 0;
+    
+    if (onChange) {
+      onChange("thicknessSize", numericValue);
+      // Recalculate areas when thickness changes
+      const selectedSize = productSizeList.find(s => s.id === product?.actualSizeId);
+      if (selectedSize) {
+        const areaPerUnit = (selectedSize.length * selectedSize.wide) / 1000000; // Convert to m2
+        const areaPerBox = areaPerUnit * (product?.quantityPerBox || 1);
+        onChange("areaPerUnit", areaPerUnit);
+        onChange("areaPerBox", areaPerBox);
+      }
+    } else if (isCreateMode) {
+      productStore.updateProductForm("thicknessSize", numericValue);
     }
-  }
+    
+    try {
+      await thicknessSchema.validate(
+        (numericValue === undefined ? "" : numericValue) as unknown
+      );
+      setThicknessError("");
+    } catch (err: any) {
+      setThicknessError(err.message);
+    }
+  };
 
   return (
     <ComponentCard title="Kích thước thực tế">
@@ -71,46 +135,46 @@ const SizeGroup = ({product, isCreateMode, thicknessError, setThicknessError}: S
         <div>
           <ProductLabel>Dài x Rộng</ProductLabel>
           <div className="relative">
-            <ReactSelect 
-              options={sizeOptions} 
-              value={selectedSize} 
+            <ReactSelect
+              options={sizeOptions}
+              value={selectedSize}
               onChange={handleSizeChange}
-              placeholder={'Chọn kích thước...'} 
+              placeholder={"Chọn kích thước..."}
               styles={{
                 control: (base) => ({
                   ...base,
-                  minHeight: '44px',
-                  height: '44px',
-                  fontFamily: 'Roboto, sans-serif',
-                  fontSize: '14px'
+                  minHeight: "44px",
+                  height: "44px",
+                  fontFamily: "Roboto, sans-serif",
+                  fontSize: "14px",
                 }),
                 valueContainer: (base) => ({
                   ...base,
-                  height: '44px',
-                  padding: '0 8px'
+                  height: "44px",
+                  padding: "0 8px",
                 }),
                 indicatorsContainer: (base) => ({
                   ...base,
-                  height: '44px'
+                  height: "44px",
                 }),
                 option: (base, state) => ({
                   ...base,
-                  fontFamily: 'Roboto, sans-serif',
-                  backgroundColor: state.isFocused ? '#f3f4f6' : 'white',
-                  color: 'black'
-                })
-              }} 
+                  fontFamily: "Roboto, sans-serif",
+                  backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                  color: "black",
+                }),
+              }}
             />
           </div>
         </div>
         <div>
           <ProductLabel>Độ dày (mm)</ProductLabel>
           <div className="relative">
-            <Input 
-              type="number" 
-              placeholder="9mm" 
-              value={isCreateMode ? thickness : product?.thicknessSize} 
-              onChange={isCreateMode ? handleThicknessChange : undefined}
+            <Input
+              type="number"
+              placeholder="9mm"
+              value={isCreateMode ? thickness : product?.thicknessSize}
+              onChange={handleThicknessChange}
               error={!!thicknessError}
               hint={thicknessError}
             />
@@ -118,7 +182,7 @@ const SizeGroup = ({product, isCreateMode, thicknessError, setThicknessError}: S
         </div>
       </div>
     </ComponentCard>
-  )
-}
+  );
+};
 
-export default observer(SizeGroup)
+export default observer(SizeGroup);

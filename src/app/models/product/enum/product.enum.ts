@@ -1,13 +1,13 @@
 export enum NoticeDataWebsite {
   Cancel = 0,
   Ok = 1,
-  No = 2
+  No = 2,
 }
 
 export enum PriceDetermination {
   Cancel = 0,
   Ok = 1,
-  No = 2
+  No = 2,
 }
 
 export enum UploadWebsiteStatus {
@@ -20,8 +20,10 @@ export enum UploadWebsiteStatus {
   Cancel = 7,
   RecheckSupplierCode = 8,
   Dropped = 9,
+  Stopped = 10,
+  VideoMissing = 11,
 }
 
 export enum DiscountConditions {
-  Basic = 0
+  Basic = 0,
 }

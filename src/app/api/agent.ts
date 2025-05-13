@@ -9,6 +9,7 @@ import {
 } from "../models/user/user.model.ts";
 import { PagedModel } from "../models/common/pagedModel.model.ts";
 import {
+  EditProductDto,
   ProductDetail,
   ProductDto,
   StrategyProductDto,
@@ -234,6 +235,12 @@ const Product = {
 
   addNewProduct: (product: AddProductDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/products/add-new", product),
+
+  editProduct: (
+    productId: number,
+    product: EditProductDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/products/edit-product?productId=${productId}`, product),
 
   checkSupplierItemCode: (
     itemCode: string

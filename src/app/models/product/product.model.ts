@@ -24,6 +24,7 @@ export interface ProductDto {
   brickPatternShortName: string;
   deliveryEstimatedDate: string;
   creator: string;
+  modifier: string;
 
   // Foreign key display names
   originCountryName: string;
@@ -153,12 +154,12 @@ export interface ProductDetail {
   storageId: number;
   antiSlipLevelId: number;
   waterAbsorptionId: number;
-  taxId: number;
+  taxId: number | null;
   taxRate: number;
   calculatedUnitId: number;
   companyCodeId: number;
-  processingId: number;
-  productFactoryId: number;
+  processingId: number | null;
+  productFactoryId: number | null;
 
   priceDetermination: PriceDetermination;
   noticeDataWebsite: NoticeDataWebsite;
@@ -171,22 +172,22 @@ export interface ProductDetail {
 
 export interface AddProductDto {
   // Foreign Keys
-  originCountryId: number;
-  actualSizeId: number;
-  brickPatternId: number;
-  colorId: number;
-  surfaceFeatureId: number;
-  materialId: number;
-  brickBodyId: number;
-  storageId: number;
-  antiSlipId: number;
-  supplierId: number;
-  companyCodeId: number;
+  originCountryId: number | null; 
+  actualSizeId: number | null;
+  brickPatternId: number | null;
+  colorId: number | null;
+  surfaceFeatureId: number | null;
+  materialId: number | null;
+  brickBodyId: number | null;
+  storageId: number | null;
+  antiSlipId: number | null;
+  supplierId: number | null;
+  companyCodeId: number | null;
   processingId: number | null;
-  waterAbsorptionId: number;
+  waterAbsorptionId: number | null;
   taxId: number | null;
-  calculatedUnitId: number;
-  productFactoryId: number;
+  calculatedUnitId: number | null;
+  productFactoryId: number | null;
 
   // Enum values
   priceDetermination: PriceDetermination;
@@ -227,6 +228,97 @@ export interface AddProductDto {
   hardnessMOHS: number | null;
   otherNote: string;
   deliveryEstimatedDate: string;
+}
+
+export interface EditProductDto {
+  id: number;
+  priceDetermination?: PriceDetermination | null;
+  noticeDataWebsite?: NoticeDataWebsite | null;
+  uploadWebsiteStatus?: UploadWebsiteStatus | null;
+  discountConditions?: DiscountConditions | null;
+  secondDiscountConditions?: DiscountConditions | null;
+
+  originCountryId?: number | null;
+  actualSizeId?: number | null;
+  brickPatternId?: number | null;
+  colorId?: number | null;
+  surfaceFeatureId?: number | null;
+  materialId?: number | null;
+  brickBodyId?: number | null;
+  storageId?: number | null;
+  antiSlipId?: number | null;
+  supplierId?: number | null;
+  companyCodeId?: number | null;
+  productProcessingId?: number | null;
+  waterAbsorptionId?: number | null;
+  taxId?: number | null;
+  calculatedUnitId?: number | null;
+  productFactoryId?: number | null;
+
+  realSupplierName?: string | null;
+  supplierItemCode?: string | null;
+  confirmSupplierItemCode?: string | null;
+  supplierCode?: string | null;
+  confirmSupplierCode?: string | null;
+  productOrderNumber?: number | null;
+  productCode?: string | null;
+  confirmProductCode?: string | null;
+  autoBarCode?: string | null;
+  confirmAutoBarCode?: string | null;
+  displayWebsiteName?: string | null;
+
+  webProductPrice?: number | null;
+  webDiscountedPrice?: number | null;
+  webSecondDiscountedPrice?: number | null;
+  listPrice?: number | null;
+  supplierRisingPrice?: number | null;
+  otherPriceByCompany?: number | null;
+  quantity?: number | null;
+  confirmListPrice?: number | null;
+  shippingFee?: number | null;
+  discount?: number | null;
+  supplierEstimatedPayableAmount?: number | null;
+  retailPrice?: number | null;
+  policyStandard?: number | null;
+  supplierDiscountCash?: number | null;
+  supplierDiscountPercentage?: number | null;
+  estimatedPurchasePriceAfterSupplierDiscount?: number | null;
+  firstRemainingPriceAfterDiscount?: number | null;
+  firstPolicyStandardAfterDiscount?: number | null;
+  firstFixedPolicyPrice?: number | null;
+  firstActualReceivedPriceAfterPolicyDiscount?: number | null;
+  secondRemainingPriceAfterDiscount?: number | null;
+  secondPolicyStandardAfterDiscount?: number | null;
+  secondFixedPolicyPrice?: number | null;
+  secondActualReceivedPriceAfterPolicyDiscount?: number | null;
+
+  productSpecialNote?: string | null;
+  diameterSize?: number | null;
+  thicknessSize?: number | null;
+  otherSize?: number | null;
+  weightPerUnit?: number | null;
+  weightPerBox?: number | null;
+  quantityPerBox?: number | null;
+  areaPerUnit?: number | null;
+  areaPerBox?: number | null;
+  porcelainWarrantyPeriod?: number | null;
+  accessoryWarrantyPeriod?: number | null;
+  patternQuantity?: number | null;
+
+  isInside?: boolean | null;
+  isOutside?: boolean | null;
+  isFlooring?: boolean | null;
+  isWalling?: boolean | null;
+  isCOCQ?: boolean | null;
+  isScratchResist?: boolean | null;
+  isAntiFouling?: boolean | null;
+  isEdgeGrinding?: boolean | null;
+
+  hardnessMOHS?: number | null;
+  brickPatternShortName?: string | null;
+  otherNote?: string | null;
+  deliveryEstimatedDate?: string | null;
+  productSpecialExtraNote?: string | null;
 }
 
 

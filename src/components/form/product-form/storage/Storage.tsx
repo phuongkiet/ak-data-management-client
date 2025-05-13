@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps{
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const StorageGroup = ({product, isCreateMode}: ProductProps) => {
+const StorageGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { storageStore, productStore } = useStore()
   const { loadStorages, productStorageList } = storageStore
 
@@ -41,13 +42,21 @@ const StorageGroup = ({product, isCreateMode}: ProductProps) => {
                      value={selectedStorage}
                      onChange={(selected) => {
                         if(!selected) {
-                          productStore.productForm.storageId = 0;
+                          if (onChange) {
+                            onChange("storageId", product?.storageId);
+                          } else if (isCreateMode) {
+                            productStore.updateProductForm("storageId", null);
+                          }
                           return;
                         }
 
                         if(isCreateMode) {
                           const storageId = selected.value;
-                          productStore.updateProductForm("storageId", storageId);
+                          if (onChange) {
+                            onChange("storageId", storageId);
+                          } else if (isCreateMode) {
+                            productStore.updateProductForm("storageId", storageId);
+                          }
                         }
                      }}
                      placeholder={'Chọn phương thức...'}

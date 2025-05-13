@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps{
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const BodyColorGroup = ({product, isCreateMode}: ProductProps) => {
+const BodyColorGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { bodyColorStore, productStore } = useStore()
   const { loadBodyColors, productBodyColorList } = bodyColorStore
 
@@ -40,13 +41,21 @@ const BodyColorGroup = ({product, isCreateMode}: ProductProps) => {
                          value={selectedBodyColor}
                          onChange={(selected) => {
                             if(!selected) {
-                              productStore.productForm.brickBodyId = 0;
+                              if (onChange) {
+                                onChange("brickBodyId", product?.brickBodyId);
+                              } else if (isCreateMode) {
+                                productStore.updateProductForm("brickBodyId", null);
+                              }
                               return;
                             }
 
                             if(isCreateMode) {
                               const bodyColorId = selected.value;
-                              productStore.updateProductForm("brickBodyId", bodyColorId);
+                              if (onChange) {
+                                onChange("brickBodyId", bodyColorId);
+                              } else if (isCreateMode) {
+                                productStore.updateProductForm("brickBodyId", bodyColorId);
+                              }
                             }
                          }}
                          isClearable={true}

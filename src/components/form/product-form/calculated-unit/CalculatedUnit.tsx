@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const CalculatedUnitGroup = ({ product, isCreateMode }: ProductProps) => {
+const CalculatedUnitGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { calculatedUnitStore, productStore } = useStore();
   const { loadCalculatedUnits, productCalculatedUnitList } =
     calculatedUnitStore;
@@ -42,35 +43,24 @@ const CalculatedUnitGroup = ({ product, isCreateMode }: ProductProps) => {
           value={selectedCalculatedUnit}
           onChange={(selectedOption) => {
             if (!selectedOption) {
-              productStore.updateProductForm("calculatedUnitId", 0);
-              productStore.updateProductForm("autoCalculatedUnit", "");
+              if (onChange) {
+                onChange("calculatedUnitId", product?.calculatedUnitId);
+                onChange("autoCalculatedUnit", "");
+              } else if (isCreateMode) {
+                productStore.updateProductForm("calculatedUnitId", null);
+                productStore.updateProductForm("autoCalculatedUnit", "");
+              }
               return;
-            } else {
-              const selectedUnit = productCalculatedUnitList.find(
-                (u) => u.id === selectedOption.value
-              );
-              productStore.updateProductForm(
-                "calculatedUnitId",
-                selectedOption.value
-              );
-              productStore.updateProductForm(
-                "autoCalculatedUnit",
-                selectedUnit?.autoCalculatedUnitName || ""
-              );
             }
-
-            if (isCreateMode) {
-              const selectedUnit = productCalculatedUnitList.find(
-                (u) => u.id === selectedOption.value
-              );
-              productStore.updateProductForm(
-                "calculatedUnitId",
-                selectedOption.value
-              );
-              productStore.updateProductForm(
-                "autoCalculatedUnit",
-                selectedUnit?.autoCalculatedUnitName || ""
-              );
+            const selectedUnit = productCalculatedUnitList.find(
+              (u) => u.id === selectedOption.value
+            );
+            if (onChange) {
+              onChange("calculatedUnitId", selectedOption.value);
+              onChange("autoCalculatedUnit", selectedUnit?.autoCalculatedUnitName || "");
+            } else if (isCreateMode) {
+              productStore.updateProductForm("calculatedUnitId", selectedOption.value);
+              productStore.updateProductForm("autoCalculatedUnit", selectedUnit?.autoCalculatedUnitName || "");
             }
           }}
           placeholder={"Chọn đơn vị tính..."}

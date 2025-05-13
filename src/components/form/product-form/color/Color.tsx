@@ -15,9 +15,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const ColorGroup = ({product, isCreateMode}: ProductProps) => {
+const ColorGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { colorStore, productStore } = useStore()
   const { loadColors, productColorList } = colorStore
   const [hexColor, setHexColor] = useState<string>("")
@@ -69,13 +70,20 @@ const ColorGroup = ({product, isCreateMode}: ProductProps) => {
             <ReactSelect options={colorOptions} value={selectedColor} 
             onChange={(selected) => {
               if(!selected){
-                productStore.updateProductForm("colorId", 0)
+                if (onChange) {
+                  onChange("colorId", product?.colorId);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("colorId", null);
+                }
                 setHexColor("")
+                return;
               }
 
-              if(isCreateMode){
-                productStore.updateProductForm("colorId", selected?.value || 0)
-                const color = productColorList.find(c => c.id === selected?.value);
+              if (onChange) {
+                onChange("colorId", selected.value);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("colorId", selected.value);
+                const color = productColorList.find(c => c.id === selected.value);
                 setHexColor(color?.colorHexCode || "")
                 console.log('Selected color:', color?.id, color?.colorHexCode);
               }

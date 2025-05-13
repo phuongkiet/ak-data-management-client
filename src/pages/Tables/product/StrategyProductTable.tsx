@@ -1,36 +1,39 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
 import StrategyProductTableComponent from "../../../components/tables/product/StrategyProductTableComponent.tsx";
-import { useStore } from '../../../app/stores/store.ts'
-import { useEffect } from 'react'
-import ComponentCard from '../../../components/common/ComponentCard.tsx'
+import { useStore } from "../../../app/stores/store.ts";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
+import TableComponentCard from "../../../components/common/product/TableComponentCard.tsx";
 
 const StrategyProductTable = () => {
   const { productStore } = useStore();
+  const [pageSize, setPageSize] = useState(productStore.pageSize || 10);
   const {
     strategyProductList,
     loadStrategyProducts,
     loading,
-    totalPages,
     pageNumber,
     setPageNumber,
     setTerm,
     totalCount,
-    term
+    term,
   } = productStore;
 
   useEffect(() => {
-    loadStrategyProducts();
-  }, []);
+    loadStrategyProducts(pageSize, pageNumber, term);
+  }, [pageSize, pageNumber, term]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setTerm(searchTerm);
+  const handlePageSizeChange = (newPageSize: number) => {
+    productStore.pageSize = newPageSize;
+    setPageSize(newPageSize);
+    setPageNumber(1); // Reset to first page
   };
+
   return (
     <>
       <PageMeta
@@ -39,20 +42,26 @@ const StrategyProductTable = () => {
       />
       <PageBreadcrumb pageTitle="Bảng tính giá" />
       <div className="space-y-6">
-        <ComponentCard title="Bảng tính giá" >
+        <TableComponentCard
+          title="Bảng tính giá"
+          onSearch={(term) => {
+            setTerm(term);
+            setPageNumber(1);
+          }}
+        >
           <StrategyProductTableComponent
             data={strategyProductList}
             loading={loading}
-            totalPages={totalPages}
             currentPage={pageNumber}
             onPageChange={handlePageChange}
-            onSearch={handleSearch}
             totalCount={totalCount}
-            searchTerm={term}/>
-        </ComponentCard>
+            searchTerm={term}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </TableComponentCard>
       </div>
     </>
   );
-}
+};
 
 export default observer(StrategyProductTable);

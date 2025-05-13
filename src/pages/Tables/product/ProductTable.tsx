@@ -25,7 +25,7 @@ function ProductTable() {
   } = productStore;
 
   useEffect(() => {
-    loadProducts(pageNumber, pageSize, term);
+    loadProducts(1, pageSize, term);
   }, [pageNumber, pageSize, term]);
 
   const handlePageChange = (page: number) => {

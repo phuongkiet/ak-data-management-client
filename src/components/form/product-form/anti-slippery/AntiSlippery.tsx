@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps{
   product?: ProductDetail
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const AntiSlipperyGroup = ({product, isCreateMode}: ProductProps) => {
+const AntiSlipperyGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { antiSlipperyStore, productStore } = useStore()
   const { loadAntiSlipperys, productAntiSlipperyList } = antiSlipperyStore
 
@@ -38,14 +39,18 @@ const AntiSlipperyGroup = ({product, isCreateMode}: ProductProps) => {
       <div className="relative">
         <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery}
                      onChange={(selected) => {
-                        if(!selected) {
-                          productStore.productForm.antiSlipId = 0
+                        if (!selected) {
+                          if (onChange) {
+                            onChange("antiSlipId", product?.antiSlipLevelId);
+                          } else if (isCreateMode) {
+                            productStore.updateProductForm("antiSlipId", null);
+                          }
                           return;
                         }
-
-                        if(isCreateMode) {
-                          const antiId = selected.value;
-                          productStore.updateProductForm("antiSlipId", antiId);
+                        if (onChange) {
+                          onChange("antiSlipId", selected.value);
+                        } else if (isCreateMode) {
+                          productStore.updateProductForm("antiSlipId", selected.value);
                         }
                      }}
                      isClearable={true}

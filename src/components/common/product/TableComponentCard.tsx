@@ -1,16 +1,17 @@
-import { useStore } from '../../../app/stores/store.ts';
-import Button from '../../ui/button/Button.tsx'
-import { useNavigate } from 'react-router'
-import { useState } from 'react';
-import Modal from '../../ui/modal';
+import { useStore } from "../../../app/stores/store.ts";
+import Button from "../../ui/button/Button.tsx";
+import { useNavigate } from "react-router";
+import { useState } from "react";
+import Modal from "../../ui/modal";
 
 interface ComponentCardProps {
   title: string;
   children: React.ReactNode;
   className?: string; // Additional custom classes for styling
   desc?: string; // Description text,
-  addButtonLink: string;
-  addButtonText: string;
+  addButtonLink?: string;
+  addButtonText?: string;
+  addButtonStyle?: string;
   modalContent?: React.ReactNode;
   modalClose?: () => void;
   onModalOpen?: () => void;
@@ -23,34 +24,38 @@ interface ComponentCardProps {
 }
 
 const TableComponentCard: React.FC<ComponentCardProps> = ({
-                                                            title,
-                                                            children,
-                                                            className = '',
-                                                            desc = '',
-                                                            addButtonLink = '',
-                                                            addButtonText = '',
-                                                            modalContent,
-                                                            modalClose,
-                                                            onModalOpen,
-                                                            modalStyle = '',
-                                                            useModal = false,
-                                                            isModalOpen: externalIsModalOpen,
-                                                            additionalButtons,
-                                                            onSearch,
-                                                            searchPlaceholder = 'Tìm kiếm...'
-                                                          }) => {
+  title,
+  children,
+  className = "",
+  desc = "",
+  addButtonLink = "",
+  addButtonText = "",
+  addButtonStyle = "",
+  modalContent,
+  modalClose,
+  onModalOpen,
+  modalStyle = "",
+  useModal = false,
+  isModalOpen: externalIsModalOpen,
+  additionalButtons,
+  onSearch,
+  searchPlaceholder = "Tìm kiếm...",
+}) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
-  const isModalOpen = externalIsModalOpen !== undefined ? externalIsModalOpen : internalIsModalOpen;
-  const navigate = useNavigate()
-  const { productStore } = useStore()
-  const [searchValue, setSearchValue] = useState('');
+  const isModalOpen =
+    externalIsModalOpen !== undefined
+      ? externalIsModalOpen
+      : internalIsModalOpen;
+  const navigate = useNavigate();
+  const { productStore } = useStore();
+  const [searchValue, setSearchValue] = useState("");
 
   const handleAddClick = () => {
     if (useModal && modalContent) {
       if (onModalOpen) onModalOpen();
       setInternalIsModalOpen(true);
     } else {
-      navigate('/' + addButtonLink);
+      navigate("/" + addButtonLink);
       productStore.resetProductForm();
     }
   };
@@ -64,7 +69,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   };
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSearch();
+    if (e.key === "Enter") handleSearch();
   };
 
   return (
@@ -77,13 +82,20 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
             {title}
           </h3>
-          <Button 
-            type="button" 
-            onClick={handleAddClick} 
-            className="ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
-          >
-            {addButtonText}
-          </Button>
+          {addButtonLink && (
+            <Button
+              type="button"
+              onClick={handleAddClick}
+              className={
+                addButtonStyle
+                  ? addButtonStyle
+                  : "ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+              }
+            >
+              {addButtonText}
+            </Button>
+          )}
+
           {additionalButtons}
         </div>
         {onSearch && (
@@ -96,7 +108,10 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
               placeholder={searchPlaceholder}
               className="border rounded px-3 py-2 mr-2 focus:outline-blue-950 "
             />
-            <Button onClick={handleSearch} className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 rounded h-[44px]">
+            <Button
+              onClick={handleSearch}
+              className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 rounded h-[44px]"
+            >
               Tìm kiếm
             </Button>
           </div>
@@ -117,9 +132,9 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
       {useModal && modalContent && (
         <Modal
           isOpen={isModalOpen}
-          onClose={() => { 
+          onClose={() => {
             setInternalIsModalOpen(false);
-            if (modalClose) modalClose(); 
+            if (modalClose) modalClose();
           }}
           className={modalStyle}
         >
@@ -127,7 +142,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
         </Modal>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default TableComponentCard
+export default TableComponentCard;

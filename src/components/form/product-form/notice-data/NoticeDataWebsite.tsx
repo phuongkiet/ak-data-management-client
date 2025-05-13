@@ -12,6 +12,7 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
 const noticeOptions: Option[] = Object.values(NoticeDataWebsite)
@@ -21,7 +22,7 @@ const noticeOptions: Option[] = Object.values(NoticeDataWebsite)
     label: NoticeDataWebsite[value as number].replace(/([A-Z])/g, ' $1').trim()
   }))
 
-const NoticeDataWebsiteGroup = ({ product, isCreateMode }: ProductProps) => {
+const NoticeDataWebsiteGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { productStore } = useStore();
   const selectedNotice = noticeOptions.find(
     (option) => option.value === product?.noticeDataWebsite
@@ -33,13 +34,22 @@ const NoticeDataWebsiteGroup = ({ product, isCreateMode }: ProductProps) => {
         <ReactSelect
           options={noticeOptions}
           value={selectedNotice}
+          defaultValue={noticeOptions[2]}
           onChange={(selected) => {
             if(!selected){
-              productStore.updateProductForm("noticeDataWebsite", 0)
+              if (onChange) {
+                onChange("noticeDataWebsite", null);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("noticeDataWebsite", 0);
+              }
             }
 
             if(isCreateMode){
-              productStore.updateProductForm("noticeDataWebsite", selected?.value || 0)
+              if (onChange) {
+                onChange("noticeDataWebsite", selected?.value || 0);
+              } else {
+                productStore.updateProductForm("noticeDataWebsite", selected?.value || 0);
+              }
             }
           }}
           placeholder={'Chọn ...'}

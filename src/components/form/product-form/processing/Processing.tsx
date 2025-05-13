@@ -12,9 +12,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const ProcessingGroup = ({ product, isCreateMode }: ProductProps) => {
+const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { processingStore, productStore } = useStore()
   const { loadProcessings, productProcessingList } = processingStore
   const { productForm } = productStore
@@ -40,14 +41,23 @@ const ProcessingGroup = ({ product, isCreateMode }: ProductProps) => {
         <ReactSelect
           options={processingOptions}
           value={selectedProcessing}
+          defaultValue={null}
           onChange={(selected) => {
             if(!selected) {
-              productForm.processingId = 0
+              if (onChange) {
+                onChange("processingId", product?.processingId);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("processingId", null);
+              }
               return;
             }
             if (isCreateMode) {
-              const processingId = selected?.value || 0
-              productStore.updateProductForm("processingId", processingId)
+              const processingId = selected?.value || null
+              if (onChange) {
+                onChange("processingId", processingId);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("processingId", processingId);
+              }
 
               productForm.productOrderNumber = 0 
               productForm.productCode = ""

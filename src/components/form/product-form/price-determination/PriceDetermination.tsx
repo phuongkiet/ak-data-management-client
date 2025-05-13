@@ -10,7 +10,8 @@ interface Option {
 
 interface ProductProps {
   product?: ProductDetail;
-  isCreateMode: boolean;
+  isCreateMode: boolean;  
+  onChange?: (field: string, value: any) => void;
 }
 
 const priceDeterminationOptions: Option[] = Object.values(PriceDetermination)
@@ -20,7 +21,7 @@ const priceDeterminationOptions: Option[] = Object.values(PriceDetermination)
     label: PriceDetermination[value as number].replace(/([A-Z])/g, ' $1').trim()
   }))
 
-const PriceDeterminationGroup = ({ product, isCreateMode }: ProductProps) => {
+const PriceDeterminationGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { productStore } = useStore();
   const selectedPriceDetermination = priceDeterminationOptions.find(
     (option) => option.value === product?.priceDetermination
@@ -32,13 +33,22 @@ const PriceDeterminationGroup = ({ product, isCreateMode }: ProductProps) => {
         <ReactSelect
           options={priceDeterminationOptions}
           value={selectedPriceDetermination}
+          defaultValue={priceDeterminationOptions[2]}
           onChange={(selected) => {
             if(!selected){
-              productStore.updateProductForm("priceDetermination", 0)
+              if (onChange) {
+                onChange("priceDetermination", 0);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("priceDetermination", 0);
+              }
             }
 
             if(isCreateMode){
-              productStore.updateProductForm("priceDetermination", selected?.value || 0)
+              if (onChange) {
+                onChange("priceDetermination", selected?.value || 0);
+              } else {
+                productStore.updateProductForm("priceDetermination", selected?.value || 0);
+              }
             }
           }}
           placeholder={'Chọn ...'}

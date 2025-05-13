@@ -13,9 +13,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const SurfaceGroup = ({product, isCreateMode}: ProductProps) => {
+const SurfaceGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { surfaceStore, productStore } = useStore()
   const { loadSurfaces, productSurfaceList } = surfaceStore
 
@@ -41,11 +42,18 @@ const SurfaceGroup = ({product, isCreateMode}: ProductProps) => {
             <ReactSelect options={surfaceOptions} value={selectedSurface} 
             onChange={(selected) => {
               if(!selected){
-                productStore.updateProductForm("surfaceFeatureId", 0)
+                if (onChange) {
+                  onChange("surfaceFeatureId", product?.surfaceFeatureId);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("surfaceFeatureId", null);
+                }
+                return;
               }
 
-              if(isCreateMode){
-                productStore.updateProductForm("surfaceFeatureId", selected?.value || 0)
+              if (onChange) {
+                onChange("surfaceFeatureId", selected.value);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("surfaceFeatureId", selected.value);
               }
             }}
              placeholder={'Chọn bề mặt...'} styles={{

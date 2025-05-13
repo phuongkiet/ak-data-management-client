@@ -16,9 +16,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const PatternGroup = ({ product, isCreateMode }: ProductProps) => {
+const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { patternStore, productStore } = useStore();
   const { loadPatterns, productPatternList } = patternStore;
   const [selectedPatternShortCode, setSelectedPatternShortCode] = useState<string>("");
@@ -47,15 +48,21 @@ const PatternGroup = ({ product, isCreateMode }: ProductProps) => {
               options={patternOptions}
               onChange={(selected) => {
                 if (!selected) {
-                  productStore.updateProductForm("brickPatternId", 0);
+                  if (onChange) {
+                    onChange("brickPatternId", product?.brickPatternId);
+                  } else if (isCreateMode) {
+                    productStore.updateProductForm("brickPatternId", null);
+                  }
                   setSelectedPatternShortCode("");
                   return;
                 }
-                if (isCreateMode) {
+                if (onChange) {
+                  onChange("brickPatternId", selected.value);
+                } else if (isCreateMode) {
                   productStore.updateProductForm("brickPatternId", selected.value);
-                  const pattern = patternStore.productPatternList.find(x => x.id === selected.value);
-                  setSelectedPatternShortCode(pattern?.shortCode || "");
                 }
+                const pattern = patternStore.productPatternList.find(x => x.id === selected.value);
+                setSelectedPatternShortCode(pattern?.shortCode || "");
               }}
               value={selectedPattern}
               isClearable={true}

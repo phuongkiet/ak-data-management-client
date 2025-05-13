@@ -3,6 +3,7 @@ import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 import { UploadWebsiteStatus } from '../../../../app/models/product/enum/product.enum.ts'
 import { useStore } from '../../../../app/stores/store.ts';
+import { uploadWebsiteStatusToVietnamese } from '../../../../app/common/common';
 interface Option {
   value: number;
   label: string;
@@ -11,17 +12,18 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
 const statusOptions: Option[] = Object.values(UploadWebsiteStatus)
   .filter((v) => typeof v === 'number')
   .map((value) => ({
     value: value as number,
-    label: UploadWebsiteStatus[value as number].replace(/([A-Z])/g, ' $1').trim()
+    label: uploadWebsiteStatusToVietnamese(UploadWebsiteStatus[value as number])
   }))
 
 
-const UploadWebSiteStatusGroup = ({ product, isCreateMode }: ProductProps) => {
+const UploadWebSiteStatusGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { productStore } = useStore();
   const selectedStatus = statusOptions.find(
     (option) => option.value === product?.uploadWebsiteStatus
@@ -33,13 +35,22 @@ const UploadWebSiteStatusGroup = ({ product, isCreateMode }: ProductProps) => {
         <ReactSelect
           options={statusOptions}
           value={selectedStatus}
+          defaultValue={statusOptions[5]}
           onChange={(selected) => {
             if(!selected){
-              productStore.updateProductForm("uploadWebsiteStatus", 6)
+              if (onChange) {
+                onChange("uploadWebsiteStatus", 6);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("uploadWebsiteStatus", 6);
+              }
             }
 
             if(isCreateMode){
-              productStore.updateProductForm("uploadWebsiteStatus", selected?.value || 0)
+              if (onChange) {
+                onChange("uploadWebsiteStatus", selected?.value || 0);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("uploadWebsiteStatus", selected?.value || 0);
+              }
             }
           }}
           placeholder={'Chọn trạng thái...'}

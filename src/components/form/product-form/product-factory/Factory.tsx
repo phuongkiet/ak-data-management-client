@@ -13,9 +13,10 @@ interface Option {
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const FactoryGroup = ({ product, isCreateMode }: ProductProps) => {
+const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { factoryStore, productStore } = useStore();
   const { loadFactories, getFactoriesBySupplier } = factoryStore;
   const { productForm } = productStore;
@@ -29,7 +30,7 @@ const FactoryGroup = ({ product, isCreateMode }: ProductProps) => {
   useEffect(() => {
     const loadFactoriesBySupplier = async () => {
       // Clear factory selection whenever supplier changes
-      productStore.updateProductForm("productFactoryId", 0);
+      productStore.updateProductForm("productFactoryId", null);
       setSelectedFactory(null);
       
       if (productForm.supplierId) {
@@ -62,18 +63,24 @@ const FactoryGroup = ({ product, isCreateMode }: ProductProps) => {
         <ReactSelect
           options={factoryOptions}
           value={selectedFactory}
+          defaultValue={null}
           onChange={async (selectedOption) => {
             if (!selectedOption) {
-              productStore.updateProductForm("productFactoryId", 0);
+              if (onChange) {
+                onChange("productFactoryId", product?.productFactoryId);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("productFactoryId", null);
+              }
               setSelectedFactory(null);
               return;
             }
 
             if (isCreateMode) {
-              productStore.updateProductForm(
-                "productFactoryId",
-                selectedOption.value
-              );
+              if (onChange) {
+                onChange("productFactoryId", selectedOption.value);
+              } else if (isCreateMode) {
+                productStore.updateProductForm("productFactoryId", selectedOption.value);
+              }
               setSelectedFactory(selectedOption);
             }
           }}

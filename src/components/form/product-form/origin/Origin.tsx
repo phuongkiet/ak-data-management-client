@@ -11,10 +11,11 @@ interface Option {
 
 interface ProductProps{
   product?: ProductDetail
-  isCreateMode: boolean
+  isCreateMode: boolean;
+  onChange?: (field: string, value: any) => void;
 }
 
-const OriginGroup = ({product, isCreateMode}: ProductProps) => {
+const OriginGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { originStore, productStore } = useStore()
   const { loadOrigins, productOriginList } = originStore
 
@@ -39,13 +40,21 @@ const OriginGroup = ({product, isCreateMode}: ProductProps) => {
         <ReactSelect options={originOptions} value={selectedOrigin}
                      onChange={(selected) => {
                         if(!selected) {
-                          productStore.productForm.originCountryId = 0;
+                          if (onChange) {
+                            onChange("originCountryId", product?.originCountryId);
+                          } else if (isCreateMode) {
+                            productStore.updateProductForm("originCountryId", null);
+                          }
                           return;
                         }
 
                         if(isCreateMode) {
                           const originId = selected.value;
-                          productStore.updateProductForm("originCountryId", originId)
+                          if (onChange) {
+                            onChange("originCountryId", originId);
+                          } else if (isCreateMode) {
+                            productStore.updateProductForm("originCountryId", originId);
+                          }
                         }
                      }}
                      isClearable={true}
