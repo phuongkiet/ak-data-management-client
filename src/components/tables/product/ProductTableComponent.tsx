@@ -16,6 +16,7 @@ import { observer } from "mobx-react-lite";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/ProductInputField.tsx";
 import ProductTextArea from "../../form/product-form/input/ProductTextArea.tsx";
+import { NumericFormat } from "react-number-format";
 
 interface ProductTableComponentProps {
   data: ProductDto[];
@@ -40,21 +41,95 @@ const ProductTableComponent = ({
     useState<ProductDetail | null>();
   const [technicalInfo, setTechnicalInfo] = useState("");
   const [storageCheckingCode, setStorageCheckingCode] = useState("");
+  const [storageName, setStorageName] = useState("");
+  const [productSurface, setProductSurface] = useState("");
+  const [productMaterial, setProductMaterial] = useState("");
+  const [productColor, setProductColor] = useState("");
+  const [productSize, setProductSize] = useState("");
+  const [displayWebsiteName, setDisplayWebsiteName] = useState("");
   const navigate = useNavigate();
-  const { productStore } = useStore();
+  const {
+    productStore,
+    storageStore,
+    waterAbsorptionStore,
+    patternStore,
+    sizeStore,
+    surfaceStore,
+    materialStore,
+    colorStore,
+  } = useStore();
 
-  
+  useEffect(() => {
+    storageStore.loadStorages();
+    waterAbsorptionStore.loadWaterAbsorption();
+    patternStore.loadPatterns();
+    sizeStore.loadSizes();
+    surfaceStore.loadSurfaces();
+    materialStore.loadMaterials();
+    colorStore.loadColors();
+  }, []);
 
   useEffect(() => {
     if (!selectedProduct) {
       setTechnicalInfo("");
+      setStorageCheckingCode("");
+      setStorageName("");
       return;
     }
+
+    const storage = storageStore.productStorageList.find(
+      (x) => x.id === selectedProduct?.storageId
+    );
+    setStorageName(storage?.name ?? "");
+
+    const water = waterAbsorptionStore.productWaterAbsorptionList.find(
+      (x) => x.id === selectedProduct?.waterAbsorptionId
+    );
+    const waterAbsorptionValue = water?.waterAbsoprtionLevel ?? "";
+
+    const surface = surfaceStore.productSurfaceList.find(
+      (x) => x.id === selectedProduct?.surfaceFeatureId
+    );
+    setProductSurface(surface?.name ?? "");
+
+    const material = materialStore.productMaterialList.find(
+      (x) => x.id === selectedProduct?.materialId
+    );
+    setProductMaterial(material?.name ?? "");
+
+    const color = colorStore.productColorList.find(
+      (x) => x.id === selectedProduct?.colorId
+    );
+    setProductColor(color?.name ?? "");
+
+    const pattern = patternStore.productPatternList.find(
+      (x) => x.id === selectedProduct?.brickPatternId
+    );
+
+    const size = sizeStore.productSizeList.find(
+      (x) => x.id === selectedProduct?.actualSizeId
+    );
+    const actualSize = size
+      ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
+      : "";
+
+    const displayWebsiteSize = actualSize + " x " + selectedProduct.thicknessSize + " | mm";
+    setProductSize(displayWebsiteSize);
+
+    setDisplayWebsiteName(
+      `${selectedProduct.confirmAutoBarCode} ${pattern?.name ?? ""} ${actualSize}`.trim()
+    );
+
+    setStorageCheckingCode(
+      selectedProduct.confirmAutoBarCode.replace(/\./g, "")
+    );
     setTechnicalInfo(
-`Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${selectedProduct.weightPerBox} kg / Thùng
+      `Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${
+        selectedProduct.weightPerBox
+      } kg / Thùng
 M² / thùng: ${selectedProduct.areaPerBox} m² / thùng
 Chống trượt: ${selectedProduct.isAntiFouling ? "❌" : "✅"}
-Độ hút nước: ≤ ${selectedProduct.waterAbsorption} %
+Độ hút nước: ${waterAbsorptionValue}
 Chống bám bẩn: ${selectedProduct.isAntiFouling ? "✅" : "❌"}
 Dùng lát nền: ${selectedProduct.isFlooring ? "✅" : "❌"}
 Dùng ốp tường: ${selectedProduct.isWalling ? "✅" : "❌"}
@@ -233,63 +308,67 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
               <div className="grid grid-cols-2 gap-4">
                 {/* First row - Short Code and Supplier Item Code */}
                 <div>
-                  <ProductLabel className="text-sm mb-1">
+                  <ProductLabel className="text-md mb-1">
                     Mã ngắn - sản phẩm:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
+                    className="h-8 text-md w-full"
                     value={selectedProduct.confirmAutoBarCode}
-                    disabled
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-sm text-red-500 mb-1">
+                  <ProductLabel className="text-md text-red-500 mb-1">
                     Mã kiểm kho:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.confirmSupplierItemCode}
-                    disabled
+                    className="h-8 text-md w-full text-red-500"
+                    value={storageCheckingCode}
                   />
                 </div>
 
                 {/* Second row - Product Code */}
                 <div className="col-span-2">
-                  <ProductLabel className="text-sm mb-1">
+                  <ProductLabel className="text-md mb-1">
                     Mã sản phẩm:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.productCode}
-                    disabled
+                    className="h-8 text-md w-full"
+                    value={displayWebsiteName}
                   />
                 </div>
 
                 {/* Third row - Unit and Delivery Date */}
                 <div>
-                  <ProductLabel className="text-sm text-red-500 mb-1">
+                  <ProductLabel className="text-md text-red-500 mb-1">
                     ĐVT:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.autoCalculatedUnit}
-                    disabled
+                    className="h-8 text-md w-full italic text-red-500"
+                    value={
+                      "(Giá áp dụng trên mỗi " +
+                      selectedProduct.autoCalculatedUnit.toLowerCase() +
+                      ")"
+                    }
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-sm mb-1">
+                  <ProductLabel className="text-md mb-1">
                     Thời gian giao hàng:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.deliveryEstimatedDate}
-                    disabled
+                    className="h-8 text-md w-full"
+                    value={
+                      "Giao hàng nhanh " +
+                      selectedProduct.deliveryEstimatedDate +
+                      " _ " +
+                      storageName
+                    }
                   />
                 </div>
 
                 {/* Technical Info */}
                 <div className="col-span-2">
-                  <ProductLabel className="text-sm mb-1">
+                  <ProductLabel className="text-md mb-1">
                     Thông tin kỹ thuật:
                   </ProductLabel>
                   <ProductTextArea
@@ -299,123 +378,162 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                 </div>
               </div>
 
+              <div>
+                <ProductLabel className="text-md font-bold mb-1 text-red-500">
+                  Hết hạn khuyến mãi ngày:
+                </ProductLabel>
+                <ProductInputField
+                  className="h-8 text-md w-full font-bold"
+                  value={new Date(
+                    Date.now() + 1000 * 60 * 60 * 24 * 119
+                  ).toLocaleDateString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
+                  disabled
+                />
+              </div>
+
               <div className="grid grid-cols-12 gap-4">
                 {/* Price Information */}
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Giá sản phẩm:
                   </ProductLabel>
-                  <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.productPrice}
-                    disabled
-                  />
+                  {selectedProduct.productPrice ? (
+                    <NumericFormat
+                      value={selectedProduct.productPrice ?? 0}
+                      thousandSeparator
+                      prefix={appCurrency}
+                      allowNegative={false}
+                      displayType="input"
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  ) : (
+                    <ProductInputField
+                      value={"Chưa có giá"}
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  )}
                 </div>
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Giá khuyến mãi 1:
                   </ProductLabel>
-                  <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.discountedPrice}
-                    disabled
-                  />
+                  {selectedProduct.discountedPrice ? (
+                    <NumericFormat
+                      value={selectedProduct.discountedPrice ?? 0}
+                      thousandSeparator
+                      prefix={appCurrency}
+                      allowNegative={false}
+                      displayType="input"
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  ) : (
+                    <ProductInputField
+                      value={"Chưa có giá"}
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  )}
                 </div>
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Giá khuyến mãi 2:
                   </ProductLabel>
-                  <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.secondDiscountedPrice}
-                    disabled
-                  />
+                  {selectedProduct.secondDiscountedPrice ? (
+                    <NumericFormat
+                      value={selectedProduct.secondDiscountedPrice ?? 0}
+                      thousandSeparator
+                      prefix={appCurrency}
+                      allowNegative={false}
+                      displayType="input"
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  ) : (
+                    <ProductInputField
+                      value={"Chưa có giá"}
+                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+                    />
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-12 gap-4">
                 {/* Quantity and Weight Information */}
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Viên/thùng:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.quantityPerBox}
-                    disabled
+                    className="h-8 text-md w-full"
+                    value={selectedProduct.quantityPerBox + " Viên / Thùng"}
                   />
                 </div>
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Kg/thùng:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.weightPerBox}
-                    disabled
+                    className="h-8 text-md w-full"
+                    value={selectedProduct.weightPerBox + " Kg / Thùng"}
                   />
                 </div>
                 <div className="col-span-4">
-                  <ProductLabel className="text-sm font-bold mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Kg/Viên:
                   </ProductLabel>
                   <ProductInputField
-                    className="h-8 text-xs w-full"
-                    value={selectedProduct.weightPerUnit}
-                    disabled
+                    className="h-8 text-md w-full"
+                    value={selectedProduct.weightPerUnit + " Kg / Viên"}
                   />
                 </div>
               </div>
 
               {/* Product Details */}
               <div>
-                <ProductLabel className="text-sm font-bold mb-1">
+                <ProductLabel className="text-md font-bold mb-1">
                   Bề mặt:
                 </ProductLabel>
                 <ProductInputField
-                  className="h-8 text-xs w-full"
-                  value={selectedProduct.surfaceFeatureId}
-                  disabled
+                  className="h-8 text-md w-full"
+                  value={productSurface}
                 />
               </div>
               <div>
-                <ProductLabel className="text-sm font-bold mb-1">
+                <ProductLabel className="text-md font-bold mb-1">
                   Chất liệu:
                 </ProductLabel>
                 <ProductInputField
-                  className="h-8 text-xs w-full"
-                  value={selectedProduct.materialId}
-                  disabled
+                  className="h-8 text-md w-full"
+                  value={productMaterial}
                 />
               </div>
               <div>
-                <ProductLabel className="text-sm font-bold mb-1">
+                <ProductLabel className="text-md font-bold mb-1">
                   Kích thước:
                 </ProductLabel>
                 <ProductInputField
-                  className="h-8 text-xs w-full"
-                  value={selectedProduct.autoGeneratedSize}
-                  disabled
+                  className="h-8 text-md w-full"
+                  value={productSize}
                 />
               </div>
               <div>
-                <ProductLabel className="text-sm font-bold mb-1">
+                <ProductLabel className="text-md font-bold mb-1">
                   Màu sắc:
                 </ProductLabel>
                 <ProductInputField
-                  className="h-8 text-xs w-full"
-                  value={selectedProduct.colorId}
-                  disabled
+                  className="h-8 text-md w-full"
+                  value={productColor}
                 />
               </div>
               <div>
-                <ProductLabel className="text-sm font-bold mb-1">
+                <ProductLabel className="text-md font-bold mb-1">
                   Số lượng vân:
                 </ProductLabel>
                 <ProductInputField
-                  className="h-8 text-xs w-full"
+                  className="h-8 text-md w-full"
                   value={selectedProduct.patternQuantity}
-                  disabled
                 />
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 interface TextareaProps {
@@ -60,4 +61,4 @@ const ProductTextArea: React.FC<TextareaProps> = ({
   );
 };
 
-export default ProductTextArea;
+export default observer(ProductTextArea);
