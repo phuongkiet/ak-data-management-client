@@ -27,7 +27,6 @@ export default class AntiSlipperyStore {
     this.loading = true;
     try {
       const result = await agent.AntiSlippery.antiSlipperyList(term);
-      console.log(result);
       runInAction(() => {
         this.productAntiSlipperyList = result.data || [];
         this.loading = false;
@@ -64,7 +63,6 @@ export default class AntiSlipperyStore {
     this.loading = true;
     try {
       const result = await agent.AntiSlippery.addAntiSlippery(this.antiSlipperyForm);
-      console.log(result);
       if (result.success) {
         toast.success("Thêm độ chống trươt thành công.");
         this.loadAntiSlipperys();

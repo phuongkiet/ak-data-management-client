@@ -22,7 +22,6 @@ export default class AreaStore {
     this.loading = true;
     try {
       const result = await agent.ProductArea.areaList(term);
-      console.log(result);
       runInAction(() => {
         this.productAreaList = result.data || [];
         this.loading = false;

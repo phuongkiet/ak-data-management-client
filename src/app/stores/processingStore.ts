@@ -27,7 +27,6 @@ export default class ProcessingStore {
     this.loading = true;
     try {
       const result = await agent.ProductProcessing.processingList(term);
-      console.log(result);
       runInAction(() => {
         this.productProcessingList = result.data || [];
         this.loading = false;
@@ -64,7 +63,6 @@ export default class ProcessingStore {
     this.loading = true;
     try {
       const result = await agent.ProductProcessing.addProcessing(this.processingForm);
-      console.log(result);
       if (result.success) {
         toast.success("Thêm gia công khác thành công.")
         this.loadProcessings();

@@ -34,7 +34,6 @@ export default class ColorStore {
     this.loading = true;
     try {
       const result = await agent.ProductColor.colorList(term);
-      console.log(result);
       runInAction(() => {
         this.productColorList = result.data || [];
         this.loading = false;

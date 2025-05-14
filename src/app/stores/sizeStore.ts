@@ -28,7 +28,6 @@ export default class SizeStore {
     this.loading = true;
     try {
       const result = await agent.ProductSize.sizeList(term);
-      console.log(result);
       runInAction(() => {
         this.productSizeList = result.data || [];
         this.loading = false;

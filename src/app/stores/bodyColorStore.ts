@@ -29,7 +29,6 @@ export default class BodyColorStore {
     this.loading = true;
     try {
       const result = await agent.ProductBodyColor.bodyColorList(term);
-      console.log(result);
       runInAction(() => {
         this.productBodyColorList = result.data || [];
         this.loading = false;

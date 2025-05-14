@@ -26,7 +26,6 @@ export default class WaterAbsorptionStore {
     this.loading = true;
     try {
       const result = await agent.ProductWaterAbsorption.waterAbsorptionList(term);
-      console.log(result);
       runInAction(() => {
         this.productWaterAbsorptionList = result.data || [];
         this.loading = false;

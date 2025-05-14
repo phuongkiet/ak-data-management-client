@@ -69,7 +69,6 @@ export default class StorageStore {
     this.loading = true;
     try {
       const result = await agent.ProductStorage.addStorage(this.storageForm);
-      console.log(result);
       if (result.success) {
         toast.success("Thêm kho thành công.");
         this.loadStorages();

@@ -27,7 +27,6 @@ export default class OriginStore {
     this.loading = true;
     try {
       const result = await agent.ProductOrigin.originList(term);
-      console.log(result);
       runInAction(() => {
         this.productOriginList = result.data || [];
         this.loading = false;

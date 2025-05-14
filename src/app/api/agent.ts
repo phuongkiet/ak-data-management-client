@@ -197,12 +197,16 @@ const Product = {
   productList: (
     pageSize?: number,
     pageNumber?: number,
-    term?: string
+    term?: string,
+    supplierId?: number,
+    sizeId?: number,
   ): Promise<ApiResponseModel<PagedModel<ProductDto>>> => {
     const params = new URLSearchParams();
-    if (pageSize) params.append("pageSize", pageSize.toString());
-    if (pageNumber) params.append("pageNumber", pageNumber.toString());
-    if (term) params.append("term", term);
+    if (pageSize) params.append("PageSize", pageSize.toString());
+    if (pageNumber) params.append("PageNumber", pageNumber.toString());
+    if (supplierId) params.append("SupplierId", supplierId.toString());
+    if (sizeId) params.append("SizeId", sizeId.toString());
+    if (term) params.append("Term", term);
 
     return requests.get<PagedModel<ProductDto>>(
       `/products?${params.toString()}`

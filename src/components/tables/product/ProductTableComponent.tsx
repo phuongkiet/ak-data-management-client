@@ -299,7 +299,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
         onClose={handleCloseModal}
         className="w-full max-w-[1100px] px-20"
       >
-        <div className="p-4 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 max-h-[80vh] overflow-y-scroll">
           <h2 className="text-2xl font-bold my-5 text-center">
             THÔNG TIN WEBSITE GẠCH ỐP LÁT
           </h2>
@@ -372,7 +372,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                     Thông tin kỹ thuật:
                   </ProductLabel>
                   <ProductTextArea
-                    className="h-32 w-full text-lg border-gray-300 bg-gray-100 p-2"
+                    className="h-[300px] w-full text-lg border-gray-300 bg-gray-100 p-2 overflow-hidden"
                     value={technicalInfo}
                   />
                 </div>

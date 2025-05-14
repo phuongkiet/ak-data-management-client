@@ -36,7 +36,6 @@ export default class SupplierStore {
     this.loading = true;
     try {
       const result = await agent.ProductSupplier.supplierList(term);
-      console.log(result);
       runInAction(() => {
         this.productSupplierList = result.data || [];
         this.loading = false;

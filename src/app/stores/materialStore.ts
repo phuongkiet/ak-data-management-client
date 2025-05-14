@@ -27,7 +27,6 @@ export default class MaterialStore {
     this.loading = true;
     try {
       const result = await agent.ProductMaterial.materialList(term);
-      console.log(result);
       runInAction(() => {
         this.productMaterialList = result.data || [];
         this.loading = false;

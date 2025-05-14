@@ -34,7 +34,6 @@ export default class SurfaceStore {
     this.loading = true;
     try {
       const result = await agent.ProductSurface.surfaceList(term);
-      console.log(result);
       runInAction(() => {
         this.productSurfaceList = result.data || [];
         this.loading = false;

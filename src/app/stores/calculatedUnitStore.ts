@@ -21,7 +21,6 @@ export default class CalculatedUnitStore {
     this.loading = true;
     try {
       const result = await agent.CalculatedUnit.calculatedUnitList(term);
-      console.log(result);
       runInAction(() => {
         this.productCalculatedUnitList = result.data || [];
         this.loading = false;

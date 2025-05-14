@@ -26,7 +26,6 @@ export default class CompanyCodeStore {
     this.loading = true;
     try {
       const result = await agent.CompanyCode.companyCodeList(term);
-      console.log(result);
       runInAction(() => {
         this.productCompanyCodeList = result.data || [];
         this.loading = false;

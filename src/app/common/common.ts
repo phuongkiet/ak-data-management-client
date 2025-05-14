@@ -40,3 +40,9 @@ export function uploadWebsiteStatusToVietnamese(status: string | number): string
   }
 }
 
+export function buildQueryString(params: Record<string, any>): string {
+  return Object.entries(params)
+    .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+}

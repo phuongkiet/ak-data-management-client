@@ -3,6 +3,7 @@ import agent from '../api/agent'
 import { AddProductDto, EditProductDto, ProductDetail, ProductDto, StrategyProductDto } from '../models/product/product.model'
 import { toast } from 'react-toastify'
 import { UploadWebsiteStatus } from '../models/product/enum/product.enum.ts'
+import { AdvancedSearchDto } from '../models/common/advancedSearch.model'
 
 export default class ProductStore {
 
@@ -12,11 +13,13 @@ export default class ProductStore {
   productList: ProductDto[] = []
   strategyProductList: StrategyProductDto[] = []
   loading = false
-  pageNumber = 1
-  pageSize = 10
   totalPages = 0
   totalCount = 0
-  term: string = ''
+  pageNumber = 1;
+  pageSize = 10;
+  term: string | null = null;
+  supplierId: number | null = null
+  sizeId: number | null = null
 
   productForm: AddProductDto = {} as AddProductDto
   productDetail: ProductDetail = {} as ProductDetail
@@ -86,41 +89,61 @@ export default class ProductStore {
     makeAutoObservable(this)
     this.resetProductForm();
   }
+  
+  setSupplierId = (id: number | null) => {
+    this.supplierId = id;
+  }
+
+  setSizeId = (id: number | null) => {
+    this.sizeId = id;
+  }
 
   setPageNumber = (page: number) => {
     this.pageNumber = page;
-    this.loadProducts(this.pageSize, this.pageNumber, this.term);
+    this.loadProducts(); // không cần truyền gì
   }
-
+  
   setTerm = (term: string) => {
     this.term = term;
     this.pageNumber = 1;
-    this.loadProducts(this.pageSize, this.pageNumber, this.term);
+    this.loadProducts(); // không cần truyền gì
+  }
+  
+
+  setFilters = (filters: Partial<AdvancedSearchDto>) => {
+    if (filters.pageNumber !== undefined) this.pageNumber = filters.pageNumber;
+    if (filters.pageSize !== undefined) this.pageSize = filters.pageSize;
+    if (filters.term !== undefined) this.term = filters.term;
+    if (filters.supplierId !== undefined) this.supplierId = filters.supplierId;
+    if (filters.sizeId !== undefined) this.sizeId = filters.sizeId;
   }
 
-  loadProducts = async (pageSize: number, pageNumber: number, term?: string) => {
-    this.loading = true
+  loadProducts = async () => {
+    this.loading = true;
     try {
-      const result = await agent.Product.productList(pageSize, pageNumber, term)
-      console.log(result)
+      const result = await agent.Product.productList(
+        this.pageSize,
+        this.pageNumber,
+        this.term ?? undefined,
+        this.supplierId ?? undefined,
+        this.sizeId ?? undefined
+      );
       runInAction(() => {
-        this.productList = result.data?.results || []
-        this.totalPages = result.data?.totalPage || 0
-        this.totalCount = result.data?.totalItems || 0
-        this.loading = false
-
-        // Optionally: store products in a Map
-        this.productRegistry.clear()
+        this.productList = result.data?.results || [];
+        this.totalPages = result.data?.totalPage || 0;
+        this.totalCount = result.data?.totalItems || 0;
+        this.loading = false;
+        this.productRegistry.clear();
         this.productList.forEach(product => {
-          if (product.id != null) this.productRegistry.set(product.id, product)
-        })
-      })
+          if (product.id != null) this.productRegistry.set(product.id, product);
+        });
+      });
     } catch (error) {
       runInAction(() => {
-        this.loading = false
-      })
-      console.error('Failed to load products', error)
-      toast.error('Lỗi khi tải dữ liệu sản phẩm.')
+        this.loading = false;
+      });
+      console.error('Failed to load products', error);
+      toast.error('Lỗi khi tải dữ liệu sản phẩm.');
     }
   }
 
@@ -268,7 +291,7 @@ export default class ProductStore {
       if (response.success) {
         runInAction(() => {
           toast.success(`Đã nhập ${response.data} sản phẩm thành công.`);
-          this.loadProducts(this.pageSize, this.pageNumber, this.term); // Reload the product list after import
+          this.loadProducts(); // Reload the product list after import
         });
       } else {
         runInAction(() => {
@@ -292,7 +315,7 @@ export default class ProductStore {
       if (response.success) {
         runInAction(() => {
           toast.success(response.data);
-          this.loadProducts(this.pageSize, 1, this.term);
+          this.loadProducts();
           this.loading = false;
         });
         return true;

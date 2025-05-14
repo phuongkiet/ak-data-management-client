@@ -36,7 +36,6 @@ export default class PatternStore {
     this.loading = true;
     try {
       const result = await agent.ProductPattern.patternList(term);
-      console.log(result);
       runInAction(() => {
         this.productPatternList = result.data || [];
         this.loading = false;

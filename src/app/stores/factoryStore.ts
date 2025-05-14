@@ -26,7 +26,6 @@ export default class FactoryStore {
     this.loading = true;
     try {
       const result = await agent.ProductFactory.factoryList(term);
-      console.log(result);
       runInAction(() => {
         this.productFactoryList = result.data || [];
         this.loading = false;
