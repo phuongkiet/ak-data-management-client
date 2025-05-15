@@ -58,7 +58,8 @@ const OriginGroup = ({product, isCreateMode, onChange}: ProductProps) => {
                         }
                      }}
                      isClearable={true}
-                     placeholder={'Chọn xuất xứ...'} styles={{
+                     placeholder={'Chọn xuất xứ...'} noOptionsMessage={() => "Không có xuất xứ"}
+                     styles={{
           control: (base) => ({
             ...base,
             minHeight: '44px', // Chiều cao tổng thể

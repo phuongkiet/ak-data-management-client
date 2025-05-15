@@ -62,6 +62,7 @@ const SupplierGroup = ({product, isCreateMode, onChange}: ProductProps) => {
             <ReactSelect
               options={supplierOptions}
               value={selectedSupplier}
+              noOptionsMessage={() => "Không có nhà cung cấp"}
               onChange={async (selectedOption) => {
                 if (!selectedOption) {
                   if (onChange) {

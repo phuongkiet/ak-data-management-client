@@ -34,6 +34,7 @@ const PriceDeterminationGroup = ({ product, isCreateMode, onChange }: ProductPro
           options={priceDeterminationOptions}
           value={selectedPriceDetermination}
           defaultValue={priceDeterminationOptions[2]}
+          noOptionsMessage={() => "Không có phương pháp xác định giá"}
           onChange={(selected) => {
             if(!selected){
               if (onChange) {

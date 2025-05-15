@@ -41,6 +41,7 @@ const CalculatedUnitGroup = ({ product, isCreateMode, onChange }: ProductProps) 
         <ReactSelect
           options={calculatedUnitOptions}
           value={selectedCalculatedUnit}
+          noOptionsMessage={() => "Không có đơn vị tính"}
           onChange={(selectedOption) => {
             if (!selectedOption) {
               if (onChange) {

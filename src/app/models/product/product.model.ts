@@ -158,7 +158,7 @@ export interface ProductDetail {
   taxRate: number;
   calculatedUnitId: number;
   companyCodeId: number;
-  processingId: number | null;
+  processingId: number[];
   productFactoryId: number | null;
 
   priceDetermination: PriceDetermination;
@@ -183,7 +183,7 @@ export interface AddProductDto {
   antiSlipId: number | null;
   supplierId: number | null;
   companyCodeId: number | null;
-  processingId: number | null;
+  processingId: number[] | null;
   waterAbsorptionId: number | null;
   taxId: number | null;
   calculatedUnitId: number | null;
@@ -249,7 +249,7 @@ export interface EditProductDto {
   antiSlipId?: number | null;
   supplierId?: number | null;
   companyCodeId?: number | null;
-  productProcessingId?: number | null;
+  productProcessingId?: number[] | null;
   waterAbsorptionId?: number | null;
   taxId?: number | null;
   calculatedUnitId?: number | null;

@@ -35,6 +35,7 @@ const NoticeDataWebsiteGroup = ({ product, isCreateMode, onChange }: ProductProp
           options={noticeOptions}
           value={selectedNotice}
           defaultValue={noticeOptions[2]}
+          noOptionsMessage={() => "Không có thông tin"}
           onChange={(selected) => {
             if(!selected){
               if (onChange) {

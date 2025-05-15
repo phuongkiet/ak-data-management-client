@@ -1,48 +1,54 @@
-import { makeAutoObservable, runInAction } from 'mobx'
-import agent from '../api/agent'
-import { AddProductDto, EditProductDto, ProductDetail, ProductDto, StrategyProductDto } from '../models/product/product.model'
-import { toast } from 'react-toastify'
-import { UploadWebsiteStatus } from '../models/product/enum/product.enum.ts'
-import { AdvancedSearchDto } from '../models/common/advancedSearch.model'
+import { makeAutoObservable, runInAction } from "mobx";
+import agent from "../api/agent";
+import {
+  AddProductDto,
+  EditProductDto,
+  ProductDetail,
+  ProductDto,
+  StrategyProductDto,
+} from "../models/product/product.model";
+import { toast } from "react-toastify";
+import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
+import { AdvancedSearchDto } from "../models/common/advancedSearch.model";
 
 export default class ProductStore {
-
   //Product
-  productRegistry = new Map<number, ProductDto>()
-  strategyProductRegistry = new Map<number, StrategyProductDto>()
-  productList: ProductDto[] = []
-  strategyProductList: StrategyProductDto[] = []
-  loading = false
-  totalPages = 0
-  totalCount = 0
+  productRegistry = new Map<number, ProductDto>();
+  strategyProductRegistry = new Map<number, StrategyProductDto>();
+  productList: ProductDto[] = [];
+  strategyProductList: StrategyProductDto[] = [];
+  loading = false;
+  totalPages = 0;
+  totalCount = 0;
+  absoluteTotalCount = 0;
   pageNumber = 1;
   pageSize = 10;
   term: string | null = null;
-  supplierId: number | null = null
-  sizeId: number | null = null
+  supplierId: number | null = null;
+  sizeId: number | null = null;
 
-  productForm: AddProductDto = {} as AddProductDto
-  productDetail: ProductDetail = {} as ProductDetail
+  productForm: AddProductDto = {} as AddProductDto;
+  productDetail: ProductDetail = {} as ProductDetail;
 
   resetProductForm = () => {
     runInAction(() => {
       this.productForm = {
-        originCountryId: 0,
-        actualSizeId: 0,
-        brickPatternId: 0,
-        colorId: 0,
-        surfaceFeatureId: 0,
-        materialId: 0,
-        brickBodyId: 0,
-        storageId: 0,
-        antiSlipId: 0,
-        supplierId: 0,
-        companyCodeId: 0,
+        originCountryId: null,
+        actualSizeId: null,
+        brickPatternId: null,
+        colorId: null,
+        surfaceFeatureId: null,
+        materialId: null,
+        brickBodyId: null,
+        storageId: null,
+        antiSlipId: null,
+        supplierId: null,
+        companyCodeId: null,
         processingId: null,
-        waterAbsorptionId: 0,
+        waterAbsorptionId: null,
         taxId: null,
-        calculatedUnitId: 0,
-        productFactoryId: 0,
+        calculatedUnitId: null,
+        productFactoryId: null,
 
         priceDetermination: 0,
         noticeDataWebsite: 0,
@@ -50,18 +56,18 @@ export default class ProductStore {
         discountConditions: 0,
         secondDiscountConditions: 0,
 
-        supplierItemCode: '',
-        supplerCode: '',
+        supplierItemCode: "",
+        supplerCode: "",
         productOrderNumber: undefined,
-        productCode: '',
-        autoBarCode: '',
-        displayWebsiteName: '',
+        productCode: "",
+        autoBarCode: "",
+        displayWebsiteName: "",
         webProductPrice: null,
         webDiscountedPrice: null,
         secondWebDiscountedPrice: null,
-        autoCalculatedUnit: '',
-        calculatedUnit: '',
-        productSpecialNote: '',
+        autoCalculatedUnit: "",
+        calculatedUnit: "",
+        productSpecialNote: "",
         diameterSize: undefined,
         thicknessSize: 0,
         weightPerUnit: 0,
@@ -79,36 +85,47 @@ export default class ProductStore {
         isAntiFouling: false,
         isEdgeGrinding: false,
         hardnessMOHS: 0,
-        otherNote: '',
-        deliveryEstimatedDate: '',
-      }
-    })
-  }
+        otherNote: "",
+        deliveryEstimatedDate: "",
+      };
+    });
+  };
 
   constructor() {
-    makeAutoObservable(this)
+    makeAutoObservable(this);
     this.resetProductForm();
+
+    const savedPageNumber = localStorage.getItem("pageNumber");
+    const savedPageSize = localStorage.getItem("pageSize");
+
+    this.pageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
+    this.pageSize = savedPageSize ? parseInt(savedPageSize) : 10;
   }
-  
+
   setSupplierId = (id: number | null) => {
     this.supplierId = id;
-  }
+  };
 
   setSizeId = (id: number | null) => {
     this.sizeId = id;
-  }
+  };
 
   setPageNumber = (page: number) => {
     this.pageNumber = page;
-    this.loadProducts(); // không cần truyền gì
-  }
-  
+    localStorage.setItem("pageNumber", page.toString());
+  };
+
+  setPageSize = (size: number) => {
+    this.pageSize = size;
+    this.pageNumber = 1;
+    localStorage.setItem("pageSize", size.toString());
+    localStorage.setItem("pageNumber", "1");
+  };
+
   setTerm = (term: string) => {
     this.term = term;
     this.pageNumber = 1;
-    this.loadProducts(); // không cần truyền gì
-  }
-  
+  };
 
   setFilters = (filters: Partial<AdvancedSearchDto>) => {
     if (filters.pageNumber !== undefined) this.pageNumber = filters.pageNumber;
@@ -116,7 +133,7 @@ export default class ProductStore {
     if (filters.term !== undefined) this.term = filters.term;
     if (filters.supplierId !== undefined) this.supplierId = filters.supplierId;
     if (filters.sizeId !== undefined) this.sizeId = filters.sizeId;
-  }
+  };
 
   loadProducts = async () => {
     this.loading = true;
@@ -134,7 +151,7 @@ export default class ProductStore {
         this.totalCount = result.data?.totalItems || 0;
         this.loading = false;
         this.productRegistry.clear();
-        this.productList.forEach(product => {
+        this.productList.forEach((product) => {
           if (product.id != null) this.productRegistry.set(product.id, product);
         });
       });
@@ -142,93 +159,102 @@ export default class ProductStore {
       runInAction(() => {
         this.loading = false;
       });
-      console.error('Failed to load products', error);
-      toast.error('Lỗi khi tải dữ liệu sản phẩm.');
+      console.error("Failed to load products", error);
+      toast.error("Lỗi khi tải dữ liệu sản phẩm.");
     }
-  }
+  };
 
   //Strategy Products
-  loadStrategyProducts = async (pageSize: number, pageNumber: number, term?: string) => {
-    this.loading = true
+  loadStrategyProducts = async (
+    pageSize: number,
+    pageNumber: number,
+    term?: string
+  ) => {
+    this.loading = true;
     try {
-      const result = await agent.Product.strategyProductList(pageSize, pageNumber, term)
-      console.log(result)
+      const result = await agent.Product.strategyProductList(
+        pageSize,
+        pageNumber,
+        term
+      );
+      console.log(result);
       runInAction(() => {
-        this.strategyProductList = result.data?.results || []
-        this.totalPages = result.data?.totalPage || 0
-        this.totalCount = result.data?.totalItems || 0
-        this.loading = false
+        this.strategyProductList = result.data?.results || [];
+        this.totalPages = result.data?.totalPage || 0;
+        this.totalCount = result.data?.totalItems || 0;
+        this.loading = false;
 
         // Optionally: store products in a Map
-        this.strategyProductRegistry.clear()
-        this.strategyProductList.forEach(product => {
-          if (product.id != null) this.strategyProductRegistry.set(product.id, product)
-        })
-      })
+        this.strategyProductRegistry.clear();
+        this.strategyProductList.forEach((product) => {
+          if (product.id != null)
+            this.strategyProductRegistry.set(product.id, product);
+        });
+      });
     } catch (error) {
       runInAction(() => {
-        this.loading = false
-      })
-      console.error('Failed to load products', error)
+        this.loading = false;
+      });
+      console.error("Failed to load products", error);
     }
-  }
+  };
 
   loadProductDetail = async (id: number) => {
-    this.loading = true
+    this.loading = true;
     try {
-      const response = await agent.Product.getProductById(id)
-      const product = response.data // Truy xuất `data` từ response
+      const response = await agent.Product.getProductById(id);
+      const product = response.data; // Truy xuất `data` từ response
 
-      if (!product) throw new Error('Không có dữ liệu sản phẩm')
+      if (!product) throw new Error("Không có dữ liệu sản phẩm");
 
       runInAction(() => {
         this.productDetail = {
           ...{
-            ...product
-          }
-        }
-        console.log(this.productDetail)
-        this.loading = false
-      })
+            ...product,
+          },
+        };
+        console.log(this.productDetail);
+        this.loading = false;
+      });
     } catch (error) {
       runInAction(() => {
-        this.loading = false
-      })
-      console.error('Lỗi khi tải sản phẩm', error)
-      toast.error('Không thể tải dữ liệu sản phẩm')
+        this.loading = false;
+      });
+      console.error("Lỗi khi tải sản phẩm", error);
+      toast.error("Không thể tải dữ liệu sản phẩm");
     }
-  }
+  };
 
-  updateProductForm = <K extends keyof AddProductDto>(field: K, value: AddProductDto[K]) => {
+  updateProductForm = <K extends keyof AddProductDto>(
+    field: K,
+    value: AddProductDto[K]
+  ) => {
     runInAction(() => {
-      this.productForm[field] = value
-      console.log(this.productForm)
-    })
-  }
+      this.productForm[field] = value;
+      console.log(this.productForm);
+    });
+  };
 
   //Supplier
   getNextOrderNumberAuto = async () => {
     try {
-      if (this.productForm.processingId) {
-        this.productForm.productOrderNumber = 0; // hoặc null
-        return;
-      }
-
       if (this.productForm.supplierId) {
-        const response = await agent.Product.getNextOrderNumber(this.productForm.supplierId);
+        const response = await agent.Product.getNextOrderNumber(
+          this.productForm.supplierId
+        );
         runInAction(() => {
           if (response.data) {
             this.productForm.productOrderNumber = response.data;
           } else {
-            toast.error(response.errors || 'Không lấy được số thứ tự.');
+            toast.error(response.errors || "Không lấy được số thứ tự.");
           }
-        })
+        });
       }
     } catch (error) {
-      console.error('Error getting next order number:', error);
+      console.error("Error getting next order number:", error);
       this.productForm.productOrderNumber = 0; // fallback
     }
-  }
+  };
 
   createProduct = async () => {
     this.loading = true;
@@ -242,7 +268,7 @@ export default class ProductStore {
         return response.data;
       } else {
         runInAction(() => {
-          toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi tạo sản phẩm');
+          toast.error(response.errors?.[0] || "Có lỗi xảy ra khi tạo sản phẩm");
         });
         return null;
       }
@@ -250,8 +276,8 @@ export default class ProductStore {
       runInAction(() => {
         this.loading = false;
       });
-      console.error('Error creating product:', error);
-      toast.error('Có lỗi xảy ra khi tạo sản phẩm');
+      console.error("Error creating product:", error);
+      toast.error("Có lỗi xảy ra khi tạo sản phẩm");
       return null;
     } finally {
       runInAction(() => {
@@ -265,24 +291,28 @@ export default class ProductStore {
       const response = await agent.Product.getTotalProducts();
       runInAction(() => {
         if (response.success) {
-          this.totalCount = response.data || 0;
+          this.absoluteTotalCount = response.data || 0;
         } else {
-          toast.error(response.errors?.[0] || 'Không lấy được tổng số sản phẩm');
+          toast.error(
+            response.errors?.[0] || "Không lấy được tổng số sản phẩm"
+          );
         }
       });
     } catch (error) {
-      console.error('Error getting total products:', error);
+      console.error("Error getting total products:", error);
     }
-  }
+  };
 
   checkSupplierItemCode = async (supplierItemCode: string) => {
     try {
-      const response = await agent.Product.checkSupplierItemCode(supplierItemCode);
+      const response = await agent.Product.checkSupplierItemCode(
+        supplierItemCode
+      );
       return response.data;
     } catch (error) {
-      console.error('Error checking SKU:', error);
+      console.error("Error checking SKU:", error);
     }
-  }
+  };
 
   importProducts = async (file: File) => {
     this.loading = true;
@@ -295,18 +325,18 @@ export default class ProductStore {
         });
       } else {
         runInAction(() => {
-          toast.error(response.errors?.[0] || 'Lỗi khi nhập sản phẩm');
+          toast.error(response.errors?.[0] || "Lỗi khi nhập sản phẩm");
         });
       }
     } catch (error) {
-      console.error('Error importing products:', error);
-      toast.error('Lỗi khi nhập sản phẩm');
+      console.error("Error importing products:", error);
+      toast.error("Lỗi khi nhập sản phẩm");
     } finally {
       runInAction(() => {
         this.loading = false;
       });
     }
-  }
+  };
 
   editProduct = async (productId: number, product: EditProductDto) => {
     this.loading = true;
@@ -321,19 +351,19 @@ export default class ProductStore {
         return true;
       } else {
         runInAction(() => {
-          toast.error(response.errors?.[0] || 'Lỗi khi sửa sản phẩm');
+          toast.error(response.errors?.[0] || "Lỗi khi sửa sản phẩm");
           this.loading = false;
         });
         return false;
       }
     } catch (error) {
-      console.error('Error editing product:', error);
-      toast.error('Lỗi khi sửa sản phẩm');
+      console.error("Error editing product:", error);
+      toast.error("Lỗi khi sửa sản phẩm");
       return false;
     } finally {
       runInAction(() => {
         this.loading = false;
       });
     }
-  }
+  };
 }

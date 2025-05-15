@@ -69,6 +69,7 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
               placeholder={"Chọn hệ vân..."}
               className="react-select-container"
               classNamePrefix="react-select"
+              noOptionsMessage={() => "Không có hệ vân"}
               styles={{
                 control: (base) => ({
                   ...base,

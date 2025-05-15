@@ -31,7 +31,7 @@ const EcommerceMetrics = () => {
               Sản phẩm
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              {productStore.totalCount}
+              {productStore.absoluteTotalCount}
             </h4>
           </div>
           {/*<Badge color="success">*/}

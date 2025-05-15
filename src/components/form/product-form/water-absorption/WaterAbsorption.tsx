@@ -42,6 +42,7 @@ const WaterAbsorptionGroup = ({ product, isCreateMode, onChange }: ProductProps)
         <ReactSelect
           options={waterAbsorptionOptions}
           value={selectedWaterAbsorption}
+          noOptionsMessage={() => "Không có độ hút nước"}
           onChange={(selected) => {
             if(!selected){
               if (onChange) {

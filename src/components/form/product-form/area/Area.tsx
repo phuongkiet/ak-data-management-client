@@ -40,6 +40,7 @@ const AreaGroup = ({ isCreateMode }: ProductProps) => {
         <ReactSelect
           options={areaOptions}
           value={selectedArea}
+          noOptionsMessage={() => "Không có khu vực"}
           onChange={(selectedOption) => {
             if (!selectedOption) {
               supplierStore.updateAreaValue("id", 0);

@@ -20,7 +20,6 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { loadProcessings, productProcessingList } = processingStore
   const { productForm } = productStore
 
-
   useEffect(() => {
     loadProcessings()
   }, [])
@@ -31,8 +30,11 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
     label: processing.processingCode
   }))
 
-  const selectedProcessing = processingOptions.find(
-    (option) => option.value === product?.processingId
+  // Ensure processingId is always an array
+  const selectedProcessings = processingOptions.filter(option =>
+    Array.isArray(isCreateMode ? productForm.processingId : product?.processingId)
+      ? (isCreateMode ? productForm.processingId : product?.processingId)?.includes(option.value)
+      : false
   )
 
   return (
@@ -40,35 +42,24 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
       <div className="relative">
         <ReactSelect
           options={processingOptions}
-          value={selectedProcessing}
-          defaultValue={null}
+          value={selectedProcessings}
+          isMulti
+          noOptionsMessage={() => "Không có gia công"}
           onChange={(selected) => {
-            if(!selected) {
-              if (onChange) {
-                onChange("processingId", product?.processingId);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("processingId", null);
-              }
-              return;
-            }
-            if (isCreateMode) {
-              const processingId = selected?.value || null
-              if (onChange) {
-                onChange("processingId", processingId);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("processingId", processingId);
-              }
-
-              productForm.productOrderNumber = 0 
-              productForm.productCode = ""
+            const ids = selected ? selected.map((s: Option) => s.value) : [];
+            if (onChange) {
+              onChange("processingId", ids);
+            } else if (isCreateMode) {
+              productStore.updateProductForm("processingId", ids);
             }
           }}
           placeholder={'Chọn gia công...'}
           isClearable={true}
+          closeMenuOnSelect={false}
           styles={{
             control: (base) => ({
               ...base,
-              minHeight: '44px', // Chiều cao tổng thể
+              minHeight: '44px',
               height: '44px',
               fontFamily: 'Roboto, sans-serif',
               fontSize: '14px'
@@ -88,7 +79,8 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
               backgroundColor: state.isFocused ? '#f3f4f6' : 'white',
               color: 'black'
             })
-          }} />
+          }}
+        />
       </div>
     </div>
   )

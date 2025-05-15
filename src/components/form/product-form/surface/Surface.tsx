@@ -56,7 +56,7 @@ const SurfaceGroup = ({product, isCreateMode, onChange}: ProductProps) => {
                 productStore.updateProductForm("surfaceFeatureId", selected.value);
               }
             }}
-             placeholder={'Chọn bề mặt...'} styles={{
+             placeholder={'Chọn bề mặt...'} noOptionsMessage={() => "Không có bề mặt"} styles={{
               control: (base) => ({
                 ...base,
                 minHeight: '44px', // Chiều cao tổng thể

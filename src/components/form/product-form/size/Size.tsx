@@ -140,6 +140,7 @@ const SizeGroup = ({
               value={selectedSize}
               onChange={handleSizeChange}
               placeholder={"Chọn kích thước..."}
+              noOptionsMessage={() => "Không có kích thước"}
               styles={{
                 control: (base) => ({
                   ...base,

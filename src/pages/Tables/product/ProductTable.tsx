@@ -11,7 +11,8 @@ import Modal from "../../../components/ui/modal/index.tsx";
 function ProductTable() {
   const { productStore, supplierStore, sizeStore } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pageSize, setPageSize] = useState(productStore.pageSize || 10);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
@@ -24,92 +25,78 @@ function ProductTable() {
   const {
     productList,
     loadProducts,
-    loading,
-    pageNumber,
-    setPageNumber,
     setTerm,
-    totalCount,
     term,
+    totalCount,
     importProducts,
+    loading,
   } = productStore;
 
   useEffect(() => {
     const savedSupplier = localStorage.getItem("selectedSupplier");
     const savedSize = localStorage.getItem("selectedSize");
-  
-    const savedPageNumber = localStorage.getItem("productPageNumber");
-    const savedPageSize = localStorage.getItem("productPageSize");
-  
+
+    // Cập nhật state filter local
     if (savedSupplier) {
       const parsedSupplier = parseInt(savedSupplier);
       setSelectedSupplier(parsedSupplier);
       setTempSelectedSupplier(parsedSupplier);
       setIsAdvancedActive(true);
     }
-  
+
     if (savedSize) {
       const parsedSize = parseInt(savedSize);
       setSelectedSize(parsedSize);
       setTempSelectedSize(parsedSize);
       setIsAdvancedActive(true);
     }
-  
-    if (savedPageNumber) {
-      const parsedPageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
-      productStore.pageNumber = parsedPageNumber;
-      setPageNumber(parsedPageNumber);
-    }
-  
-    if (savedPageSize) {
-      const parsedPageSize = savedPageSize ? parseInt(savedPageSize) : 10;
-      productStore.pageSize = parsedPageSize;
-      setPageSize(parsedPageSize);
-    }
-  
-    // Chờ load suppliers và sizes xong rồi mới bật isReady
+
+    // Chờ load suppliers và sizes xong rồi mới bật cờ ready
     Promise.all([
       supplierStore.loadSuppliers(),
       sizeStore.loadSizes()
     ]).then(() => {
       setIsReady(true);
-      setIsStoreReady(true); // chỉ đánh dấu true sau khi set xong
+      setIsStoreReady(true);
     });
-  }, []);  
+  }, []);
 
   useEffect(() => {
+
     if (!isStoreReady || !isReady) return;
-  
-    // Set filters in the store before loading
+
     productStore.setFilters({
-      pageNumber,
-      pageSize,
-      term,
-      supplierId: isAdvancedActive ? tempSelectedSupplier : null,
-      sizeId: isAdvancedActive ? tempSelectedSize : null,
+      pageNumber: productStore.pageNumber, // Sử dụng component state
+      pageSize,   // Sử dụng component state
+      term,       // Sử dụng store state (lấy qua destructure)
+      supplierId: isAdvancedActive ? selectedSupplier : null, // Sử dụng component state
+      sizeId: isAdvancedActive ? selectedSize : null,       // Sử dụng component state
     });
+
     loadProducts(); // No arguments
+
   }, [
-    pageNumber,
-    pageSize,
-    term,
-    tempSelectedSupplier,
-    tempSelectedSize,
-    isAdvancedActive,
-    isReady,
-    isStoreReady,
-  ]);  
+    productStore.pageNumber, // Dependency là state local pageNumber
+    productStore.pageSize,   // Dependency là state local pageSize
+    term,       // Dependency là store state term (từ destructure)
+    selectedSupplier, // Dependency là state local selectedSupplier
+    selectedSize, // Dependency là state local selectedSize
+    isAdvancedActive, // Dependency là state local isAdvancedActive
+    isReady, // Dependency là state local isReady
+    isStoreReady, // Dependency là state local isStoreReady
+  ]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
-    localStorage.setItem("productPageNumber", page.toString());
+    productStore.setPageNumber(page);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    productStore.pageSize = newPageSize;
+    // Loại bỏ dòng productStore.pageSize = newPageSize;
+    // Chỉ set state local, useEffect thứ 2 sẽ lo việc fetch
     setPageSize(newPageSize);
+    productStore.setPageSize(newPageSize);
     setPageNumber(1); // Reset to first page
-    localStorage.setItem("productPageSize", newPageSize.toString());
-    localStorage.setItem("productPageNumber", "1");
   };
 
   const handleImportClick = () => {
@@ -140,27 +127,20 @@ function ProductTable() {
   };
 
   const handleResetFilters = () => {
+    // Reset state filter local
     setIsAdvancedActive(false);
     setSelectedSupplier(null);
     setSelectedSize(null);
     setTempSelectedSupplier(null);
     setTempSelectedSize(null);
-    setPageNumber(1);
+    setPageNumber(1); // Reset state pageNumber local
     setIsAdvancedOpen(false);
 
+    // Xóa/cập nhật localStorage
     localStorage.removeItem("selectedSupplier");
     localStorage.removeItem("selectedSize");
     localStorage.setItem("productPageNumber", "1");
 
-    // Set filters in the store to reset values
-    productStore.setFilters({
-      pageNumber: 1,
-      pageSize, // Keep current pageSize or reset if desired
-      term,     // Keep current term or reset if desired
-      supplierId: null,
-      sizeId: null,
-    });
-    loadProducts(); // No arguments
   };
 
   const handleApplyFilters = () => {
@@ -168,44 +148,34 @@ function ProductTable() {
       selectedSupplier !== tempSelectedSupplier ||
       selectedSize !== tempSelectedSize ||
       !isAdvancedActive;
-  
+
     if (!hasChanges) {
       setIsAdvancedOpen(false);
       return;
     }
-  
+
+    // Cập nhật state filter local
     setSelectedSupplier(tempSelectedSupplier);
     setSelectedSize(tempSelectedSize);
     setIsAdvancedActive(true);
-  
-    // Nếu có thay đổi thì reset page
+
+    // Nếu có thay đổi thì reset page (cập nhật state pageNumber local)
     const newPageNumber = 1;
     setPageNumber(newPageNumber);
-    localStorage.setItem("productPageNumber", newPageNumber.toString());
-  
-    // Save filters
+
+    // Lưu vào localStorage
+    localStorage.setItem("pageNumber", newPageNumber.toString());
     if (tempSelectedSupplier !== null) {
       localStorage.setItem("selectedSupplier", tempSelectedSupplier.toString());
     } else {
       localStorage.removeItem("selectedSupplier");
     }
-  
     if (tempSelectedSize !== null) {
       localStorage.setItem("selectedSize", tempSelectedSize.toString());
     } else {
       localStorage.removeItem("selectedSize");
     }
-  
-    // Set filters in the store before loading
-    productStore.setFilters({
-      pageNumber: newPageNumber,
-      pageSize,
-      term,
-      supplierId: tempSelectedSupplier,
-      sizeId: tempSelectedSize,
-    });
-    loadProducts(); // No arguments
-  
+
     setIsAdvancedOpen(false);
   };  
 

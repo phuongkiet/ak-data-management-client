@@ -74,6 +74,7 @@ const CompanyCodeGroup = ({ product, isCreateMode, onChange }: ProductProps) => 
                      onChange={handleCompanyCodeChange}
                      placeholder={'Chọn mã công ty...'}
                      isClearable={true}
+                     noOptionsMessage={() => "Không có mã công ty"}
                      styles={{
                        control: (base) => ({
                          ...base,

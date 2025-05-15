@@ -40,6 +40,7 @@ const StorageGroup = ({product, isCreateMode, onChange}: ProductProps) => {
       <div className="relative">
         <ReactSelect options={storageOptions}
                      value={selectedStorage}
+                     noOptionsMessage={() => "Không có phương thức"}
                      onChange={(selected) => {
                         if(!selected) {
                           if (onChange) {

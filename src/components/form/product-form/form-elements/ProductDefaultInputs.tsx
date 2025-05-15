@@ -30,7 +30,6 @@ const ProductDefaultInputs = ({
     companyCodeStore,
     supplierStore,
     patternStore,
-    processingStore,
     sizeStore,
   } = useStore();
   const [confirmProductCode, setConfirmProductCode] = useState<
@@ -72,16 +71,10 @@ const ProductDefaultInputs = ({
             (x) => x.id === productStore.productForm.brickPatternId
           )
         : null;
-      const processing = productStore.productForm.processingId
-        ? processingStore.productProcessingList.find(
-            (x) => x.id === productStore.productForm.processingId
-          )
-        : null;
 
       if (supplier?.supplierShortCode) {
-        const processingCode = processing?.processingCode || "";
         const patternCode = pattern?.shortCode || "";
-        const newBarCode = `${supplier.supplierShortCode}.${productStore.productForm.productOrderNumber}${processingCode}${patternCode}`;
+        const newBarCode = `${supplier.supplierShortCode}.${productStore.productForm.productOrderNumber}${patternCode}`;
         productStore.updateProductForm("autoBarCode", newBarCode);
       }
     }
@@ -154,12 +147,15 @@ const ProductDefaultInputs = ({
             (x) => x.id === productStore.productForm.actualSizeId
           )
         : null;
-      
-      const actualSize = size ? `${(Number(size.length) / 10)} x ${(Number(size.wide) / 10)} cm` : '';
-      
+
+      const actualSize = size
+        ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
+        : "";
+
       if (pattern?.name) {
-        const newWebsiteProductName = `${productStore.productForm.autoBarCode} ${pattern.name} ${pattern.description} ${actualSize}`.trim();
-        console.log('New website name:', newWebsiteProductName);
+        const newWebsiteProductName =
+          `${productStore.productForm.autoBarCode} ${pattern.name} ${pattern.description} ${actualSize}`.trim();
+        console.log("New website name:", newWebsiteProductName);
         setWebsiteProductName(newWebsiteProductName);
         productStore.updateProductForm(
           "displayWebsiteName",
@@ -247,7 +243,7 @@ const ProductDefaultInputs = ({
                 <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
                 <CalculatedUnit product={product} isCreateMode={isCreateMode} />
               </div>
-              
+
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
@@ -268,34 +264,22 @@ const ProductDefaultInputs = ({
 
             {/* Cột phải */}
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <ProductLabel htmlFor="input">
-                    Mã số nhà cung cấp
-                  </ProductLabel>
-                  <Input
-                    type="text"
-                    id="input"
-                    value={supplierItemCode}
-                    placeholder="Mã số sản phẩm của nhà cung cấp"
-                    onChange={handleSupplierItemCodeChange}
-                    className={`${
-                      isValidSupplierCode === null
-                        ? ""
-                        : isValidSupplierCode
-                        ? "text-blue-500"
-                        : "text-red-500"
-                    }`}
-                  />
-                </div>
-
-                <div>
-                  <ProductLabel>Gia công khác</ProductLabel>
-                  <ProcessingGroup
-                    product={product}
-                    isCreateMode={isCreateMode}
-                  />
-                </div>
+              <div>
+                <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
+                <Input
+                  type="text"
+                  id="input"
+                  value={supplierItemCode}
+                  placeholder="Mã số sản phẩm của nhà cung cấp"
+                  onChange={handleSupplierItemCodeChange}
+                  className={`${
+                    isValidSupplierCode === null
+                      ? ""
+                      : isValidSupplierCode
+                      ? "text-blue-500"
+                      : "text-red-500"
+                  }`}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -354,6 +338,13 @@ const ProductDefaultInputs = ({
                 <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
                 <FactoryGroup product={product} isCreateMode={isCreateMode} />
               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-col-1 gap-6">
+            <div>
+              <ProductLabel>Gia công khác</ProductLabel>
+              <ProcessingGroup product={product} isCreateMode={isCreateMode} />
             </div>
           </div>
 
@@ -568,9 +559,7 @@ const ProductDefaultInputs = ({
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <ProductLabel htmlFor="input">
-                    Diện tích 1 viên
-                  </ProductLabel>
+                  <ProductLabel htmlFor="input">Diện tích 1 viên</ProductLabel>
                   <Input
                     type="number"
                     step={0.05}
@@ -582,9 +571,7 @@ const ProductDefaultInputs = ({
                 </div>
 
                 <div>
-                  <ProductLabel htmlFor="input">
-                    Diện tích 1 thùng
-                  </ProductLabel>
+                  <ProductLabel htmlFor="input">Diện tích 1 thùng</ProductLabel>
                   <Input
                     type="number"
                     step={0.05}

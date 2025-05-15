@@ -39,6 +39,7 @@ const BodyColorGroup = ({product, isCreateMode, onChange}: ProductProps) => {
           <div className="relative">
             <ReactSelect options={bodyColorOptions}
                          value={selectedBodyColor}
+                         noOptionsMessage={() => "Không có màu thân gạch"}
                          onChange={(selected) => {
                             if(!selected) {
                               if (onChange) {

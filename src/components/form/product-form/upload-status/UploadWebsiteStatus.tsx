@@ -36,6 +36,7 @@ const UploadWebSiteStatusGroup = ({ product, isCreateMode, onChange }: ProductPr
           options={statusOptions}
           value={selectedStatus}
           defaultValue={statusOptions[5]}
+          noOptionsMessage={() => "Không có trạng thái"}
           onChange={(selected) => {
             if(!selected){
               if (onChange) {

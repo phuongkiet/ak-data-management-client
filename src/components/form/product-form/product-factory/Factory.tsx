@@ -64,6 +64,7 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
           options={factoryOptions}
           value={selectedFactory}
           defaultValue={null}
+          noOptionsMessage={() => "Không có nhà máy"}
           onChange={async (selectedOption) => {
             if (!selectedOption) {
               if (onChange) {

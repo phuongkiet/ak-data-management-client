@@ -67,7 +67,7 @@ const ColorGroup = ({product, isCreateMode, onChange}: ProductProps) => {
         <div>
           <ProductLabel>Tên màu</ProductLabel>
           <div className="relative">
-            <ReactSelect options={colorOptions} value={selectedColor} 
+            <ReactSelect options={colorOptions} value={selectedColor} noOptionsMessage={() => "Không có màu gạch"}
             onChange={(selected) => {
               if(!selected){
                 if (onChange) {

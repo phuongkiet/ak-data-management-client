@@ -37,7 +37,7 @@ const AntiSlipperyGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   return (
     <div>
       <div className="relative">
-        <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery}
+        <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery} noOptionsMessage={() => "Không có độ chống trượt"}
                      onChange={(selected) => {
                         if (!selected) {
                           if (onChange) {

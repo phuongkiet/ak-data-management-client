@@ -39,7 +39,7 @@ const MaterialGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
       <div className="space-y-6">
         <div>
           <div className="relative">
-            <ReactSelect options={materialOptions} value={selectedMaterial} 
+            <ReactSelect options={materialOptions} value={selectedMaterial} noOptionsMessage={() => "Không có chất liệu"}
             onChange={(selected) => {
               if (!selected) {
                 if (onChange) {
