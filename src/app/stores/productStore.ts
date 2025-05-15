@@ -6,6 +6,7 @@ import {
   ProductDetail,
   ProductDto,
   StrategyProductDto,
+  SupplierSizeCombinationDto,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
@@ -29,6 +30,9 @@ export default class ProductStore {
 
   productForm: AddProductDto = {} as AddProductDto;
   productDetail: ProductDetail = {} as ProductDetail;
+
+  existingSupplierSizeCombinations: SupplierSizeCombinationDto[] = [];
+  loadingCombinations = false;
 
   resetProductForm = () => {
     runInAction(() => {
@@ -100,6 +104,9 @@ export default class ProductStore {
 
     this.pageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
     this.pageSize = savedPageSize ? parseInt(savedPageSize) : 10;
+
+    this.getTotalProducts();
+    this.loadExistingSupplierSizeCombinations();
   }
 
   setSupplierId = (id: number | null) => {
@@ -128,11 +135,16 @@ export default class ProductStore {
   };
 
   setFilters = (filters: Partial<AdvancedSearchDto>) => {
-    if (filters.pageNumber !== undefined) this.pageNumber = filters.pageNumber;
-    if (filters.pageSize !== undefined) this.pageSize = filters.pageSize;
-    if (filters.term !== undefined) this.term = filters.term;
-    if (filters.supplierId !== undefined) this.supplierId = filters.supplierId;
-    if (filters.sizeId !== undefined) this.sizeId = filters.sizeId;
+    runInAction(() => {
+      // Sử dụng runInAction để cập nhật nhiều observable
+      if (filters.pageNumber !== undefined)
+        this.pageNumber = filters.pageNumber;
+      if (filters.pageSize !== undefined) this.pageSize = filters.pageSize;
+      if (filters.term !== undefined) this.term = filters.term;
+      if (filters.supplierId !== undefined)
+        this.supplierId = filters.supplierId;
+      if (filters.sizeId !== undefined) this.sizeId = filters.sizeId;
+    });
   };
 
   loadProducts = async () => {
@@ -161,6 +173,25 @@ export default class ProductStore {
       });
       console.error("Failed to load products", error);
       toast.error("Lỗi khi tải dữ liệu sản phẩm.");
+    }
+  };
+
+  loadExistingSupplierSizeCombinations = async () => {
+    this.loadingCombinations = true;
+    try {
+      // Gọi API endpoint mới (cần được implement ở backend)
+      const response = await agent.Product.getExistingSupplierSizeCombinations();
+      console.log(response);
+      runInAction(() => {
+        this.existingSupplierSizeCombinations = response.data || [];
+        this.loadingCombinations = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loadingCombinations = false;
+      });
+      console.error("Failed to load supplier-size combinations", error);
+      // Có thể hiển thị toast hoặc xử lý lỗi khác tùy ý
     }
   };
 

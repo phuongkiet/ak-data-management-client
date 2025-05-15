@@ -7,6 +7,9 @@ import { useStore } from "../../../app/stores/store.ts";
 import TableComponentCard from "../../../components/common/product/TableComponentCard.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import Modal from "../../../components/ui/modal/index.tsx";
+import { runInAction } from "mobx";
+import { ProductSupplierDto } from "../../../app/models/product/productSupplier.model.ts";
+import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
 
 function ProductTable() {
   const { productStore, supplierStore, sizeStore } = useStore();
@@ -17,10 +20,10 @@ function ProductTable() {
   const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [isAdvancedActive, setIsAdvancedActive] = useState(false);
-  const [tempSelectedSupplier, setTempSelectedSupplier] = useState<number | null>(null);
+  const [tempSelectedSupplier, setTempSelectedSupplier] = useState<
+    number | null
+  >(null);
   const [tempSelectedSize, setTempSelectedSize] = useState<number | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const [isStoreReady, setIsStoreReady] = useState(false);
 
   const {
     productList,
@@ -30,60 +33,82 @@ function ProductTable() {
     totalCount,
     importProducts,
     loading,
+    existingSupplierSizeCombinations, // Lấy danh sách combinations từ store
+    loadingCombinations,
   } = productStore;
 
+  const { productSupplierList, loadSuppliers } = supplierStore;
+
+  const { productSizeList, loadSizes } = sizeStore;
+
   useEffect(() => {
+    loadSuppliers();
+    loadSizes();
+
+    productStore.loadExistingSupplierSizeCombinations();
+
     const savedSupplier = localStorage.getItem("selectedSupplier");
     const savedSize = localStorage.getItem("selectedSize");
+    const savedPageNumber = localStorage.getItem("pageNumber");
+    const savedPageSize = localStorage.getItem("pageSize");
 
-    // Cập nhật state filter local
-    if (savedSupplier) {
-      const parsedSupplier = parseInt(savedSupplier);
-      setSelectedSupplier(parsedSupplier);
-      setTempSelectedSupplier(parsedSupplier);
-      setIsAdvancedActive(true);
-    }
+    runInAction(() => {
+      productStore.setFilters({
+        pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
+        pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
+        supplierId: savedSupplier ? parseInt(savedSupplier) : null,
+        sizeId: savedSize ? parseInt(savedSize) : null,
+        term: productStore.term, // Giữ nguyên term từ store
+      });
 
-    if (savedSize) {
-      const parsedSize = parseInt(savedSize);
-      setSelectedSize(parsedSize);
-      setTempSelectedSize(parsedSize);
-      setIsAdvancedActive(true);
-    }
-
-    // Chờ load suppliers và sizes xong rồi mới bật cờ ready
-    Promise.all([
-      supplierStore.loadSuppliers(),
-      sizeStore.loadSizes()
-    ]).then(() => {
-      setIsReady(true);
-      setIsStoreReady(true);
+      // Cập nhật state filter local
+      const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
+      const initialSizeId = savedSize ? parseInt(savedSize) : null;
+      setSelectedSupplier(initialSupplierId);
+      setTempSelectedSupplier(initialSupplierId);
+      setSelectedSize(initialSizeId);
+      setTempSelectedSize(initialSizeId);
+      setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
+      setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
+      setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
     });
-  }, []);
+  }, [loadSuppliers, loadSizes, productStore]);
 
   useEffect(() => {
+    if (
+      supplierStore.loading ||
+      sizeStore.loading ||
+      productStore.loadingCombinations
+    )
+      return;
 
-    if (!isStoreReady || !isReady) return;
+    console.log(
+      "Existing Combinations:",
+      productStore.existingSupplierSizeCombinations
+    );
+    console.log("Supplier List:", supplierStore.productSupplierList);
+    console.log("Size List:", sizeStore.productSizeList);
+    console.log("Temp Selected Supplier:", tempSelectedSupplier);
+    console.log("Temp Selected Size:", tempSelectedSize);
 
     productStore.setFilters({
       pageNumber: productStore.pageNumber, // Sử dụng component state
-      pageSize,   // Sử dụng component state
-      term,       // Sử dụng store state (lấy qua destructure)
+      pageSize, // Sử dụng component state
+      term, // Sử dụng store state (lấy qua destructure)
       supplierId: isAdvancedActive ? selectedSupplier : null, // Sử dụng component state
-      sizeId: isAdvancedActive ? selectedSize : null,       // Sử dụng component state
+      sizeId: isAdvancedActive ? selectedSize : null, // Sử dụng component state
     });
 
     loadProducts(); // No arguments
-
   }, [
     productStore.pageNumber, // Dependency là state local pageNumber
-    productStore.pageSize,   // Dependency là state local pageSize
-    term,       // Dependency là store state term (từ destructure)
+    productStore.pageSize, // Dependency là state local pageSize
+    term, // Dependency là store state term (từ destructure)
     selectedSupplier, // Dependency là state local selectedSupplier
     selectedSize, // Dependency là state local selectedSize
-    isAdvancedActive, // Dependency là state local isAdvancedActive
-    isReady, // Dependency là state local isReady
-    isStoreReady, // Dependency là state local isStoreReady
+    supplierStore.loading, // Thêm dependencies để re-run khi suppliers load xong
+    sizeStore.loading, // Thêm dependencies để re-run khi sizes load xong
+    productStore.loadingCombinations,
   ]);
 
   const handlePageChange = (page: number) => {
@@ -92,8 +117,6 @@ function ProductTable() {
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    // Loại bỏ dòng productStore.pageSize = newPageSize;
-    // Chỉ set state local, useEffect thứ 2 sẽ lo việc fetch
     setPageSize(newPageSize);
     productStore.setPageSize(newPageSize);
     setPageNumber(1); // Reset to first page
@@ -140,7 +163,6 @@ function ProductTable() {
     localStorage.removeItem("selectedSupplier");
     localStorage.removeItem("selectedSize");
     localStorage.setItem("productPageNumber", "1");
-
   };
 
   const handleApplyFilters = () => {
@@ -177,7 +199,57 @@ function ProductTable() {
     }
 
     setIsAdvancedOpen(false);
-  };  
+  };
+
+  // Hàm helper để kiểm tra nếu một cặp (supplierId, sizeId) tồn tại
+  const combinationExists = (supId: number | null, szId: number | null) => {
+    if (supId === null || szId === null) return false;
+    return existingSupplierSizeCombinations.some(
+      (combo) => combo.supplierId === supId && combo.sizeId === szId
+    );
+  };
+
+  // Hàm helper để xác định class cho nút Supplier
+  const getSupplierButtonClass = (supplier: ProductSupplierDto) => {
+    const isSelected = tempSelectedSupplier === supplier.id;
+    const otherFilterSelected = tempSelectedSize !== null;
+
+    if (isSelected) {
+      return "bg-blue-600 text-white"; // Màu đậm khi được chọn
+    } else if (otherFilterSelected) {
+      // Nếu Size đã được chọn, kiểm tra xem supplier này có combination với size đó không
+      const isAvailableCombination = combinationExists(
+        supplier.id,
+        tempSelectedSize
+      );
+      return isAvailableCombination
+        ? "bg-blue-400 text-white hover:bg-blue-500"
+        : "bg-gray-400 text-white hover:bg-gray-500"; // Màu nhạt hoặc xám nếu không có combination
+    } else {
+      return "bg-blue-400 text-white hover:bg-blue-500"; // Màu mặc định khi chưa chọn filter nào khác
+    }
+  };
+
+  // Hàm helper để xác định class cho nút Size
+  const getSizeButtonClass = (size: ProductSizeDto) => {
+    const isSelected = tempSelectedSize === size.id;
+    const otherFilterSelected = tempSelectedSupplier !== null;
+
+    if (isSelected) {
+      return "bg-green-600 text-white"; // Màu đậm khi được chọn
+    } else if (otherFilterSelected) {
+      // Nếu Supplier đã được chọn, kiểm tra xem size này có combination với supplier đó không
+      const isAvailableCombination = combinationExists(
+        tempSelectedSupplier,
+        size.id
+      );
+      return isAvailableCombination
+        ? "bg-green-400 text-white hover:bg-green-500"
+        : "bg-gray-400 text-white hover:bg-gray-500"; // Màu nhạt hoặc xám nếu không có combination
+    } else {
+      return "bg-green-400 text-white hover:bg-green-500"; // Màu mặc định khi chưa chọn filter nào khác
+    }
+  };
 
   return (
     <>
@@ -239,49 +311,57 @@ function ProductTable() {
           {/* Supplier Column */}
           <div>
             <h2 className="font-bold mb-2">Chọn Nhà Cung Cấp</h2>
-            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-              {supplierStore.productSupplierList.map((supplier) => (
-                <button
-                  key={supplier.id}
-                  className={`px-4 py-2 rounded text-left whitespace-nowrap ${
-                    tempSelectedSupplier === supplier.id
-                      ? "bg-blue-600 text-white"
-                      : "bg-blue-400 text-white"
-                  }`}
-                  onClick={() => {
-                    setTempSelectedSupplier(
-                      tempSelectedSupplier === supplier.id ? null : supplier.id
-                    );
-                  }}
-                  style={{ minWidth: 180 }}
-                >
-                  {supplier.supplierCodeName}
-                </button>
-              ))}
-            </div>
+            {supplierStore.loading ? ( // Hiển thị loading state
+              <p>Đang tải nhà cung cấp...</p>
+            ) : (
+              <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                {productSupplierList.map((supplier) => (
+                  <button
+                    key={supplier.id}
+                    // Sử dụng hàm helper để xác định class
+                    className={`px-4 py-2 rounded text-left whitespace-nowrap ${getSupplierButtonClass(
+                      supplier
+                    )}`}
+                    onClick={() => {
+                      setTempSelectedSupplier(
+                        tempSelectedSupplier === supplier.id
+                          ? null
+                          : supplier.id
+                      );
+                    }}
+                    style={{ minWidth: 180 }}
+                  >
+                    {supplier.supplierCodeName}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {/* Size Column */}
           <div>
             <h2 className="font-bold mb-2">Chọn Kích Thước</h2>
-            <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
-              {sizeStore.productSizeList.map((size) => (
-                <button
-                  key={size.id}
-                  className={`px-4 py-2 rounded whitespace-nowrap ${
-                    tempSelectedSize === size.id
-                      ? "bg-green-600 text-white"
-                      : "bg-green-400 text-white"
-                  } w-[111px]`}
-                  onClick={() => {
-                    setTempSelectedSize(
-                      tempSelectedSize === size.id ? null : size.id
-                    );
-                  }}
-                >
-                  {size.wide}x{size.length}
-                </button>
-              ))}
-            </div>
+            {sizeStore.loading || loadingCombinations ? ( // Hiển thị loading state
+              <p>Đang tải kích thước...</p>
+            ) : (
+              <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+                {productSizeList.map((size) => (
+                  <button
+                    key={size.id}
+                    // Sử dụng hàm helper để xác định class
+                    className={`px-4 py-2 rounded whitespace-nowrap ${getSizeButtonClass(
+                      size
+                    )} w-[111px]`}
+                    onClick={() => {
+                      setTempSelectedSize(
+                        tempSelectedSize === size.id ? null : size.id
+                      );
+                    }}
+                  >
+                    {size.wide}x{size.length}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-start mt-4 gap-2">

@@ -321,4 +321,9 @@ export interface EditProductDto {
   productSpecialExtraNote?: string | null;
 }
 
+export interface SupplierSizeCombinationDto {
+  supplierId: number;
+  sizeId: number;
+}
+
 

@@ -13,6 +13,7 @@ import {
   ProductDetail,
   ProductDto,
   StrategyProductDto,
+  SupplierSizeCombinationDto,
 } from "../models/product/product.model.ts";
 import { ProductSupplierDto } from "../models/product/productSupplier.model.ts";
 import {
@@ -199,7 +200,7 @@ const Product = {
     pageNumber?: number,
     term?: string,
     supplierId?: number,
-    sizeId?: number,
+    sizeId?: number
   ): Promise<ApiResponseModel<PagedModel<ProductDto>>> => {
     const params = new URLSearchParams();
     if (pageSize) params.append("PageSize", pageSize.toString());
@@ -212,6 +213,13 @@ const Product = {
       `/products?${params.toString()}`
     );
   },
+
+  getExistingSupplierSizeCombinations: (): Promise<
+    ApiResponseModel<SupplierSizeCombinationDto[]>
+  > =>
+    requests.get<SupplierSizeCombinationDto[]>(
+      "/products/existing-supplier-size-combinations"
+    ),
 
   strategyProductList: (
     pageSize?: number,
@@ -244,7 +252,10 @@ const Product = {
     productId: number,
     product: EditProductDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/products/edit-product?productId=${productId}`, product),
+    requests.put<string>(
+      `/products/edit-product?productId=${productId}`,
+      product
+    ),
 
   checkSupplierItemCode: (
     itemCode: string
@@ -267,7 +278,9 @@ const ProductSupplier = {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
-    return requests.get<ProductSupplierDto[]>(`/suppliers?${params.toString()}`);
+    return requests.get<ProductSupplierDto[]>(
+      `/suppliers?${params.toString()}`
+    );
   },
   addSupplier: (supplier: AddSupplierDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/suppliers/add-supplier", supplier),
@@ -284,7 +297,9 @@ const ProductMaterial = {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
-    return requests.get<ProductMaterialDto[]>(`/materials?${params.toString()}`);
+    return requests.get<ProductMaterialDto[]>(
+      `/materials?${params.toString()}`
+    );
   },
   addMaterial: (material: AddMaterialDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/materials/add-material", material),
@@ -388,9 +403,7 @@ const ProductBodyColor = {
 };
 
 const ProductColor = {
-  colorList: (
-    term?: string
-  ): Promise<ApiResponseModel<ProductColorDto[]>> => {
+  colorList: (term?: string): Promise<ApiResponseModel<ProductColorDto[]>> => {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
@@ -444,9 +457,7 @@ const ProductProcessing = {
 };
 
 const ProductSize = {
-  sizeList: (
-    term?: string
-  ): Promise<ApiResponseModel<ProductSizeDto[]>> => {
+  sizeList: (term?: string): Promise<ApiResponseModel<ProductSizeDto[]>> => {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
@@ -484,9 +495,7 @@ const ProductFactory = {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
-    return requests.get<ProductFactoryDto[]>(
-      `/factories?${params.toString()}`
-    );
+    return requests.get<ProductFactoryDto[]>(`/factories?${params.toString()}`);
   },
   getFactoriesBySupplier: (
     supplierId: number
@@ -499,9 +508,7 @@ const ProductFactory = {
 };
 
 const ProductArea = {
-  areaList: (
-    term?: string
-  ): Promise<ApiResponseModel<ProductAreaDto[]>> => {
+  areaList: (term?: string): Promise<ApiResponseModel<ProductAreaDto[]>> => {
     const params = new URLSearchParams();
     if (term) params.append("term", term);
 
