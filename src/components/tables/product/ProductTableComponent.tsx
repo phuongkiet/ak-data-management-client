@@ -37,6 +37,7 @@ const ProductTableComponent = ({
 }: ProductTableComponentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ProductDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [selectedProduct, setSelectedProduct] =
     useState<ProductDetail | null>();
   const [technicalInfo, setTechnicalInfo] = useState("");
@@ -113,11 +114,14 @@ const ProductTableComponent = ({
       ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
       : "";
 
-    const displayWebsiteSize = actualSize + " x " + selectedProduct.thicknessSize + " | mm";
+    const displayWebsiteSize =
+      actualSize + " x " + selectedProduct.thicknessSize + " | mm";
     setProductSize(displayWebsiteSize);
 
     setDisplayWebsiteName(
-      `${selectedProduct.confirmAutoBarCode} ${pattern?.name ?? ""} ${actualSize}`.trim()
+      `${selectedProduct.confirmAutoBarCode} ${
+        pattern?.name ?? ""
+      } ${actualSize}`.trim()
     );
 
     setStorageCheckingCode(
@@ -404,8 +408,10 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   {selectedProduct.productPrice ? (
                     <NumericFormat
                       value={selectedProduct.productPrice ?? 0}
-                      thousandSeparator
-                      prefix={appCurrency}
+                      thousandSeparator={isEditing ? false : true}
+                      prefix={isEditing ? "" : appCurrency}
+                      onFocus={() => setIsEditing(true)}
+                      onBlur={() => setIsEditing(false)}
                       allowNegative={false}
                       displayType="input"
                       className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
@@ -424,8 +430,10 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   {selectedProduct.discountedPrice ? (
                     <NumericFormat
                       value={selectedProduct.discountedPrice ?? 0}
-                      thousandSeparator
-                      prefix={appCurrency}
+                      thousandSeparator={isEditing ? false : true}
+                      prefix={isEditing ? "" : appCurrency}
+                      onFocus={() => setIsEditing(true)}
+                      onBlur={() => setIsEditing(false)}
                       allowNegative={false}
                       displayType="input"
                       className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
@@ -444,8 +452,10 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   {selectedProduct.secondDiscountedPrice ? (
                     <NumericFormat
                       value={selectedProduct.secondDiscountedPrice ?? 0}
-                      thousandSeparator
-                      prefix={appCurrency}
+                      thousandSeparator={isEditing ? false : true}
+                      prefix={isEditing ? "" : appCurrency}
+                      onFocus={() => setIsEditing(true)}
+                      onBlur={() => setIsEditing(false)}
                       allowNegative={false}
                       displayType="input"
                       className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
