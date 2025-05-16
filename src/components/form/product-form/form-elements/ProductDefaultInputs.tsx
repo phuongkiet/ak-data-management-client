@@ -185,18 +185,72 @@ const ProductDefaultInputs = ({
     productStore.updateProductForm("deliveryEstimatedDate", e.target.value);
   };
 
+  const updateConfirmSupplierItemCode = (supplierItemCodeValue: string, companyCodeIdValue: number | undefined) => {
+    const companyCode = companyCodeStore.productCompanyCodeList.find(
+      (x) => x.id === companyCodeIdValue
+    );
+    const newConfirmSupplierItemCode = companyCode?.codeName
+      ? `${companyCode.codeName} ${supplierItemCodeValue}`
+      : supplierItemCodeValue;
+    onChange && onChange("supplierItemCode", supplierItemCodeValue);
+    onChange && onChange("confirmSupplierItemCode", newConfirmSupplierItemCode);
+  };
+
   const handleSupplierItemCodeChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const newValue = e.target.value;
     setSupplierItemCode(newValue);
-    productStore.updateProductForm("supplierItemCode", newValue);
-
-    if (newValue) {
-      const isValid = await productStore.checkSupplierItemCode(newValue);
-      setIsValidSupplierCode(isValid ?? false);
+    if (isCreateMode) {
+      productStore.updateProductForm("supplierItemCode", newValue);
+      if (newValue) {
+        const isValid = await productStore.checkSupplierItemCode(newValue);
+        setIsValidSupplierCode(isValid ?? false);
+      } else {
+        setIsValidSupplierCode(null);
+      }
     } else {
-      setIsValidSupplierCode(null);
+      updateConfirmSupplierItemCode(newValue, product?.companyCodeId);
+    }
+  };
+
+  useEffect(() => {
+    if (!isCreateMode && product?.supplierItemCode !== undefined && product?.companyCodeId !== undefined) {
+      updateConfirmSupplierItemCode(product.supplierItemCode, product.companyCodeId);
+    }
+  }, [product?.supplierItemCode, product?.companyCodeId, isCreateMode]);
+
+  const editModeSku = (() => {
+    if (!isCreateMode && product?.companyCodeId && product?.supplierItemCode) {
+      const companyCode = companyCodeStore.productCompanyCodeList.find(
+        (x) => x.id === product.companyCodeId
+      );
+      return companyCode?.codeName
+        ? `${companyCode.codeName} ${product.supplierItemCode}`
+        : product.supplierItemCode;
+    }
+    return "";
+  })();
+
+  const handleEditQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = Number(e.target.value);
+    // Use product?.areaPerUnit, fallback to 0 if not available
+    const areaPerUnit = product?.areaPerUnit ?? 0;
+    const newAreaPerBox = Number((areaPerUnit * newQuantity).toFixed(2));
+    const newWeightPerBox = Number((product?.weightPerUnit ?? 0) * newQuantity);
+    if (onChange) {
+      onChange("quantityPerBox", newQuantity);
+      onChange("areaPerBox", newAreaPerBox);
+      onChange("weightPerBox", newWeightPerBox);
+    }
+  };
+
+  const handleEditWeightPerUnitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newWeightPerUnit = Number(e.target.value);
+    const newWeightPerBox = Number((newWeightPerUnit * (product?.quantityPerBox ?? 0)).toFixed(2));
+    if (onChange) {
+      onChange("weightPerUnit", newWeightPerUnit);
+      onChange("weightPerBox", newWeightPerBox);
     }
   };
 
@@ -380,7 +434,7 @@ const ProductDefaultInputs = ({
                   id="input"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={product?.confirmSupplierItemCode}
+                  value={editModeSku}
                 />
               </div>
 
@@ -432,9 +486,7 @@ const ProductDefaultInputs = ({
                     type="number"
                     id="input"
                     placeholder="Ô tự động điền"
-                    onChange={(e) =>
-                      onChange && onChange("weightPerUnit", e.target.value)
-                    }
+                    onChange={handleEditWeightPerUnitChange}
                     value={product?.weightPerUnit}
                   />
                 </div>
@@ -444,9 +496,7 @@ const ProductDefaultInputs = ({
                     type="number"
                     id="input"
                     placeholder="Ô tự động điền"
-                    onChange={(e) =>
-                      onChange && onChange("quantityPerBox", e.target.value)
-                    }
+                    onChange={handleEditQuantityChange}
                     value={product?.quantityPerBox}
                   />
                 </div>

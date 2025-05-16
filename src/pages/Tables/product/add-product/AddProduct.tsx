@@ -56,7 +56,7 @@ const AddProduct = () => {
         <button
           onClick={handleSubmit}
           disabled={!!thicknessError || productStore.loading}
-          className={`inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed ${!!thicknessError ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#283849] focus:outline-none focus:ring-2 focus:bg-[#283849]/50 disabled:opacity-50 disabled:cursor-not-allowed ${!!thicknessError ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {productStore.loading ? (
             <>

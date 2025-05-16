@@ -50,7 +50,7 @@ const EcommerceMetrics = () => {
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Đơn hàng
+              Anh Kiệt đẹp zai
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
               10

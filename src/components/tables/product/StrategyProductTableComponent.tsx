@@ -40,7 +40,7 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
       name: 'Id',
       selector: row => row.id,
       sortable: true,
-      maxWidth: '5px'
+      maxWidth: '3px'
     },
     {
       name: 'Mã nhà cung cấp',
@@ -48,7 +48,7 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
     },
     {
       name: 'Tên hiển thị website',
-      selector: row => row.displayWebsiteName,
+      selector: row => row.displayWebsiteName.slice(0, 25),
       sortable: true,
     },
     {

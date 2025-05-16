@@ -49,9 +49,9 @@ const ProductDetail = () => {
   const handleSave = async () => {
     const updatedProduct = { ...updateProduct };
     
-    if(updatedProduct.processingId === 0) {
-        updatedProduct.processingId = null;
-    }
+    // if(updatedProduct.processingId === 0) {
+    //     updatedProduct.processingId = null;
+    // }
     if(updatedProduct.productFactoryId === 0) {
         updatedProduct.productFactoryId = null;
     }
@@ -137,7 +137,7 @@ const ProductDetail = () => {
         <button
           onClick={handleSave}
           disabled={productStore.loading}
-          className={`inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-medium text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`inline-flex items-center justify-center rounded-lg bg-[#334355] font-semibold px-6 py-2.5 text-center text-sm text-white hover:bg-[#283849] focus:outline-none focus:ring-2 focus:bg-[#283849]/50 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {productStore.loading ? (
             <>

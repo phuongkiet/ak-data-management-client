@@ -372,6 +372,9 @@ export default class ProductStore {
   editProduct = async (productId: number, product: EditProductDto) => {
     this.loading = true;
     try {
+      //Hardcode discount conditions
+      product.discountConditions = 0;
+      product.secondDiscountConditions = 0;
       const response = await agent.Product.editProduct(productId, product);
       if (response.success) {
         runInAction(() => {

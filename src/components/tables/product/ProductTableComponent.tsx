@@ -58,6 +58,7 @@ const ProductTableComponent = ({
     surfaceStore,
     materialStore,
     colorStore,
+    antiSlipperyStore,
   } = useStore();
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const ProductTableComponent = ({
     surfaceStore.loadSurfaces();
     materialStore.loadMaterials();
     colorStore.loadColors();
+    antiSlipperyStore.loadAntiSlipperys();
   }, []);
 
   useEffect(() => {
@@ -127,12 +129,18 @@ const ProductTableComponent = ({
     setStorageCheckingCode(
       selectedProduct.confirmAutoBarCode.replace(/\./g, "")
     );
-    setTechnicalInfo(
-      `Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${
-        selectedProduct.weightPerBox
-      } kg / Thùng
+
+    if (
+      selectedProduct.antiSlipId == 1 ||
+      selectedProduct.antiSlipId == 14 ||
+      selectedProduct.antiSlipId == 15
+    ) {
+      setTechnicalInfo(
+        `Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${
+          selectedProduct.weightPerBox
+        } kg / Thùng
 M² / thùng: ${selectedProduct.areaPerBox} m² / thùng
-Chống trượt: ${selectedProduct.isAntiFouling ? "❌" : "✅"}
+Chống trượt: ${"❌"}
 Độ hút nước: ${waterAbsorptionValue}
 Chống bám bẩn: ${selectedProduct.isAntiFouling ? "✅" : "❌"}
 Dùng lát nền: ${selectedProduct.isFlooring ? "✅" : "❌"}
@@ -140,7 +148,23 @@ Dùng ốp tường: ${selectedProduct.isWalling ? "✅" : "❌"}
 Sử dụng trong nhà: ${selectedProduct.isInside ? "✅" : "❌"}
 Sử dụng ngoài trời: ${selectedProduct.isOutside ? "✅" : "❌"}
 Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
-    );
+      );
+    }else{
+      setTechnicalInfo(
+        `Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${
+          selectedProduct.weightPerBox
+        } kg / Thùng
+M² / thùng: ${selectedProduct.areaPerBox} m² / thùng
+Chống trượt: ${"✅"}
+Độ hút nước: ${waterAbsorptionValue}
+Chống bám bẩn: ${selectedProduct.isAntiFouling ? "✅" : "❌"}
+Dùng lát nền: ${selectedProduct.isFlooring ? "✅" : "❌"}
+Dùng ốp tường: ${selectedProduct.isWalling ? "✅" : "❌"}
+Sử dụng trong nhà: ${selectedProduct.isInside ? "✅" : "❌"}
+Sử dụng ngoài trời: ${selectedProduct.isOutside ? "✅" : "❌"}
+Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
+      );
+    }
   }, [selectedProduct]);
 
   const handleView = (product: ProductDto) => {
@@ -219,11 +243,11 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     },
     {
       name: "Đăng",
-      selector: (row) => row.creator ?? "Chưa có người đăng",
+      selector: (row) => row.creator ?? "Chưa có",
     },
     {
       name: "Sửa",
-      selector: (row) => row.modifier ?? "Chưa có người sửa",
+      selector: (row) => row.modifier ?? "Chưa có",
     },
     {
       name: "Tình trạng Upload",

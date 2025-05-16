@@ -152,7 +152,7 @@ export interface ProductDetail {
   materialId: number;
   brickBodyId: number;
   storageId: number;
-  antiSlipLevelId: number;
+  antiSlipId: number;
   waterAbsorptionId: number;
   taxId: number | null;
   taxRate: number;

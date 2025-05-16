@@ -31,17 +31,17 @@ const AntiSlipperyGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   }))
 
   const selectedAntiSlippery = antiSlipperyOptions.find(
-    (option) => option.value === product?.antiSlipLevelId
+    (option) => option.value === product?.antiSlipId
   )
 
   return (
     <div>
       <div className="relative">
-        <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery} noOptionsMessage={() => "Không có độ chống trượt"}
+        <ReactSelect options={antiSlipperyOptions} value={selectedAntiSlippery} defaultValue={isCreateMode ? antiSlipperyOptions[13] : selectedAntiSlippery} noOptionsMessage={() => "Không có độ chống trượt"}
                      onChange={(selected) => {
                         if (!selected) {
                           if (onChange) {
-                            onChange("antiSlipId", product?.antiSlipLevelId);
+                            onChange("antiSlipId", null);
                           } else if (isCreateMode) {
                             productStore.updateProductForm("antiSlipId", null);
                           }

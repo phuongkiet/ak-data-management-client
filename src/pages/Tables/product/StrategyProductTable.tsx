@@ -21,7 +21,7 @@ const StrategyProductTable = () => {
   } = productStore;
 
   useEffect(() => {
-    loadStrategyProducts(pageSize, pageNumber, term);
+    loadStrategyProducts(pageSize, pageNumber, term ?? undefined);
   }, [pageSize, pageNumber, term]);
 
   const handlePageChange = (page: number) => {
@@ -55,7 +55,7 @@ const StrategyProductTable = () => {
             currentPage={pageNumber}
             onPageChange={handlePageChange}
             totalCount={totalCount}
-            searchTerm={term}
+            searchTerm={term ?? ''}
             onPageSizeChange={handlePageSizeChange}
           />
         </TableComponentCard>
