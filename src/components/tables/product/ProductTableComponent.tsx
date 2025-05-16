@@ -149,7 +149,7 @@ Sử dụng trong nhà: ${selectedProduct.isInside ? "✅" : "❌"}
 Sử dụng ngoài trời: ${selectedProduct.isOutside ? "✅" : "❌"}
 Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       );
-    }else{
+    } else {
       setTechnicalInfo(
         `Trọng lượng: ${selectedProduct.weightPerUnit} kg / Viên ~ ${
           selectedProduct.weightPerBox
@@ -198,11 +198,23 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
   const columns: TableColumn<ProductDto>[] = [
     {
-      name: "Id",
+      name: "STT",
       selector: (row) => row.id,
       sortable: true,
       maxWidth: "3px",
       wrap: false,
+    },
+    {
+      name: "Ngày đăng",
+      selector: (row) =>
+        new Date(
+          row.createdDate
+        ).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }),
+      sortable: true,
     },
     {
       name: "Mã hàng",

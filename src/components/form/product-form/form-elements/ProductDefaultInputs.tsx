@@ -32,6 +32,11 @@ const ProductDefaultInputs = ({
     patternStore,
     sizeStore,
   } = useStore();
+
+  useEffect(() => {
+    companyCodeStore.loadCompanyCodes();
+  }, []);
+
   const [confirmProductCode, setConfirmProductCode] = useState<
     string | undefined
   >("");
@@ -120,8 +125,11 @@ const ProductDefaultInputs = ({
       const companyCode = companyCodeStore.productCompanyCodeList.find(
         (x) => x.id === productStore.productForm.companyCodeId
       );
+
+      const lastSixChars = supplierItemCode.slice(-6);
+
       if (companyCode?.codeName) {
-        const newSkuCode = `${companyCode.codeName} ${supplierItemCode}`;
+        const newSkuCode = `${companyCode.codeName} ${lastSixChars}`;
         setConfirmProductCode(newSkuCode);
         productStore.updateProductForm("supplierItemCode", newSkuCode);
       }
@@ -185,13 +193,18 @@ const ProductDefaultInputs = ({
     productStore.updateProductForm("deliveryEstimatedDate", e.target.value);
   };
 
-  const updateConfirmSupplierItemCode = (supplierItemCodeValue: string, companyCodeIdValue: number | undefined) => {
+  const updateConfirmSupplierItemCode = (
+    supplierItemCodeValue: string,
+    companyCodeIdValue: number | undefined
+  ) => {
     const companyCode = companyCodeStore.productCompanyCodeList.find(
       (x) => x.id === companyCodeIdValue
     );
+
+    const lastSixChars = supplierItemCodeValue.slice(-6);
     const newConfirmSupplierItemCode = companyCode?.codeName
-      ? `${companyCode.codeName} ${supplierItemCodeValue}`
-      : supplierItemCodeValue;
+      ? `${companyCode.codeName} ${lastSixChars}`
+      : lastSixChars;
     onChange && onChange("supplierItemCode", supplierItemCodeValue);
     onChange && onChange("confirmSupplierItemCode", newConfirmSupplierItemCode);
   };
@@ -215,8 +228,15 @@ const ProductDefaultInputs = ({
   };
 
   useEffect(() => {
-    if (!isCreateMode && product?.supplierItemCode !== undefined && product?.companyCodeId !== undefined) {
-      updateConfirmSupplierItemCode(product.supplierItemCode, product.companyCodeId);
+    if (
+      !isCreateMode &&
+      product?.supplierItemCode !== undefined &&
+      product?.companyCodeId !== undefined
+    ) {
+      updateConfirmSupplierItemCode(
+        product.supplierItemCode,
+        product.companyCodeId
+      );
     }
   }, [product?.supplierItemCode, product?.companyCodeId, isCreateMode]);
 
@@ -225,9 +245,11 @@ const ProductDefaultInputs = ({
       const companyCode = companyCodeStore.productCompanyCodeList.find(
         (x) => x.id === product.companyCodeId
       );
+      const lastSixChars = product.supplierItemCode.slice(-6);
+
       return companyCode?.codeName
-        ? `${companyCode.codeName} ${product.supplierItemCode}`
-        : product.supplierItemCode;
+        ? `${companyCode.codeName} ${lastSixChars}`
+        : lastSixChars;
     }
     return "";
   })();
@@ -245,9 +267,13 @@ const ProductDefaultInputs = ({
     }
   };
 
-  const handleEditWeightPerUnitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditWeightPerUnitChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const newWeightPerUnit = Number(e.target.value);
-    const newWeightPerBox = Number((newWeightPerUnit * (product?.quantityPerBox ?? 0)).toFixed(2));
+    const newWeightPerBox = Number(
+      (newWeightPerUnit * (product?.quantityPerBox ?? 0)).toFixed(2)
+    );
     if (onChange) {
       onChange("weightPerUnit", newWeightPerUnit);
       onChange("weightPerBox", newWeightPerBox);
@@ -514,30 +540,17 @@ const ProductDefaultInputs = ({
 
             {/* Cột phải */}
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <ProductLabel htmlFor="input">
-                    Mã số nhà cung cấp
-                  </ProductLabel>
-                  <Input
-                    type="text"
-                    id="input"
-                    value={product?.supplierItemCode || ""}
-                    placeholder="Mã số sản phẩm của nhà cung cấp"
-                    onChange={(e) =>
-                      onChange && onChange("supplierItemCode", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div>
-                  <ProductLabel>Gia công khác</ProductLabel>
-                  <ProcessingGroup
-                    product={product}
-                    isCreateMode={isCreateMode}
-                    onChange={onChange}
-                  />
-                </div>
+              <div>
+                <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
+                <Input
+                  type="text"
+                  id="input"
+                  value={product?.supplierItemCode || ""}
+                  placeholder="Mã số sản phẩm của nhà cung cấp"
+                  onChange={(e) =>
+                    onChange && onChange("supplierItemCode", e.target.value)
+                  }
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -642,6 +655,15 @@ const ProductDefaultInputs = ({
                 />
               </div>
             </div>
+          </div>
+
+          <div>
+            <ProductLabel>Gia công khác</ProductLabel>
+            <ProcessingGroup
+              product={product}
+              isCreateMode={isCreateMode}
+              onChange={onChange}
+            />
           </div>
 
           <div className="space-y-6 mt-6">

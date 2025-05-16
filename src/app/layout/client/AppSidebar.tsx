@@ -12,9 +12,8 @@ import {
   // ListIcon,
   // PageIcon,
   // PieChartIcon,
-  PlugInIcon,
-  TableIcon
-  // UserCircleIcon,
+  TableIcon,
+  UserCircleIcon,
 } from '../../../icons/index.ts'
 import { useSidebar } from '../../../context/SidebarContext.tsx'
 
@@ -56,10 +55,11 @@ const navItems: NavItem[] = [
       { icon: <ChevronRightIcon />, name: 'Mức độ hút nước', path: '/water-absorptions', pro: false }]
   },
   {
-    icon: <PlugInIcon />,
+    icon: <UserCircleIcon />,
     name: 'Quản lý người dùng',
     subItems: [
-      { name: 'Tạo tài khoản mới', path: '/signup', pro: false }
+      { icon: <ChevronRightIcon />, name: 'Danh sách tài khoản', path: '/signup', pro: false },
+      { icon: <ChevronRightIcon />, name: 'Tạo tài khoản mới', path: '/signup', pro: false }
     ]
   }
 ]
