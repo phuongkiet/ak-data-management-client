@@ -69,7 +69,7 @@ const ProductInputGroupRight = ({ product, isCreateMode, onChange }: ProductProp
             <ProductLabel htmlFor="input">Trong nhà</ProductLabel>
             <ProductSwitch
               label="Có"
-              defaultChecked={isCreateMode ? true : product?.isInside}
+              checked={isCreateMode ? true : product?.isInside}
               onChange={(checked) => {
                 if (onChange) {
                   onChange("isInside", checked);
@@ -82,37 +82,48 @@ const ProductInputGroupRight = ({ product, isCreateMode, onChange }: ProductProp
           </div>
           <div>
             <ProductLabel htmlFor="input">Lát nền</ProductLabel>
-            <ProductSwitch label="Có"
-                           defaultChecked={isCreateMode ? true : product?.isFlooring}
-                           onChange={(checked) => {
-                             if (onChange) {
-                              onChange("isFlooring", checked);
-                             } else if (isCreateMode) {
-                              productStore.updateProductForm("isFlooring", checked);
-                             }
-                           }}
-                           color="blue" />
+            <ProductSwitch 
+              label="Có"
+              checked={isCreateMode ? true : product?.isFlooring}
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isFlooring", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isFlooring", checked);
+                }
+              }}
+              color="blue" 
+            />
           </div>
           <div>
             <ProductLabel htmlFor="input">CO-CQ</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isCOCQ} onChange={(checked) => {
-              if (onChange) {
-                onChange("isCOCQ", checked);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("isCOCQ", checked);
-              }
-            }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isCOCQ} 
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isCOCQ", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isCOCQ", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
           <div>
             <ProductLabel htmlFor="input">Chống bám bẩn</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isAntiFouling}
-                           onChange={(checked) => {
-                             if (onChange) {
-                              onChange("isAntiFouling", checked);
-                             } else if (isCreateMode) {
-                              productStore.updateProductForm("isAntiFouling", checked);
-                             }
-                           }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isAntiFouling}
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isAntiFouling", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isAntiFouling", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
         </div>
         <div className="space-y-6">
@@ -133,46 +144,63 @@ const ProductInputGroupRight = ({ product, isCreateMode, onChange }: ProductProp
           </div>
           <div>
             <ProductLabel htmlFor="input">Ngoài trời</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isOutside}
-                           onChange={(checked) => {
-                             if (onChange) {
-                              onChange("isOutside", checked);
-                             } else if (isCreateMode) {
-                              productStore.updateProductForm("isOutside", checked);
-                             }
-                           }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isOutside}
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isOutside", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isOutside", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
           <div>
             <ProductLabel htmlFor="input">Ốp tường</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isWalling}
-                           onChange={(checked) => {
-                             if (onChange) {
-                              onChange("isWalling", checked);
-                             } else if (isCreateMode) {
-                              productStore.updateProductForm("isWalling", checked);
-                             }
-                           }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isWalling}
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isWalling", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isWalling", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
           <div>
             <ProductLabel htmlFor="input">Chống trầy</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isScratchResist}
-                           onChange={(checked) => {
-                             if (onChange) {
-                              onChange("isScratchResist", checked);
-                             } else if (isCreateMode) {
-                              productStore.updateProductForm("isScratchResist", checked);
-                             }
-                           }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isScratchResist}
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isScratchResist", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isScratchResist", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
           <div>
             <ProductLabel htmlFor="input">Mài cạnh</ProductLabel>
-            <ProductSwitch label="Có" defaultChecked={isCreateMode ? true : product?.isEdgeGrinding} onChange={(checked) => {
-              if (onChange) {
-                onChange("isEdgeGrinding", checked);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("isEdgeGrinding", checked);
-              }
-            }} color="blue" />
+            <ProductSwitch 
+              label="Có" 
+              checked={isCreateMode ? true : product?.isEdgeGrinding} 
+              onChange={(checked) => {
+                if (onChange) {
+                  onChange("isEdgeGrinding", checked);
+                } else if (isCreateMode) {
+                  productStore.updateProductForm("isEdgeGrinding", checked);
+                }
+              }} 
+              color="blue" 
+            />
           </div>
         </div>
       </div>

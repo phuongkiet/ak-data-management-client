@@ -2,17 +2,25 @@ import { Link } from "react-router";
 
 interface BreadcrumbProps {
   pageTitle: string;
+  isUploaded?: boolean;
 }
 
-const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
+const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, isUploaded }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-      <h2
+      {isUploaded ? (
+      <a
+        href={`https://ankhanhhouse.com/san-pham/${pageTitle.toLowerCase()}`}
         className="text-xl font-semibold text-gray-800 dark:text-white/90"
         x-text="pageName"
       >
         {pageTitle}
-      </h2>
+      </a>
+      ) : (
+        <span className="text-xl font-semibold text-gray-800 dark:text-white/90">
+          {pageTitle}
+        </span>
+      )}
       <nav>
         <ol className="flex items-center gap-1.5">
           <li>

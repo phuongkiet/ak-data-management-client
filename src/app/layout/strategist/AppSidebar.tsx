@@ -34,7 +34,7 @@ const navItems: NavItem[] = [
     name: 'Sản phẩm',
     icon: <BoxIcon />,
     subItems: [{ name: 'Mã hàng', path: '/products', pro: false },
-      { name: 'Bảng báo giá', path: '/strategy-products', pro: false }]
+      { name: 'Bảng tính giá', path: '/strategy-products', pro: false }]
   },
   {
     name: 'Danh mục sản phẩm',

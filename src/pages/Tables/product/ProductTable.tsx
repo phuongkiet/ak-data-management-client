@@ -44,72 +44,69 @@ function ProductTable() {
   useEffect(() => {
     if (!commonStore.token) return;
 
-    loadSuppliers();
-    loadSizes();
-    productStore.initialize();
+    const initializeData = async () => {
+      // Load initial data
+      await Promise.all([
+        loadSuppliers(),
+        loadSizes(),
+        productStore.initialize()
+      ]);
 
-    const savedSupplier = localStorage.getItem("selectedSupplier");
-    const savedSize = localStorage.getItem("selectedSize");
-    const savedPageNumber = localStorage.getItem("pageNumber");
-    const savedPageSize = localStorage.getItem("pageSize");
-
-    runInAction(() => {
-      productStore.setFilters({
-        pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
-        pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
-        supplierId: savedSupplier ? parseInt(savedSupplier) : null,
-        sizeId: savedSize ? parseInt(savedSize) : null,
-        term: productStore.term,
-      });
-
+      const savedSupplier = localStorage.getItem("selectedSupplier");
+      const savedSize = localStorage.getItem("selectedSize");
+      const savedPageNumber = localStorage.getItem("pageNumber");
+      const savedPageSize = localStorage.getItem("pageSize");
       const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
       const initialSizeId = savedSize ? parseInt(savedSize) : null;
-      setSelectedSupplier(initialSupplierId);
-      setTempSelectedSupplier(initialSupplierId);
-      setSelectedSize(initialSizeId);
-      setTempSelectedSize(initialSizeId);
-      setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
-      setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
-      setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
-    });
-  }, [loadSuppliers, loadSizes, productStore, commonStore.token]);
 
+      runInAction(() => {
+        productStore.setFilters({
+          pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
+          pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
+          supplierId: initialSupplierId,
+          sizeId: initialSizeId,
+          term: productStore.term,
+        });
+
+        setSelectedSupplier(initialSupplierId);
+        setTempSelectedSupplier(initialSupplierId);
+        setSelectedSize(initialSizeId);
+        setTempSelectedSize(initialSizeId);
+        setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
+        setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
+        setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
+      });
+
+      // Load products after initialization
+      if (!supplierStore.loading && !sizeStore.loading && !productStore.loadingCombinations) {
+        productStore.setFilters({
+          pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
+          pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
+          term: productStore.term,
+          supplierId: initialSupplierId,
+          sizeId: initialSizeId,
+        });
+        loadProducts();
+      }
+    };
+
+    initializeData();
+  }, [commonStore.token]); // Only depend on token
+
+  // Separate effect for handling filter changes
   useEffect(() => {
-    if (
-      supplierStore.loading ||
-      sizeStore.loading ||
-      productStore.loadingCombinations
-    )
-      return;
-
-    console.log(
-      "Existing Combinations:",
-      productStore.existingSupplierSizeCombinations
-    );
-    console.log("Supplier List:", supplierStore.productSupplierList);
-    console.log("Size List:", sizeStore.productSizeList);
-    console.log("Temp Selected Supplier:", tempSelectedSupplier);
-    console.log("Temp Selected Size:", tempSelectedSize);
+    if (supplierStore.loading || sizeStore.loading || productStore.loadingCombinations) return;
 
     productStore.setFilters({
-      pageNumber: productStore.pageNumber, // Sử dụng component state
-      pageSize, // Sử dụng component state
-      term, // Sử dụng store state (lấy qua destructure)
-      supplierId: isAdvancedActive ? selectedSupplier : null, // Sử dụng component state
-      sizeId: isAdvancedActive ? selectedSize : null, // Sử dụng component state
+      pageNumber,
+      pageSize,
+      term,
+      supplierId: isAdvancedActive ? selectedSupplier : null,
+      sizeId: isAdvancedActive ? selectedSize : null,
     });
 
-    loadProducts(); // No arguments
-  }, [
-    productStore.pageNumber, // Dependency là state local pageNumber
-    productStore.pageSize, // Dependency là state local pageSize
-    term, // Dependency là store state term (từ destructure)
-    selectedSupplier, // Dependency là state local selectedSupplier
-    selectedSize, // Dependency là state local selectedSize
-    supplierStore.loading, // Thêm dependencies để re-run khi suppliers load xong
-    sizeStore.loading, // Thêm dependencies để re-run khi sizes load xong
-    productStore.loadingCombinations,
-  ]);
+    loadProducts();
+  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);

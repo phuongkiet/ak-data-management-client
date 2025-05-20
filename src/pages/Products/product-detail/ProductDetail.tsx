@@ -69,14 +69,15 @@ const ProductDetail = () => {
     <div>
       <PageMeta
         title="An Khánh Data Management"
-        description={"Sản phẩm " + updateProduct.productCode}
+        description={"Sản phẩm " + updateProduct.autoBarCode}
       />
       <span>
         Sản phẩm{" "}
         <PageBreadcrumb
           pageTitle={
-            updateProduct.productCode ? updateProduct.productCode : "..."
+            updateProduct.autoBarCode ? updateProduct.autoBarCode : "..."
           }
+          isUploaded={updateProduct.uploadWebsiteStatus === 1}
         />
       </span>
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 mb-6">
