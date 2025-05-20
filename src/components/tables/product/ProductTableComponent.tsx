@@ -14,8 +14,8 @@ import Modal from "../../ui/modal/index.tsx";
 import { useStore } from "../../../app/stores/store.ts";
 import { observer } from "mobx-react-lite";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
-import ProductInputField from "../../form/product-form/input/ProductInputField.tsx";
-import ProductTextArea from "../../form/product-form/input/ProductTextArea.tsx";
+import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
+import ProductTextArea from "../../form/product-form/input/product/ProductTextArea.tsx";
 import { NumericFormat } from "react-number-format";
 
 interface ProductTableComponentProps {

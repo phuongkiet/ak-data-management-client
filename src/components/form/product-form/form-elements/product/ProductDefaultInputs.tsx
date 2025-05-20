@@ -1,18 +1,18 @@
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductLabel from "../ProductLabel.tsx";
-import Input from "../input/ProductInputField.tsx";
-import ProductTextArea from "../input/ProductTextArea.tsx";
-import { useStore } from "../../../../app/stores/store.ts";
-import CompanyCodeGroup from "../company-code/CompanyCode.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
+import Input from "../../input/product/ProductInputField.tsx";
+import ProductTextArea from "../../input/product/ProductTextArea.tsx";
+import { useStore } from "../../../../../app/stores/store.ts";
+import CompanyCodeGroup from "../../company-code/CompanyCode.tsx";
 import { observer } from "mobx-react-lite";
-import ProcessingGroup from "../processing/Processing.tsx";
-import StorageGroup from "../storage/Storage.tsx";
-import CalculatedUnit from "../calculated-unit/CalculatedUnit.tsx";
-import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-import { appCurrency } from "../../../../app/common/common.ts";
+import ProcessingGroup from "../../processing/Processing.tsx";
+import StorageGroup from "../../storage/Storage.tsx";
+import CalculatedUnit from "../../calculated-unit/CalculatedUnit.tsx";
+import { ProductDetail } from "../../../../../app/models/product/product.model.ts";
+import { appCurrency } from "../../../../../app/common/common.ts";
 import { NumericFormat } from "react-number-format";
 import { useState, useEffect } from "react";
-import FactoryGroup from "../product-factory/Factory.tsx";
+import FactoryGroup from "../../product-factory/Factory.tsx";
 
 interface ProductProps {
   product?: ProductDetail;

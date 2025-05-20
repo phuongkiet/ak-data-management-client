@@ -1,16 +1,16 @@
-import ComponentCard from '../../../common/ComponentCard.tsx'
-import ProductLabel from '../ProductLabel.tsx'
-import Input from '../input/ProductInputField.tsx'
-import ProductSwitch from '../switch/ProductSwitch.tsx'
-import AntiSlipperyGroup from '../anti-slippery/AntiSlippery.tsx'
-import OriginGroup from '../origin/Origin.tsx'
-import BodyColorGroup from '../body-color/BodyColor.tsx'
-import WaterAbsorptionGroup from '../water-absorption/WaterAbsorption.tsx'
-import { ProductDetail } from '../../../../app/models/product/product.model.ts'
-import UploadWebsiteStatus from '../upload-status/UploadWebsiteStatus.tsx'
-import NoticeDataWebsite from '../notice-data/NoticeDataWebsite.tsx'
-import PriceDetermination from '../price-determination/PriceDetermination.tsx'
-import { useStore } from '../../../../app/stores/store.ts'
+import ComponentCard from '../../../../common/ComponentCard.tsx'
+import ProductLabel from '../../ProductLabel.tsx'
+import Input from '../../input/product/ProductInputField.tsx'
+import ProductSwitch from '../../switch/ProductSwitch.tsx'
+import AntiSlipperyGroup from '../../anti-slippery/AntiSlippery.tsx'
+import OriginGroup from '../../origin/Origin.tsx'
+import BodyColorGroup from '../../body-color/BodyColor.tsx'
+import WaterAbsorptionGroup from '../../water-absorption/WaterAbsorption.tsx'
+import { ProductDetail } from '../../../../../app/models/product/product.model.ts'
+import UploadWebsiteStatus from '../../upload-status/UploadWebsiteStatus.tsx'
+import NoticeDataWebsite from '../../notice-data/NoticeDataWebsite.tsx'
+import PriceDetermination from '../../price-determination/PriceDetermination.tsx'
+import { useStore } from '../../../../../app/stores/store.ts'
 import { useState } from 'react'
 
 interface ProductProps {
@@ -19,7 +19,7 @@ interface ProductProps {
   onChange?: (field: string, value: any) => void;
 }
 
-export default function ProductInputGroupRight({ product, isCreateMode, onChange }: ProductProps) {
+export default function StrategyProductInputGroupRight({ product, isCreateMode, onChange }: ProductProps) {
   const { productStore } = useStore()
   const [ patternNumber, setPatternNumber ] = useState<number>()
   const [ mohsHardness, setMohsHardness ] = useState<number>()

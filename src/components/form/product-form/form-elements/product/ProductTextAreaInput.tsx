@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductTextArea from "../input/ProductTextArea.tsx";
-import ProductLabel from "../ProductLabel.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductTextArea from "../../input/product/ProductTextArea.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
 
 export default function ProductTextAreaInput() {
   const [message, setMessage] = useState("");

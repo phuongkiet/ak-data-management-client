@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite'
 
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons'
 import ProductLabel from '../form/product-form/ProductLabel.tsx'
-import Input from '../form/product-form/input/ProductInputField.tsx'
+import Input from '../form/product-form/input/product/ProductInputField.tsx'
 import Button from '../ui/button/Button'
 import { useStore } from '../../app/stores/store.ts'
 import { toast } from 'react-toastify'

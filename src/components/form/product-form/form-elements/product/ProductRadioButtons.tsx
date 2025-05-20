@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductRadio from "../input/ProductRadio.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductRadio from "../../input/product/ProductRadio.tsx";
 
 export default function ProductRadioButtons() {
   const [selectedValue, setSelectedValue] = useState<string>("option2");

@@ -1,5 +1,5 @@
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductSwitch from "../switch/ProductSwitch.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductSwitch from "../../switch/ProductSwitch.tsx";
 
 export default function ProductToggleSwitch() {
   const handleSwitchChange = (checked: boolean) => {

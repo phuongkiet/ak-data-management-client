@@ -6,6 +6,7 @@ import {
   ProductDetail,
   ProductDto,
   StrategyProductDto,
+  StrategyProductDetailDto,
   SupplierSizeCombinationDto,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
@@ -30,6 +31,7 @@ export default class ProductStore {
 
   productForm: AddProductDto = {} as AddProductDto;
   productDetail: ProductDetail = {} as ProductDetail;
+  strategyProductDetail: StrategyProductDetailDto = {} as StrategyProductDetailDto;
 
   existingSupplierSizeCombinations: SupplierSizeCombinationDto[] = [];
   loadingCombinations = false;
@@ -80,14 +82,14 @@ export default class ProductStore {
         porcelainWarrantyPeriod: undefined,
         accessoryWarrantyPeriod: undefined,
         patternQuantity: 0,
-        isInside: false,
-        isOutside: false,
-        isFlooring: false,
-        isWalling: false,
-        isCOCQ: false,
-        isScratchResist: false,
-        isAntiFouling: false,
-        isEdgeGrinding: false,
+        isInside: true,
+        isOutside: true,
+        isFlooring: true,
+        isWalling: true,
+        isCOCQ: true,
+        isScratchResist: true,
+        isAntiFouling: true,
+        isEdgeGrinding: true,
         hardnessMOHS: 0,
         otherNote: "",
         deliveryEstimatedDate: "",
@@ -245,6 +247,32 @@ export default class ProductStore {
           },
         };
         console.log(this.productDetail);
+        this.loading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Lỗi khi tải sản phẩm", error);
+      toast.error("Không thể tải dữ liệu sản phẩm");
+    }
+  };
+
+  loadStrategyProductDetail = async (id: number) => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.getStrategyProductById(id);
+      const product = response.data; // Truy xuất `data` từ response
+
+      if (!product) throw new Error("Không có dữ liệu sản phẩm");
+
+      runInAction(() => {
+        this.strategyProductDetail = {
+          ...{
+            ...product,
+          },
+        };
+        console.log(this.strategyProductDetail);
         this.loading = false;
       });
     } catch (error) {

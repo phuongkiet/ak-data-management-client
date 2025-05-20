@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import Input from "../input/ProductInputField.tsx";
-import ProductLabel from "../ProductLabel.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import Input from "../../input/product/ProductInputField.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
 export default function ProductInputStates() {
   const [email, setEmail] = useState("");
   const [emailTwo, setEmailTwo] = useState("");

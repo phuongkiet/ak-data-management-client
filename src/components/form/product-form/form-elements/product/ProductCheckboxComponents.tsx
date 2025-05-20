@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductCheckbox from "../input/ProductCheckbox.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductCheckbox from "../../input/product/ProductCheckbox.tsx";
 
 export default function ProductCheckboxComponents() {
   const [isChecked, setIsChecked] = useState(false);

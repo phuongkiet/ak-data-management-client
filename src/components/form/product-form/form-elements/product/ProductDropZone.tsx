@@ -1,4 +1,4 @@
-import ComponentCard from "../../../common/ComponentCard.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
 import { useDropzone } from "react-dropzone";
 // import Dropzone from "react-dropzone";
 

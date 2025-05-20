@@ -1,6 +1,6 @@
 import ComponentCard from '../../../common/ComponentCard.tsx'
 import ProductLabel from '../ProductLabel.tsx'
-import Input from '../input/ProductInputField.tsx'
+import Input from '../input/product/ProductInputField.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
 import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'

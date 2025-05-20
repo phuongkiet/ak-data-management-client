@@ -1,6 +1,6 @@
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductLabel from "../ProductLabel.tsx";
-import Input from '../input/ProductInputField.tsx'
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
+import Input from '../../input/product/ProductInputField.tsx'
 import ReactSelect from 'react-select'
 
 interface Option {

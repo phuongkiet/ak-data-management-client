@@ -1,7 +1,7 @@
 import { useState } from "react";
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductLabel from "../ProductLabel.tsx";
-import ProductMultiSelect from "../ProductMultiSelect.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
+import ProductMultiSelect from "../../ProductMultiSelect.tsx";
 import ReactSelect from 'react-select'
 
 export default function ProductSelectInputs() {

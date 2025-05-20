@@ -12,6 +12,7 @@ import {
   EditProductDto,
   ProductDetail,
   ProductDto,
+  StrategyProductDetailDto,
   StrategyProductDto,
   SupplierSizeCombinationDto,
 } from "../models/product/product.model.ts";
@@ -86,7 +87,7 @@ export interface ApiResponseModel<T> {
   data?: T;
 }
 
-axios.defaults.baseURL = "https://localhost:7263/api/";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 axios.interceptors.response.use(
   async (response) => {
@@ -238,6 +239,9 @@ const Product = {
 
   getProductById: (id: number): Promise<ApiResponseModel<ProductDetail>> =>
     requests.get<ProductDetail>("/products/product-detail?productId=" + id),
+
+  getStrategyProductById: (id: number): Promise<ApiResponseModel<StrategyProductDetailDto>> =>
+    requests.get<StrategyProductDetailDto>("/products/strategy-product-detail?productId=" + id),
 
   getNextOrderNumber: (supplierId: number): Promise<ApiResponseModel<number>> =>
     requests.get<number>("/products/suppliers-order?supplierId=" + supplierId),

@@ -1,6 +1,6 @@
-import ComponentCard from "../../../common/ComponentCard.tsx";
-import ProductFileInput from "../input/ProductFileInput.tsx";
-import ProductLabel from "../ProductLabel.tsx";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
+import ProductFileInput from "../../input/product/ProductFileInput.tsx";
+import ProductLabel from "../../ProductLabel.tsx";
 
 export default function ProductFileInputExample() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

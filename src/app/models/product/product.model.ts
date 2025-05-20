@@ -60,6 +60,22 @@ export interface StrategyProductDto {
   webDiscountedPrice?: number;
   webSecondDiscountedPrice?: number;
 
+  listPrice?: number;
+  retailPrice?: number; // Giá lẻ chưa khuyến mãi
+}
+
+export interface StrategyProductDetailDto {
+  id: number;
+  companyItemCode: string;
+  supplierItemCode: string;
+  size: string;
+  supplierName: string;
+  displayWebsiteName: string;
+
+  webProductPrice?: number;
+  webDiscountedPrice?: number;
+  webSecondDiscountedPrice?: number;
+
   changedUnit: string; // "vien"
   area: number; // m2 / vien
   calculatedUnit: string; // "m2"
