@@ -87,7 +87,7 @@ export interface ApiResponseModel<T> {
   data?: T;
 }
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+axios.defaults.baseURL = import.meta.env.VITE_API_V1_URL;
 
 axios.interceptors.response.use(
   async (response) => {
