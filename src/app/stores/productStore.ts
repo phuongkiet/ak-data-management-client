@@ -12,6 +12,7 @@ import {
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
 import { AdvancedSearchDto } from "../models/common/advancedSearch.model";
+import { store } from "../stores/store";
 
 export default class ProductStore {
   //Product
@@ -106,9 +107,17 @@ export default class ProductStore {
 
     this.pageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
     this.pageSize = savedPageSize ? parseInt(savedPageSize) : 10;
+  }
 
-    this.getTotalProducts();
-    this.loadExistingSupplierSizeCombinations();
+  initialize = async () => {
+    if (!store.commonStore.token) return;
+    
+    try {
+      await this.getTotalProducts();
+      await this.loadExistingSupplierSizeCombinations();
+    } catch (error) {
+      console.error("Failed to initialize product store:", error);
+    }
   }
 
   setSupplierId = (id: number | null) => {

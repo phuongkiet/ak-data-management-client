@@ -12,7 +12,7 @@ import { ProductSupplierDto } from "../../../app/models/product/productSupplier.
 import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
 
 function ProductTable() {
-  const { productStore, supplierStore, sizeStore } = useStore();
+  const { productStore, supplierStore, sizeStore, commonStore } = useStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -42,10 +42,11 @@ function ProductTable() {
   const { productSizeList, loadSizes } = sizeStore;
 
   useEffect(() => {
+    if (!commonStore.token) return;
+
     loadSuppliers();
     loadSizes();
-
-    productStore.loadExistingSupplierSizeCombinations();
+    productStore.initialize();
 
     const savedSupplier = localStorage.getItem("selectedSupplier");
     const savedSize = localStorage.getItem("selectedSize");
@@ -58,10 +59,9 @@ function ProductTable() {
         pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
         supplierId: savedSupplier ? parseInt(savedSupplier) : null,
         sizeId: savedSize ? parseInt(savedSize) : null,
-        term: productStore.term, // Giữ nguyên term từ store
+        term: productStore.term,
       });
 
-      // Cập nhật state filter local
       const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
       const initialSizeId = savedSize ? parseInt(savedSize) : null;
       setSelectedSupplier(initialSupplierId);
@@ -72,7 +72,7 @@ function ProductTable() {
       setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
       setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
     });
-  }, [loadSuppliers, loadSizes, productStore]);
+  }, [loadSuppliers, loadSizes, productStore, commonStore.token]);
 
   useEffect(() => {
     if (
