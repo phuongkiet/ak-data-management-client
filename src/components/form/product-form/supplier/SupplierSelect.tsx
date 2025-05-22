@@ -60,7 +60,6 @@ const SupplierSelect = ({ product, isCreateMode }: ProductProps) => {
               supplierStore.updateSupplierForm("supplierName", "");
               supplierStore.updateSupplierForm("supplierCodeName", "");
               supplierStore.updateSupplierForm("supplierShortCode", "");
-              supplierStore.updateSupplierForm("formula", "");
               return;
             }
 
