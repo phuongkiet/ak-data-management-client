@@ -13,6 +13,10 @@ export default class AreaStore {
     makeAutoObservable(this);
   }
 
+  setProductAreaList = (list: ProductAreaDto[]) => {
+    this.productAreaList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadAreas(this.term);

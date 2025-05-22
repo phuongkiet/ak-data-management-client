@@ -1,9 +1,7 @@
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-
 interface Option {
   value: number;
   label: string;
@@ -16,12 +14,8 @@ interface ProductProps {
 }
 
 const BodyColorGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { bodyColorStore, productStore } = useStore();
-  const { loadBodyColors, productBodyColorList } = bodyColorStore;
-
-  useEffect(() => {
-    loadBodyColors();
-  }, []);
+  const { productStore, bodyColorStore } = useStore();
+  const { productBodyColorList } = bodyColorStore;
 
   // Mapping list
   const bodyColorOptions: Option[] = productBodyColorList.map((bodyColor) => ({

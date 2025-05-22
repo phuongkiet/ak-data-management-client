@@ -17,6 +17,10 @@ export default class FactoryStore {
     makeAutoObservable(this);
   }
 
+  setProductFactoryList = (list: ProductFactoryDto[]) => {
+    this.productFactoryList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadFactories(this.term);

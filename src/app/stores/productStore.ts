@@ -8,6 +8,7 @@ import {
   StrategyProductDto,
   StrategyProductDetailDto,
   SupplierSizeCombinationDto,
+  ProductMetadataDto,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
@@ -20,6 +21,7 @@ export default class ProductStore {
   strategyProductRegistry = new Map<number, StrategyProductDto>();
   productList: ProductDto[] = [];
   strategyProductList: StrategyProductDto[] = [];
+  productMetadata: ProductMetadataDto = {} as ProductMetadataDto;
   loading = false;
   totalPages = 0;
   totalCount = 0;
@@ -57,8 +59,8 @@ export default class ProductStore {
         calculatedUnitId: null,
         productFactoryId: null,
 
-        priceDetermination: 0,
-        noticeDataWebsite: 0,
+        priceDetermination: 2,
+        noticeDataWebsite: 2,
         uploadWebsiteStatus: UploadWebsiteStatus.NotCaptured,
         discountConditions: 0,
         secondDiscountConditions: 0,
@@ -332,6 +334,7 @@ export default class ProductStore {
         runInAction(() => {
           toast.success(response.data);
           this.resetProductForm();
+          this.loadProducts();
         });
         return response.data;
       } else {
@@ -437,4 +440,16 @@ export default class ProductStore {
       });
     }
   };
+
+  getProductMetadata = async () => {
+    try {
+      const response = await agent.Product.getProductMetadata();
+      runInAction(() => {
+        this.productMetadata = response.data || {} as ProductMetadataDto;
+      });
+    } catch (error) {
+      console.error("Error getting product metadata:", error);
+    }
+  };
 }
+

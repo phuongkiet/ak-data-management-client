@@ -1,6 +1,5 @@
 import ReactSelect from 'react-select'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
@@ -16,12 +15,8 @@ interface ProductProps {
 }
 
 const CompanyCodeGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { companyCodeStore, productStore } = useStore()
-  const { loadCompanyCodes, productCompanyCodeList } = companyCodeStore
-
-  useEffect(() => {
-    loadCompanyCodes()
-  }, [])
+  const { productStore, companyCodeStore } = useStore()
+  const { productCompanyCodeList } = companyCodeStore
 
   // Mapping list
   const companyCodeOptions: Option[] = productCompanyCodeList.map(companyCode => ({

@@ -18,6 +18,10 @@ export default class ColorStore {
     makeAutoObservable(this);
   }
 
+  setProductColorList = (list: ProductColorDto[]) => {
+    this.productColorList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadColors(this.term);

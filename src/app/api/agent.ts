@@ -12,6 +12,7 @@ import {
   EditProductDto,
   ProductDetail,
   ProductDto,
+  ProductMetadataDto,
   StrategyProductDetailDto,
   StrategyProductDto,
   SupplierSizeCombinationDto,
@@ -87,7 +88,16 @@ export interface ApiResponseModel<T> {
   data?: T;
 }
 
-axios.defaults.baseURL = import.meta.env.VITE_API_V1_URL;
+const DEPLOYED_URL = import.meta.env.VITE_API_V1_URL;
+const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
+
+if(DEPLOYED_URL){
+  axios.defaults.baseURL = DEPLOYED_URL;
+  console.log("DEPLOYED_URL", DEPLOYED_URL);
+} else {
+  axios.defaults.baseURL = LOCAL_URL;
+  console.log("LOCAL_URL", LOCAL_URL);
+}
 
 axios.interceptors.response.use(
   async (response) => {
@@ -273,6 +283,9 @@ const Product = {
     formData.append("file", file);
     return requests.post<number>("/products/import", formData);
   },
+
+  getProductMetadata: (): Promise<ApiResponseModel<ProductMetadataDto>> =>
+    requests.get<ProductMetadataDto>("/products/product-metadata"),
 };
 
 const ProductSupplier = {

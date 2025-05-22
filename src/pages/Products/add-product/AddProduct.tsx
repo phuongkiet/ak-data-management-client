@@ -12,9 +12,11 @@ import { useStore } from '../../../app/stores/store.ts'
 import { observer } from 'mobx-react-lite'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useProductMetadata } from '../../../app/context/ProductMetadataContext'
 
 const AddProduct = () => {
   const { productStore } = useStore();
+  const { loading: metadataLoading } = useProductMetadata();
   const navigate = useNavigate();
   const [thicknessError, setThicknessError] = useState<string>('');
 
@@ -24,6 +26,14 @@ const AddProduct = () => {
       navigate('/products');
     }
   };
+  
+  if (metadataLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   
   return (
     <div>
@@ -36,7 +46,11 @@ const AddProduct = () => {
         <div className='space-y-6'>
           <MaterialGroup isCreateMode={true}/>
           <SupplierGroup isCreateMode={true}/>
-          <SizeGroup isCreateMode={true} thicknessError={thicknessError} setThicknessError={setThicknessError} />
+          <SizeGroup 
+            isCreateMode={true} 
+            thicknessError={thicknessError} 
+            setThicknessError={setThicknessError}
+          />
         </div>
         <div className="space-y-6">
           <SurfaceGroup isCreateMode={true}/>

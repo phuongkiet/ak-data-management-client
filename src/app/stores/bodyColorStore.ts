@@ -20,6 +20,10 @@ export default class BodyColorStore {
     makeAutoObservable(this);
   }
 
+  setProductBodyColorList = (list: ProductBodyColorDto[]) => {
+    this.productBodyColorList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadBodyColors(this.term);

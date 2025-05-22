@@ -223,25 +223,6 @@ function SupplierTable() {
                   </div>
                 </div>
 
-                <div>
-                  <ProductLabel
-                    htmlFor="formula"
-                    tooltipId="unique-tooltip-id"
-                    tooltip="Công thức phải có giá trị Price, ví dụ: Price * 0.5"
-                  >
-                    Công thức tính toán
-                  </ProductLabel>
-                  <Input
-                    id="formula"
-                    name="formula"
-                    type="text"
-                    value={supplierStore.supplierForm.formula}
-                    onChange={(e) =>
-                      updateSupplierForm("formula", e.target.value)
-                    }
-                  />
-                </div>
-
                 <div className="flex justify-end space-x-4 pt-4">
                   <Button
                     type="button"

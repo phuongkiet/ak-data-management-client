@@ -1,7 +1,6 @@
 import ComponentCard from '../../../common/ComponentCard.tsx'
 import { observer } from 'mobx-react-lite'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 
@@ -17,12 +16,9 @@ interface ProductProps {
 }
 
 const MaterialGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { materialStore, productStore } = useStore()
-  const { loadMaterials, productMaterialList } = materialStore
 
-  useEffect(() => {
-    loadMaterials()
-  }, [loadMaterials])
+  const { materialStore, productStore } = useStore()
+  const { productMaterialList } = materialStore
 
   // Mapping list
   const materialOptions: Option[] = productMaterialList.map(material => ({

@@ -17,6 +17,10 @@ export default class WaterAbsorptionStore {
     makeAutoObservable(this);
   }
 
+  setProductWaterAbsorptionList = (list: ProductWaterAbsorptionDto[]) => {
+    this.productWaterAbsorptionList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadWaterAbsorption(this.term);

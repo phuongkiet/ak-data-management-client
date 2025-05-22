@@ -19,6 +19,10 @@ export default class SizeStore {
     makeAutoObservable(this);
   }
 
+  setProductSizeList = (list: ProductSizeDto[]) => {
+    this.productSizeList = list;
+  } 
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadSizes(this.term);

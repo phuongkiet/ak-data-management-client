@@ -12,6 +12,10 @@ export default class CalculatedUnitStore {
     makeAutoObservable(this);
   }
 
+  setProductCalculatedUnitList = (list: CalculatedUnitDto[]) => {
+    this.productCalculatedUnitList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadCalculatedUnits(this.term);

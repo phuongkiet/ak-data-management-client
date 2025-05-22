@@ -20,6 +20,10 @@ export default class StorageStore {
     makeAutoObservable(this);
   }
 
+  setProductStorageList = (list: ProductStorageDto[]) => {
+    this.productStorageList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadStorages(this.term);

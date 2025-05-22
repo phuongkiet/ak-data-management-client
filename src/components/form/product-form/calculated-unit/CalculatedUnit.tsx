@@ -1,5 +1,4 @@
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
@@ -16,13 +15,8 @@ interface ProductProps {
 }
 
 const CalculatedUnitGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { calculatedUnitStore, productStore } = useStore();
-  const { loadCalculatedUnits, productCalculatedUnitList } =
-    calculatedUnitStore;
-
-  useEffect(() => {
-    loadCalculatedUnits();
-  }, []);
+  const { productStore, calculatedUnitStore } = useStore();
+  const { productCalculatedUnitList } = calculatedUnitStore;
 
   // Mapping list
   const calculatedUnitOptions: Option[] = productCalculatedUnitList.map(

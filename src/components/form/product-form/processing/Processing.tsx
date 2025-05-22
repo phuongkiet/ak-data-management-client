@@ -1,5 +1,4 @@
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import ReactSelect from 'react-select'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
@@ -16,13 +15,10 @@ interface ProductProps {
 }
 
 const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { processingStore, productStore } = useStore()
-  const { loadProcessings, productProcessingList } = processingStore
+  const { productStore, processingStore } = useStore()
   const { productForm } = productStore
+  const { productProcessingList } = processingStore
 
-  useEffect(() => {
-    loadProcessings()
-  }, [])
 
   // Mapping list
   const processingOptions: Option[] = productProcessingList.map(processing => ({

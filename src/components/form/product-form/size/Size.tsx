@@ -2,12 +2,11 @@ import ComponentCard from "../../../common/ComponentCard.tsx";
 import ProductLabel from "../ProductLabel.tsx";
 import Input from "../input/product/ProductInputField.tsx";
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
 import * as yup from "yup";
-
 interface Option {
   value: number;
   label: string;
@@ -33,17 +32,13 @@ const SizeGroup = ({
   isCreateMode,
   thicknessError,
   setThicknessError,
-  onChange,
+  onChange
 }: SizeGroupProps) => {
   const { sizeStore, productStore } = useStore();
-  const { loadSizes, productSizeList } = sizeStore;
+  const { productSizeList } = sizeStore;
   const [thickness, setThickness] = useState<string>(
     product?.thicknessSize?.toString() || ""
   );
-
-  useEffect(() => {
-    loadSizes();
-  }, []);
 
   // Mapping list
   const sizeOptions: Option[] = productSizeList.map((size) => ({
@@ -91,12 +86,6 @@ const SizeGroup = ({
       }
     }
   };
-
-  // Add debug logging for selected size
-  useEffect(() => {
-    console.log('Current form state:', productStore.productForm);
-    console.log('Selected size ID:', isCreateMode ? productStore.productForm.actualSizeId : product?.actualSizeId);
-  }, [productStore.productForm.actualSizeId, product?.actualSizeId]);
 
   const handleThicknessChange = async (
     e: React.ChangeEvent<HTMLInputElement>

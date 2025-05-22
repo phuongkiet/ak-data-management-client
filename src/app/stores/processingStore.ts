@@ -18,6 +18,10 @@ export default class ProcessingStore {
     makeAutoObservable(this);
   }
 
+  setProductProcessingList = (list: ProductProcessingDto[]) => {
+    this.productProcessingList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadProcessings(this.term);

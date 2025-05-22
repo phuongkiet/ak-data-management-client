@@ -2,10 +2,10 @@ import ComponentCard from '../../../common/ComponentCard.tsx'
 import ProductLabel from '../ProductLabel.tsx'
 import Input from '../input/product/ProductInputField.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect, useState } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
+import { useState } from 'react'
 
 interface Option {
   value: number;
@@ -19,13 +19,13 @@ interface ProductProps {
 }
 
 const ColorGroup = ({product, isCreateMode, onChange}: ProductProps) => {
-  const { colorStore, productStore } = useStore()
-  const { loadColors, productColorList } = colorStore
+  const { productStore, colorStore } = useStore()
+  const { productColorList } = colorStore
   const [hexColor, setHexColor] = useState<string>("")
 
-  useEffect(() => {
-    loadColors()
-  }, [])
+  // useEffect(() => {
+  //   loadColors()
+  // }, [])
 
   // Mapping list
   const colorOptions: Option[] = productColorList.map(color => ({

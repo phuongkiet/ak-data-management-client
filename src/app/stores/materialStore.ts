@@ -16,6 +16,11 @@ export default class MaterialStore {
 
   constructor() {
     makeAutoObservable(this);
+    console.log(this.productMaterialList)
+  }
+
+  setProductMaterialList = (list: ProductMaterialDto[]) => {
+    this.productMaterialList = list;
   }
 
   setTerm = (term: string) => {

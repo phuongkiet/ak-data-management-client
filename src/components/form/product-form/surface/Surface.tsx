@@ -1,6 +1,5 @@
 import ComponentCard from '../../../common/ComponentCard.tsx'
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
@@ -17,13 +16,8 @@ interface ProductProps {
 }
 
 const SurfaceGroup = ({product, isCreateMode, onChange}: ProductProps) => {
-  const { surfaceStore, productStore } = useStore()
-  const { loadSurfaces, productSurfaceList } = surfaceStore
-
-
-  useEffect(() => {
-    loadSurfaces()
-  }, [])
+  const { productStore, surfaceStore } = useStore()
+  const { productSurfaceList } = surfaceStore
 
   // Mapping list
   const surfaceOptions: Option[] = productSurfaceList.map(surface => ({

@@ -11,7 +11,7 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, isUploaded }) =>
       {isUploaded ? (
       <a
         href={`https://ankhanhhouse.com/san-pham/${pageTitle.toLowerCase()}`}
-        className="text-xl font-semibold text-gray-800 dark:text-white/90"
+        className="text-xl font-semibold text-gray-800 dark:text-white/90 underline"
         x-text="pageName"
       >
         {pageTitle}

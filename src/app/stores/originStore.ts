@@ -18,6 +18,10 @@ export default class OriginStore {
     makeAutoObservable(this);
   }
 
+  setProductOriginList = (list: ProductOriginDto[]) => {
+    this.productOriginList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadOrigins(this.term);

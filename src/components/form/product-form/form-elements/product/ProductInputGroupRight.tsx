@@ -63,7 +63,7 @@ const ProductInputGroupRight = ({ product, isCreateMode, onChange }: ProductProp
           </div>
           <div>
             <ProductLabel htmlFor="input">Độ hút nước</ProductLabel>
-            <WaterAbsorptionGroup product={product} isCreateMode={isCreateMode} onChange={onChange}/>
+            <WaterAbsorptionGroup product={product} isCreateMode={isCreateMode} onChange={onChange} />
           </div>
           <div>
             <ProductLabel htmlFor="input">Trong nhà</ProductLabel>
@@ -226,11 +226,11 @@ const ProductInputGroupRight = ({ product, isCreateMode, onChange }: ProductProp
       </div>
       <div>
         <ProductLabel htmlFor="input">Xuất xứ</ProductLabel>
-        <OriginGroup product={product} isCreateMode={isCreateMode} onChange={onChange}/>
+        <OriginGroup product={product} isCreateMode={isCreateMode} onChange={onChange} />
       </div>
       <div>
         <ProductLabel htmlFor="input">Màu thân gạch</ProductLabel>
-        <BodyColorGroup product={product} isCreateMode={isCreateMode} onChange={onChange}/>
+        <BodyColorGroup product={product} isCreateMode={isCreateMode} onChange={onChange} />
       </div>
     </ComponentCard>
   )

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import ReactSelect from "react-select";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../../../app/stores/store.ts";
@@ -20,13 +19,8 @@ const WaterAbsorptionGroup = ({
   isCreateMode,
   onChange,
 }: ProductProps) => {
-  const { waterAbsorptionStore, productStore } = useStore();
-  const { loadWaterAbsorption, productWaterAbsorptionList } =
-    waterAbsorptionStore;
-
-  useEffect(() => {
-    loadWaterAbsorption();
-  }, []);
+  const { productStore, waterAbsorptionStore } = useStore();
+  const { productWaterAbsorptionList } = waterAbsorptionStore
 
   // Mapping list
   const waterAbsorptionOptions: Option[] = productWaterAbsorptionList.map(

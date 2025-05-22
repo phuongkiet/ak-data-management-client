@@ -20,14 +20,12 @@ interface ProductProps {
 
 const SupplierGroup = ({product, isCreateMode, onChange}: ProductProps) => {
   const { supplierStore, productStore } = useStore()
-  const { loadSuppliers, productSupplierList } = supplierStore
+  const { productSupplierList } = supplierStore
   const { productForm, getNextOrderNumberAuto } = productStore
   const [autoSupplierCode, setAutoSupplierCode] = useState<string>('');
   const [selectedSupplier, setSelectedSupplier] = useState<Option | null>(null)
 
   useEffect(() => {
-    loadSuppliers();
-
     if (!isCreateMode && product?.supplierId) {
       productForm.supplierId = product.supplierId;
     }

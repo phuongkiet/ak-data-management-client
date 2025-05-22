@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-import { ProductFactoryDto } from "../../../../app/models/product/productFactory.model.ts";
 
 interface Option {
   value: number;
@@ -17,45 +16,36 @@ interface ProductProps {
 }
 
 const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { factoryStore, productStore } = useStore();
-  const { loadFactories, getFactoriesBySupplier } = factoryStore;
+  const { productStore, factoryStore } = useStore();
   const { productForm } = productStore;
-  const [factories, setFactories] = useState<ProductFactoryDto[]>([]);
+  const { getFactoriesBySupplier, productFactoryList, loading } = factoryStore;
   const [selectedFactory, setSelectedFactory] = useState<Option | null>(null);
 
-  useEffect(() => {
-    loadFactories();
-  }, [isCreateMode, product]);
-
-  useEffect(() => {
-    const loadFactoriesBySupplier = async () => {
-      // Clear factory selection whenever supplier changes
-      productStore.updateProductForm("productFactoryId", null);
-      setSelectedFactory(null);
-      
-      if (productForm.supplierId) {
-        const factories = await getFactoriesBySupplier(productForm.supplierId);
-        setFactories(factories);
-      } else {
-        setFactories([]);
-      }
-    };
-    loadFactoriesBySupplier();
-  }, [productForm.supplierId]);
-
   // Mapping list
-  const factoryOptions: Option[] = factories.map((factory) => ({
+  const factoryOptions: Option[] = productFactoryList.map((factory) => ({
     value: factory.id,
     label: factory.name,
   }));
 
-  // Set initial selected factory if in edit mode
   useEffect(() => {
-    if (!isCreateMode && product?.productFactoryId) {
-      const factory = factoryOptions.find(option => option.value === product.productFactoryId);
-      setSelectedFactory(factory || null);
-    }
-  }, [isCreateMode, product?.productFactoryId, factoryOptions]);
+    const loadFactoriesAndSetInitial = async () => {
+      // Clear factory selection whenever supplier changes
+      productStore.updateProductForm("productFactoryId", null);
+      setSelectedFactory(null); 
+      
+      if (productForm.supplierId) {
+        await getFactoriesBySupplier(productForm.supplierId);
+        
+        // Set initial selected factory if in edit mode
+        if (!isCreateMode && product?.productFactoryId) {
+          const factory = factoryOptions.find(option => option.value === product.productFactoryId);
+          setSelectedFactory(factory || null);
+        }
+      }
+    };
+
+    loadFactoriesAndSetInitial();
+  }, [productForm.supplierId, isCreateMode, product?.productFactoryId]);
 
   return (
     <div>
@@ -89,6 +79,7 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
           isClearable={true}
           className="react-select-container"
           classNamePrefix="react-select"
+          isLoading={loading}
           styles={{
             control: (base) => ({
               ...base,

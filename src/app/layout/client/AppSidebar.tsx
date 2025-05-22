@@ -15,7 +15,7 @@ import {
   TableIcon,
   UserCircleIcon,
 } from '../../../icons/index.ts'
-import { useSidebar } from '../../../context/SidebarContext.tsx'
+import { useSidebar } from '../../context/SidebarContext.tsx'
 
 type NavItem = {
   name: string;

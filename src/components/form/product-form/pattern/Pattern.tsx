@@ -2,7 +2,7 @@ import ComponentCard from "../../../common/ComponentCard.tsx";
 import ProductLabel from "../ProductLabel.tsx";
 import Input from "../input/product/ProductInputField.tsx";
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ReactSelect from "react-select";
 // import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
 import { observer } from "mobx-react-lite";
@@ -20,13 +20,10 @@ interface ProductProps {
 }
 
 const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { patternStore, productStore } = useStore();
-  const { loadPatterns, productPatternList } = patternStore;
+  const { productStore, patternStore } = useStore();
+  const { productPatternList } = patternStore
   const [selectedPatternShortCode, setSelectedPatternShortCode] = useState<string>("");
 
-  useEffect(() => {
-    loadPatterns();
-  }, []);
 
   // Mapping list
   const patternOptions: Option[] = productPatternList.map((pattern) => ({
@@ -61,7 +58,7 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
                 } else if (isCreateMode) {
                   productStore.updateProductForm("brickPatternId", selected.value);
                 }
-                const pattern = patternStore.productPatternList.find(x => x.id === selected.value);
+                const pattern = productPatternList.find(x => x.id === selected.value);
                 setSelectedPatternShortCode(pattern?.shortCode || "");
               }}
               value={selectedPattern}

@@ -1,9 +1,7 @@
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
-
 interface Option {
   value: number;
   label: string;
@@ -16,13 +14,8 @@ interface ProductProps{
 }
 
 const StorageGroup = ({product, isCreateMode, onChange}: ProductProps) => {
-  const { storageStore, productStore } = useStore()
-  const { loadStorages, productStorageList } = storageStore
-
-
-  useEffect(() => {
-    loadStorages()
-  }, [])
+  const { productStore, storageStore } = useStore()
+  const { productStorageList } = storageStore
 
   // Mapping list
   const storageOptions: Option[] = productStorageList.map(storage => ({

@@ -49,6 +49,7 @@ function ProductTable() {
       await Promise.all([
         loadSuppliers(),
         loadSizes(),
+        loadProducts(),
         productStore.initialize()
       ]);
 
@@ -86,7 +87,6 @@ function ProductTable() {
           supplierId: initialSupplierId,
           sizeId: initialSizeId,
         });
-        loadProducts();
       }
     };
 

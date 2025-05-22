@@ -1,9 +1,7 @@
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect } from "react";
 import ReactSelect from "react-select";
 import { observer } from "mobx-react-lite";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-
 interface Option {
   value: number;
   label: string;
@@ -16,13 +14,9 @@ interface ProductProps {
 }
 
 const OriginGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
-  const { originStore, productStore } = useStore();
-  const { loadOrigins, productOriginList } = originStore;
-
-  useEffect(() => {
-    loadOrigins();
-  }, []);
-
+  const { productStore, originStore } = useStore();
+  const { productOriginList } = originStore;
+  
   // Mapping list
   const originOptions: Option[] = productOriginList.map((origin) => ({
     value: origin.id,

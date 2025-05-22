@@ -18,6 +18,10 @@ export default class SurfaceStore {
     makeAutoObservable(this);
   }
 
+  setProductSurfaceList = (list: ProductSurfaceDto[]) => {
+    this.productSurfaceList = list;
+  }
+
   resetSurfaceForm = () => {
     this.surfaceForm = {
       name: "",

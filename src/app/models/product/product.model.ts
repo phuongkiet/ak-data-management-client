@@ -1,4 +1,20 @@
+import { CalculatedUnitDto } from "./calculatedUnit.model.ts";
+import { ProductColorDto } from "./productColor.model.ts";
+import { CompanyCodeDto } from "./companyCode.model.ts";
+import { ProductAreaDto } from "./productArea.model.ts";
+import { ProductBodyColorDto } from "./productBodyColor.model.ts";
+import { ProductAntiSlipperyDto } from "./productAntiSlippery.model.ts";
 import { PriceDetermination, NoticeDataWebsite, UploadWebsiteStatus, DiscountConditions } from "./enum/product.enum.ts";
+import { ProductMaterialDto } from "./productMaterial.model.ts";
+import { ProductFactoryDto } from "./productFactory.model.ts";
+import { ProductOriginDto } from "./productOrigin.model.ts";
+import { ProductSizeDto } from "./productSize.model.ts";
+import { ProductProcessingDto } from "./productProcessing.model.ts";
+import { ProductPatternDto } from "./productPattern.model.ts";
+import { ProductStorageDto } from "./productStorage.model.ts";
+import { ProductSupplierDto } from "./productSupplier.model.ts";
+import { ProductSurfaceDto } from "./productSurface.model.ts";
+import { ProductWaterAbsorptionDto } from "./productWaterAbsorption.model.ts";
 
 export interface ProductDto {
   id: number;
@@ -341,5 +357,26 @@ export interface SupplierSizeCombinationDto {
   supplierId: number;
   sizeId: number;
 }
+
+export interface ProductMetadataDto {
+  companyCodeDtos: CompanyCodeDto[];
+  calculatedUnitDtos: CalculatedUnitDto[];
+  productAntiSlipperyDtos: ProductAntiSlipperyDto[];
+  productAreaDtos: ProductAreaDto[];
+  productBodyColorDtos: ProductBodyColorDto[];
+  productColorDtos: ProductColorDto[];
+  productFactoryDtos: ProductFactoryDto[];
+  productMaterialDtos: ProductMaterialDto[];
+  productOriginDtos: ProductOriginDto[];
+  productPatternDtos: ProductPatternDto[];
+  productProcessingDtos: ProductProcessingDto[];
+  productSizeDtos: ProductSizeDto[];
+  productStorageDtos: ProductStorageDto[];
+  productSupplierDtos: ProductSupplierDto[];
+  productSurfaceDtos: ProductSurfaceDto[];
+  waterAbsoroptionDtos: ProductWaterAbsorptionDto[];
+}
+
+
 
 

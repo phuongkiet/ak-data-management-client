@@ -28,14 +28,15 @@ const ProductDefaultInputs = ({
   const {
     productStore,
     companyCodeStore,
-    supplierStore,
-    patternStore,
     sizeStore,
+    supplierStore,
+    patternStore
   } = useStore();
 
-  useEffect(() => {
-    companyCodeStore.loadCompanyCodes();
-  }, []);
+  const { productSizeList } = sizeStore
+  const { productSupplierList } = supplierStore
+  const { productCompanyCodeList } = companyCodeStore
+  const { productPatternList } = patternStore
 
   const [confirmProductCode, setConfirmProductCode] = useState<
     string | undefined
@@ -68,14 +69,12 @@ const ProductDefaultInputs = ({
       productStore.productForm.supplierId &&
       productStore.productForm.productOrderNumber
     ) {
-      const supplier = supplierStore.productSupplierList.find(
+      const supplier = productSupplierList.find(
         (x) => x.id === productStore.productForm.supplierId
       );
-      const pattern = productStore.productForm.brickPatternId
-        ? patternStore.productPatternList.find(
-            (x) => x.id === productStore.productForm.brickPatternId
-          )
-        : null;
+      const pattern = productPatternList.find(
+        (x) => x.id === productStore.productForm.brickPatternId
+      );
 
       if (supplier?.supplierShortCode) {
         const patternCode = pattern?.shortCode || "";
@@ -100,7 +99,7 @@ const ProductDefaultInputs = ({
       productStore.productForm.supplierId &&
       productStore.productForm.productOrderNumber
     ) {
-      const supplier = supplierStore.productSupplierList.find(
+      const supplier = productSupplierList.find(
         (x) => x.id === productStore.productForm.supplierId
       );
       if (supplier?.supplierShortCode) {
@@ -122,7 +121,7 @@ const ProductDefaultInputs = ({
 
   const handleConfirmProductCodeChange = () => {
     if (productStore.productForm.companyCodeId && supplierItemCode) {
-      const companyCode = companyCodeStore.productCompanyCodeList.find(
+      const companyCode = productCompanyCodeList.find(
         (x) => x.id === productStore.productForm.companyCodeId
       );
 
@@ -146,15 +145,13 @@ const ProductDefaultInputs = ({
       productStore.productForm.autoBarCode &&
       productStore.productForm.supplierId
     ) {
-      const pattern = patternStore.productPatternList.find(
+      const pattern = productPatternList.find(
         (x) => x.id === productStore.productForm.brickPatternId
       );
 
-      const size = productStore.productForm.actualSizeId
-        ? sizeStore.productSizeList.find(
-            (x) => x.id === productStore.productForm.actualSizeId
-          )
-        : null;
+      const size = productSizeList.find(
+        (x) => x.id === productStore.productForm.actualSizeId
+      );
 
       const actualSize = size
         ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
@@ -197,7 +194,7 @@ const ProductDefaultInputs = ({
     supplierItemCodeValue: string,
     companyCodeIdValue: number | undefined
   ) => {
-    const companyCode = companyCodeStore.productCompanyCodeList.find(
+    const companyCode = productCompanyCodeList.find(
       (x) => x.id === companyCodeIdValue
     );
 
@@ -242,7 +239,7 @@ const ProductDefaultInputs = ({
 
   const editModeSku = (() => {
     if (!isCreateMode && product?.companyCodeId && product?.supplierItemCode) {
-      const companyCode = companyCodeStore.productCompanyCodeList.find(
+      const companyCode = productCompanyCodeList.find(
         (x) => x.id === product.companyCodeId
       );
       const lastSixChars = product.supplierItemCode.slice(-6);

@@ -19,6 +19,10 @@ export default class PatternStore {
     makeAutoObservable(this);
   }
 
+  setProductPatternList = (list: ProductPatternDto[]) => {
+    this.productPatternList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadPatterns(this.term);

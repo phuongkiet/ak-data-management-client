@@ -20,11 +20,14 @@ export default class SupplierStore {
     supplierName: '',
     supplierCodeName: '',
     supplierShortCode: '',
-    formula: ''
   };
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setProductSupplierList = (list: ProductSupplierDto[]) => {
+    this.productSupplierList = list;
   }
 
   setTerm = (term: string) => {
@@ -67,7 +70,6 @@ export default class SupplierStore {
         supplierName: '',
         supplierCodeName: '',
         supplierShortCode: '',
-        formula: ''
       };
     });
   };

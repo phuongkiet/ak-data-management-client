@@ -18,6 +18,10 @@ export default class AntiSlipperyStore {
     makeAutoObservable(this);
   }
 
+  setProductAntiSlipperyList = (list: ProductAntiSlipperyDto[]) => {
+    this.productAntiSlipperyList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadAntiSlipperys(this.term);

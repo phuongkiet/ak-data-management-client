@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { useStore } from '../stores/store.ts';
 import { useEffect } from 'react';
 import AppLayout from './admin/AppLayout.tsx';
+import { ProductMetadataProvider } from '../context/ProductMetadataContext';
 
 export default function App() {
   const { commonStore, userStore } = useStore();
@@ -24,12 +25,9 @@ export default function App() {
 
   return (
     <div className="app">
-      {/*{isAdminRoute && isAdmin ? (*/}
-      {/*  <AppLayout />*/}
-      {/*) : (*/}
-      {/*  <AppLayout />*/}
-      {/*)}*/}
-      <AppLayout/>
+      <ProductMetadataProvider>
+        <AppLayout/>
+      </ProductMetadataProvider>
     </div>
   );
 }

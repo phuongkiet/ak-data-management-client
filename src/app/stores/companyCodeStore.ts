@@ -17,6 +17,10 @@ export default class CompanyCodeStore {
     makeAutoObservable(this);
   }
 
+  setProductCompanyCodeList = (list: CompanyCodeDto[]) => {
+    this.productCompanyCodeList = list;
+  }
+
   setTerm = (term: string) => {
     this.term = term;
     this.loadCompanyCodes(this.term);

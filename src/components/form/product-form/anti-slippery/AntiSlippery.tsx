@@ -1,9 +1,7 @@
 import { useStore } from '../../../../app/stores/store.ts'
-import { useEffect } from 'react'
 import ReactSelect from 'react-select'
 import { observer } from 'mobx-react-lite'
 import { ProductDetail } from '../../../../app/models/product/product.model.ts'
-
 interface Option {
   value: number;
   label: string;
@@ -16,13 +14,8 @@ interface ProductProps{
 }
 
 const AntiSlipperyGroup = ({product, isCreateMode, onChange}: ProductProps) => {
-  const { antiSlipperyStore, productStore } = useStore()
-  const { loadAntiSlipperys, productAntiSlipperyList } = antiSlipperyStore
-
-
-  useEffect(() => {
-    loadAntiSlipperys()
-  }, [])
+  const { productStore, antiSlipperyStore } = useStore()
+  const { productAntiSlipperyList } = antiSlipperyStore
 
   // Mapping list
   const antiSlipperyOptions: Option[] = productAntiSlipperyList.map(antiSlippery => ({
