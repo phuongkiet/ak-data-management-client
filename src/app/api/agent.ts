@@ -10,6 +10,7 @@ import {
 import { PagedModel } from "../models/common/pagedModel.model.ts";
 import {
   EditProductDto,
+  EditBulkStrategyProductDto,
   ProductDetail,
   ProductDto,
   ProductMetadataDto,
@@ -288,6 +289,14 @@ const Product = {
 
   getProductMetadata: (): Promise<ApiResponseModel<ProductMetadataDto>> =>
     requests.get<ProductMetadataDto>("/products/product-metadata"),
+
+  editBulkStrategyProduct: (
+    editBulkStrategyProductDto: EditBulkStrategyProductDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(
+      "/products/bulk-strategy-edit-product",
+      editBulkStrategyProductDto
+    ),
 };
 
 const ProductSupplier = {

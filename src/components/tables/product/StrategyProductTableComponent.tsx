@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
 // import Badge from '../../ui/badge/Badge';
 import { StrategyProductDto } from '../../../app/models/product/product.model.ts'
@@ -14,14 +13,13 @@ interface StrategyProductTableComponentProps {
   onPageSizeChange: (newPageSize: number, page: number) => void;
   totalCount: number;
   searchTerm: string;
+  onSelectedIdsChange?: (ids: number[]) => void;
 }
 
-const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChange, onPageSizeChange, totalCount }: StrategyProductTableComponentProps) => {
-  const [selectedStrategyProducts, setSelectedStrategyProducts] = useState<StrategyProductDto[]>([]);
+const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChange, onPageSizeChange, totalCount, onSelectedIdsChange }: StrategyProductTableComponentProps) => {
   const navigate = useNavigate();
 
   const handleView = (product: StrategyProductDto) => {
-      console.log('Xem sản phẩm:', product);
     navigate("/strategy-products/detail/" + product.id);
   };
 
@@ -30,9 +28,9 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
     selectedCount: number;
     selectedRows: StrategyProductDto[];
   }) => {
-    setSelectedStrategyProducts(state.selectedRows);
-    console.log('Selected Products:', state.selectedRows);
-    console.log(selectedStrategyProducts)
+    if (onSelectedIdsChange) {
+      onSelectedIdsChange(state.selectedRows.map(row => row.id));
+    }
   };
 
   const columns: TableColumn<StrategyProductDto>[] = [

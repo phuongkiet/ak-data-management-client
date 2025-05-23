@@ -9,6 +9,7 @@ import {
   StrategyProductDetailDto,
   SupplierSizeCombinationDto,
   ProductMetadataDto,
+  EditBulkStrategyProductDto,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
@@ -38,6 +39,28 @@ export default class ProductStore {
 
   existingSupplierSizeCombinations: SupplierSizeCombinationDto[] = [];
   loadingCombinations = false;
+
+  // Bulk update strategy products
+  bulkUpdateStrategyProductsLoading = false;
+  bulkUpdateStrategyProducts = async (dto: EditBulkStrategyProductDto) => {
+    this.bulkUpdateStrategyProductsLoading = true;
+    const result = await agent.Product.editBulkStrategyProduct(dto);
+    try {
+      runInAction(() => {
+        this.bulkUpdateStrategyProductsLoading = false;
+        toast.success(result.data);
+        // Reload lại danh sách sản phẩm sau khi cập nhật
+        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
+        return true;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.bulkUpdateStrategyProductsLoading = false;
+        toast.error(result.errors?.[0] || "Cập nhật giá hàng loạt thất bại!");
+        return false;
+      });
+    }
+  };
 
   resetProductForm = () => {
     runInAction(() => {

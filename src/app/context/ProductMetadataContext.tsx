@@ -38,6 +38,7 @@ export const ProductMetadataProvider: React.FC<{
     antiSlipperyStore,
     waterAbsorptionStore,
     areaStore,
+    supplierTaxStore,
   } = useStore();
   const [metadata, setMetadata] = useState<ProductMetadata>({
     ProductMetadataDto: {
@@ -56,7 +57,8 @@ export const ProductMetadataProvider: React.FC<{
       productStorageDtos: [],
       productSupplierDtos: [],
       productSurfaceDtos: [],
-      waterAbsoroptionDtos: []
+      waterAbsoroptionDtos: [],
+      supplierTaxDtos: []
     },
     loading: true,
     error: null,
@@ -75,54 +77,39 @@ export const ProductMetadataProvider: React.FC<{
         console.log('Fetched Metadata:', fetchedMetadata);
 
         // Log each store update
-        console.log('Updating stores with metadata...');
         companyCodeStore.setProductCompanyCodeList(fetchedMetadata.companyCodeDtos);
-        console.log('CompanyCodeDtos updated:', companyCodeStore.productCompanyCodeList);
         
         calculatedUnitStore.setProductCalculatedUnitList(fetchedMetadata.calculatedUnitDtos);
-        console.log('CalculatedUnitDtos updated:', calculatedUnitStore.productCalculatedUnitList);
         
         antiSlipperyStore.setProductAntiSlipperyList(fetchedMetadata.productAntiSlipperyDtos);
-        console.log('ProductAntiSlipperyDtos updated:', antiSlipperyStore.productAntiSlipperyList);
         
         areaStore.setProductAreaList(fetchedMetadata.productAreaDtos);
-        console.log('ProductAreaDtos updated:', areaStore.productAreaList);
         
         bodyColorStore.setProductBodyColorList(fetchedMetadata.productBodyColorDtos);
-        console.log('ProductBodyColorDtos updated:', bodyColorStore.productBodyColorList);
         
         colorStore.setProductColorList(fetchedMetadata.productColorDtos);
-        console.log('ProductColorDtos updated:', colorStore.productColorList);
         
         factoryStore.setProductFactoryList(fetchedMetadata.productFactoryDtos);
-        console.log('ProductFactoryDtos updated:', factoryStore.productFactoryList);
         
         materialStore.setProductMaterialList(fetchedMetadata.productMaterialDtos);
-        console.log('ProductMaterialDtos updated:', materialStore.productMaterialList);
         
         originStore.setProductOriginList(fetchedMetadata.productOriginDtos);
-        console.log('ProductOriginDtos updated:', originStore.productOriginList);
         
         patternStore.setProductPatternList(fetchedMetadata.productPatternDtos);
-        console.log('ProductPatternDtos updated:', patternStore.productPatternList);
         
         processingStore.setProductProcessingList(fetchedMetadata.productProcessingDtos);
-        console.log('ProductProcessingDtos updated:', processingStore.productProcessingList);
         
         sizeStore.setProductSizeList(fetchedMetadata.productSizeDtos);
-        console.log('ProductSizeDtos updated:', sizeStore.productSizeList);
         
         storageStore.setProductStorageList(fetchedMetadata.productStorageDtos);
-        console.log('ProductStorageDtos updated:', storageStore.productStorageList);
         
         supplierStore.setProductSupplierList(fetchedMetadata.productSupplierDtos);
-        console.log('ProductSupplierDtos updated:', supplierStore.productSupplierList);
         
         surfaceStore.setProductSurfaceList(fetchedMetadata.productSurfaceDtos);
-        console.log('ProductSurfaceDtos updated:', surfaceStore.productSurfaceList);
         
         waterAbsorptionStore.setProductWaterAbsorptionList(fetchedMetadata.waterAbsoroptionDtos);
-        console.log('WaterAbsoroptionDtos updated:', waterAbsorptionStore.productWaterAbsorptionList);
+
+        supplierTaxStore.setProductSupplierTaxList(fetchedMetadata.supplierTaxDtos);
 
         setMetadata({
           ProductMetadataDto: fetchedMetadata,

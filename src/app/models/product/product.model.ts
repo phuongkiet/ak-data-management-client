@@ -15,6 +15,7 @@ import { ProductStorageDto } from "./productStorage.model.ts";
 import { ProductSupplierDto } from "./productSupplier.model.ts";
 import { ProductSurfaceDto } from "./productSurface.model.ts";
 import { ProductWaterAbsorptionDto } from "./productWaterAbsorption.model.ts";
+import { SupplierTaxDto } from "./supplierTax.model.ts";
 
 export interface ProductDto {
   id: number;
@@ -375,6 +376,27 @@ export interface ProductMetadataDto {
   productSupplierDtos: ProductSupplierDto[];
   productSurfaceDtos: ProductSurfaceDto[];
   waterAbsoroptionDtos: ProductWaterAbsorptionDto[];
+  supplierTaxDtos: SupplierTaxDto[];
+}
+
+export interface EditStrategyProductDto {
+  listPrice: number | null;
+  supplierRisingPrice: number | null;
+  otherPriceByCompany: number | null;
+  quantity: number | null;
+  shippingFee: number | null;
+  discount: number | null;
+  policyStandard: number | null;
+  supplierDiscountCash: number | null;
+  supplierDiscountPercentage: number | null;
+  firstPolicyStandardAfterDiscount: number | null;
+  secondPolicyStandardAfterDiscount: number | null;
+  taxId: number | null;
+}
+
+export interface EditBulkStrategyProductDto {
+  ids: number[];
+  editStrategyProductDto: EditStrategyProductDto;
 }
 
 
