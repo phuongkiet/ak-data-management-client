@@ -226,7 +226,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       selector: (row) => row.supplierCode,
     },
     {
-      name: "Mã hàng NCC",
+      name: "Mã SKU",
       selector: (row) => row.confirmSupplierItemCode,
       sortable: true,
       minWidth: "180px",
@@ -303,7 +303,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
   return (
     <>
-      <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-2 md:p-4 overflow-x-auto">
+      <div className="w-full overflow-x-auto rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-2 md:p-4">
         <DataTable
           columns={columns}
           data={data}
@@ -334,7 +334,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           customStyles={{
             table: {
               style: {
-                minWidth: '700px',
+                minWidth: '1200px',
               },
             },
           }}

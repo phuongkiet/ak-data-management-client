@@ -21,8 +21,6 @@ interface ComponentCardProps {
   additionalButtons?: React.ReactNode; // Add support for additional buttons
   onSearch?: (term: string) => void; // Optional search handler
   searchPlaceholder?: string;
-  handleImportClick?: () => void;
-  handleAdvancedOpen?: () => void;
 }
 
 const TableComponentCard: React.FC<ComponentCardProps> = ({
@@ -42,8 +40,6 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   additionalButtons,
   onSearch,
   searchPlaceholder = "Tìm kiếm...",
-  handleImportClick,
-  handleAdvancedOpen,
 }) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const isModalOpen =
@@ -107,15 +103,15 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
           <div className="inline-flex md:hidden items-center gap-2 ml-2">
             {/* Add button */}
             {addButtonLink && (
-              <Button
-                type="button"
+              <div
                 onClick={handleAddClick}
-                className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[50px] w-[50px] md:w-auto flex items-center justify-center"
+                className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                style={{ width: 35, height: 35, cursor: "pointer" }}
                 aria-label="Thêm mới"
               >
                 {/* Plus SVG icon */}
                 <svg
-                  className="h-2 w-2 text-white"
+                  className="h-6 w-6 text-white"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -127,60 +123,9 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-              </Button>
+              </div>
             )}
-            {/* Import from Excel button */}
-            <Button
-              onClick={
-                typeof handleImportClick !== "undefined"
-                  ? handleImportClick
-                  : undefined
-              }
-              className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[50px] w-[50px] md:w-auto flex items-center justify-center"
-              aria-label="Nhập file"
-            >
-              {/* Upload SVG icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="white"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
-                />
-              </svg>
-            </Button>
-            {/* Advanced Search button */}
-            <Button
-              onClick={
-                typeof handleAdvancedOpen !== "undefined"
-                  ? handleAdvancedOpen
-                  : undefined
-              }
-              className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[50px] w-[50px] md:w-auto flex items-center justify-center"
-              aria-label="Nâng cao"
-            >
-              {/* Filter SVG icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414A1 1 0 0013 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 017 17v-3.586a1 1 0 00-.293-.707L3.293 6.707A1 1 0 013 6V4z"
-                />
-              </svg>
-            </Button>
+            {additionalButtons}
           </div>
         </div>
         {onSearch && (

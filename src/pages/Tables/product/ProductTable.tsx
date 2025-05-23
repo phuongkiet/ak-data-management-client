@@ -269,18 +269,68 @@ function ProductTable() {
                 accept=".xlsx,.xls"
                 className="hidden"
               />
-              <Button
-                onClick={handleImportClick}
-                className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
-              >
-                Nhập file
-              </Button>
-              <Button
-                onClick={handleAdvancedOpen}
-                className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
-              >
-                Nâng cao
-              </Button>
+              {/* Desktop: Button text */}
+              <div className="hidden md:inline-flex gap-2">
+                <Button
+                  onClick={handleImportClick}
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+                >
+                  Nhập file
+                </Button>
+                <Button
+                  onClick={handleAdvancedOpen}
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+                >
+                  Nâng cao
+                </Button>
+              </div>
+              {/* Mobile: chỉ hiện icon SVG, không dùng Button */}
+              <div className="flex md:hidden gap-2">
+                <div
+                  onClick={handleImportClick}
+                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                  style={{ width: 35, height: 35, cursor: "pointer" }}
+                  aria-label="Nhập file"
+                >
+                  {/* Upload SVG icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="white"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"
+                    />
+                  </svg>
+                </div>
+                <div
+                  onClick={handleAdvancedOpen}
+                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                  style={{ width: 35, height: 35, cursor: "pointer" }}
+                  aria-label="Nâng cao"
+                >
+                  {/* Filter SVG icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414A1 1 0 0013 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 017 17v-3.586a1 1 0 00-.293-.707L3.293 6.707A1 1 0 013 6V4z"
+                    />
+                  </svg>
+                </div>
+              </div>
             </>
           }
           onSearch={(term) => {
@@ -307,7 +357,7 @@ function ProductTable() {
         <div className="grid grid-cols-2 gap-4">
           {/* Supplier Column */}
           <div>
-            <h2 className="font-bold mb-2">Chọn Nhà Cung Cấp</h2>
+            <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Nhà Cung Cấp</h2>
             {supplierStore.loading ? ( // Hiển thị loading state
               <p>Đang tải nhà cung cấp...</p>
             ) : (
@@ -315,18 +365,12 @@ function ProductTable() {
                 {productSupplierList.map((supplier) => (
                   <button
                     key={supplier.id}
-                    // Sử dụng hàm helper để xác định class
-                    className={`px-4 py-2 rounded text-left whitespace-nowrap ${getSupplierButtonClass(
-                      supplier
-                    )}`}
+                    className={`px-2 py-2  text-xs min-w-[250px] md:px-4 md:py-2 md:text-base md:min-w-[180px] rounded text-left whitespace-nowrap ${getSupplierButtonClass(supplier)}`}
                     onClick={() => {
                       setTempSelectedSupplier(
-                        tempSelectedSupplier === supplier.id
-                          ? null
-                          : supplier.id
+                        tempSelectedSupplier === supplier.id ? null : supplier.id
                       );
                     }}
-                    style={{ minWidth: 180 }}
                   >
                     {supplier.supplierCodeName}
                   </button>
@@ -336,7 +380,7 @@ function ProductTable() {
           </div>
           {/* Size Column */}
           <div>
-            <h2 className="font-bold mb-2">Chọn Kích Thước</h2>
+            <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Kích Thước</h2>
             {sizeStore.loading || loadingCombinations ? ( // Hiển thị loading state
               <p>Đang tải kích thước...</p>
             ) : (
@@ -344,10 +388,7 @@ function ProductTable() {
                 {productSizeList.map((size) => (
                   <button
                     key={size.id}
-                    // Sử dụng hàm helper để xác định class
-                    className={`px-4 py-2 rounded whitespace-nowrap ${getSizeButtonClass(
-                      size
-                    )} w-[111px]`}
+                    className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${getSizeButtonClass(size)}`}
                     onClick={() => {
                       setTempSelectedSize(
                         tempSelectedSize === size.id ? null : size.id
