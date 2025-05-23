@@ -303,7 +303,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
   return (
     <>
-      <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
+      <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-2 md:p-4 overflow-x-auto">
         <DataTable
           columns={columns}
           data={data}
@@ -331,6 +331,13 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
               Không có dữ liệu.
             </div>
           }
+          customStyles={{
+            table: {
+              style: {
+                minWidth: '700px',
+              },
+            },
+          }}
         />
       </div>
 

@@ -281,7 +281,8 @@ const ProductDefaultInputs = ({
     <ComponentCard title="Thông tin mã hàng">
       {isCreateMode ? (
         <>
-          <div className="grid grid-cols-2 gap-6">
+          {/* Desktop View */}
+          <div className="hidden md:grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
               {/* Cột trái */}
               <div className="space-y-0">
@@ -378,23 +379,18 @@ const ProductDefaultInputs = ({
                     placeholder="Mã sản phẩm"
                     disabled
                     value={productStore.productForm.productCode || ""}
-                    // onChange={e => onChange && onChange("productCode", e.target.value)}
                   />
                 </div>
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">
-                  Tên hiển thị website
-                </ProductLabel>
+                <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
                 <Input
                   type="text"
                   id="input"
                   placeholder="Ô tự động điền"
                   className="text-red-500"
-                  value={
-                    product?.displayWebsiteName || websiteProductName || ""
-                  }
+                  value={product?.displayWebsiteName || websiteProductName || ""}
                   onChange={handleWebsiteProductNameChange}
                 />
               </div>
@@ -418,6 +414,128 @@ const ProductDefaultInputs = ({
             </div>
           </div>
 
+          {/* Mobile View */}
+          <div className="md:hidden space-y-6">
+            <div className="space-y-0">
+              <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
+              <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                value={supplierItemCode}
+                placeholder="Mã số sản phẩm của nhà cung cấp"
+                onChange={handleSupplierItemCodeChange}
+                className={`${
+                  isValidSupplierCode === null
+                    ? ""
+                    : isValidSupplierCode
+                    ? "text-blue-500"
+                    : "text-red-500"
+                }`}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
+              <Input
+                type="number"
+                id="input"
+                placeholder="Số thứ tự tự động"
+                disabled
+                value={productStore.productForm.productOrderNumber || ""}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Mã sản phẩm"
+                disabled
+                value={productStore.productForm.productCode || ""}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                value={confirmProductCode}
+                onChange={handleConfirmProductCodeChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                value={productStore.productForm.autoBarCode}
+                className="text-red-500"
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Ô tự động điền"
+                className="text-red-500"
+                value={product?.displayWebsiteName || websiteProductName || ""}
+                onChange={handleWebsiteProductNameChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
+              <CalculatedUnit product={product} isCreateMode={isCreateMode} />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Đơn vị tính tự động</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                className="text-red-500"
+                value={productStore.productForm.autoCalculatedUnit || ""}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
+              <StorageGroup product={product} isCreateMode={isCreateMode} />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Số ngày giao hàng"
+                value={deliveryEstimatedDate}
+                onChange={handleDeliveryEstimatedDateChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
+              <FactoryGroup product={product} isCreateMode={isCreateMode} />
+            </div>
+          </div>
+
           <div className="grid grid-col-1 gap-6">
             <div>
               <ProductLabel>Gia công khác</ProductLabel>
@@ -438,7 +556,8 @@ const ProductDefaultInputs = ({
         </>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-6">
+          {/* Desktop View */}
+          <div className="hidden md:grid md:grid-cols-2 gap-6">
             <div className="space-y-6">
               {/* Cột trái */}
               <div className="space-y-0">
@@ -474,9 +593,7 @@ const ProductDefaultInputs = ({
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">
-                  Giá sản phẩm website
-                </ProductLabel>
+                <ProductLabel htmlFor="input">Giá sản phẩm website</ProductLabel>
                 <NumericFormat
                   value={product?.productPrice}
                   thousandSeparator
@@ -502,9 +619,7 @@ const ProductDefaultInputs = ({
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <ProductLabel htmlFor="input">
-                    Khối lượng KG/Viên
-                  </ProductLabel>
+                  <ProductLabel htmlFor="input">Khối lượng KG/Viên</ProductLabel>
                   <Input
                     type="number"
                     id="input"
@@ -574,9 +689,7 @@ const ProductDefaultInputs = ({
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">
-                  Tên hiển thị website
-                </ProductLabel>
+                <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
                 <Input
                   type="text"
                   id="input"
@@ -651,6 +764,140 @@ const ProductDefaultInputs = ({
                   onChange={onChange}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Mobile View */}
+          <div className="md:hidden space-y-6">
+            <div className="space-y-0">
+              <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
+              <CompanyCodeGroup
+                product={product}
+                isCreateMode={isCreateMode}
+                onChange={onChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                value={product?.supplierItemCode || ""}
+                placeholder="Mã số sản phẩm của nhà cung cấp"
+                onChange={(e) =>
+                  onChange && onChange("supplierItemCode", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
+              <Input
+                type="number"
+                id="input"
+                placeholder="Số thứ tự tự động"
+                disabled
+                value={product?.productOrderNumber || undefined}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Mã sản phẩm"
+                disabled
+                value={product?.productCode || undefined}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                value={editModeSku}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                value={product?.autoBarCode}
+                className="text-red-500"
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Ô tự động điền"
+                className="text-red-500"
+                value={product?.displayWebsiteName || ""}
+                onChange={(e) =>
+                  onChange && onChange("displayWebsiteName", e.target.value)
+                }
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
+              <CalculatedUnit
+                product={product}
+                isCreateMode={isCreateMode}
+                onChange={onChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Đơn vị tính tự động</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                disabled
+                placeholder="Ô tự động điền"
+                className="text-red-500"
+                value={product?.autoCalculatedUnit || ""}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
+              <StorageGroup
+                product={product}
+                isCreateMode={isCreateMode}
+                onChange={onChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Số ngày giao hàng"
+                value={deliveryEstimatedDate}
+                onChange={handleDeliveryEstimatedDateChange}
+              />
+            </div>
+
+            <div>
+              <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
+              <FactoryGroup
+                product={product}
+                isCreateMode={isCreateMode}
+                onChange={onChange}
+              />
             </div>
           </div>
 

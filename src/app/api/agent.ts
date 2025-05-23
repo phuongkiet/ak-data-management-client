@@ -89,14 +89,15 @@ export interface ApiResponseModel<T> {
 }
 
 const DEPLOYED_URL = import.meta.env.VITE_API_V1_URL;
-const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
+// const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
+const NGROK_URL = import.meta.env.VITE_NGROK_URL;
 
 if(DEPLOYED_URL){
   axios.defaults.baseURL = DEPLOYED_URL;
   console.log("DEPLOYED_URL", DEPLOYED_URL);
 } else {
-  axios.defaults.baseURL = LOCAL_URL;
-  console.log("LOCAL_URL", LOCAL_URL);
+  // axios.defaults.baseURL = LOCAL_URL;
+  axios.defaults.baseURL = NGROK_URL;
 }
 
 axios.interceptors.response.use(
@@ -162,6 +163,7 @@ const responseBody = <T>(
 axios.interceptors.request.use((config) => {
   const token = store.commonStore.token;
   if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
+  config.headers['ngrok-skip-browser-warning'] = 'true';
   return config;
 });
 
