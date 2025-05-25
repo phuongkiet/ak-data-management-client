@@ -87,16 +87,26 @@ const StrategyProductTable = () => {
             currentPage={pageNumber}
             onPageChange={handlePageChange}
             totalCount={totalCount}
-            searchTerm={term ?? ''}
+            searchTerm={term ?? ""}
             onPageSizeChange={handlePageSizeChange}
             onSelectedIdsChange={setSelectedIds}
           />
-          <Modal isOpen={isBulkModalOpen} onClose={() => setIsBulkModalOpen(false)} className="p-8 w-full max-w-[800px]">
+          <Modal
+            isOpen={isBulkModalOpen}
+            onClose={() => setIsBulkModalOpen(false)}
+            className="
+              w-full max-w-[800px] flex flex-col rounded-lg shadow-xl bg-white mx-auto
+              h-[95vh] md:h-auto
+              max-h-screen md:max-h-[85vh]
+              my-2 sm:my-4 md:my-auto
+              overflow-y-auto md:overflow-hidden
+            "
+          >
             <form
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (selectedIds.length === 0) {
-                  toast.error('Vui lòng chọn ít nhất một sản phẩm');
+                  toast.error("Vui lòng chọn ít nhất một sản phẩm");
                   return;
                 }
                 try {
@@ -111,11 +121,14 @@ const StrategyProductTable = () => {
                       discount: bulkEditDto.discount,
                       policyStandard: bulkEditDto.policyStandard ?? 76,
                       supplierDiscountCash: bulkEditDto.supplierDiscountCash,
-                      supplierDiscountPercentage: bulkEditDto.supplierDiscountPercentage,
-                      firstPolicyStandardAfterDiscount: bulkEditDto.firstPolicyStandardAfterDiscount ?? 5,
-                      secondPolicyStandardAfterDiscount: bulkEditDto.secondPolicyStandardAfterDiscount ?? 5,
-                      taxId: bulkEditDto.taxId
-                    }
+                      supplierDiscountPercentage:
+                        bulkEditDto.supplierDiscountPercentage,
+                      firstPolicyStandardAfterDiscount:
+                        bulkEditDto.firstPolicyStandardAfterDiscount ?? 5,
+                      secondPolicyStandardAfterDiscount:
+                        bulkEditDto.secondPolicyStandardAfterDiscount ?? 5,
+                      taxId: bulkEditDto.taxId,
+                    },
                   });
                   setIsBulkModalOpen(false);
                   setBulkEditDto({
@@ -133,240 +146,316 @@ const StrategyProductTable = () => {
                     taxId: null,
                   });
                 } catch (error) {
-                  console.error('Error updating products:', error);
-                  toast.error('Có lỗi xảy ra khi cập nhật sản phẩm');
+                  console.error("Error updating products:", error);
+                  toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
                 }
               }}
+              className="flex flex-col flex-grow h-full min-h-0"
             >
-              <h1 className="text-2xl font-bold mb-4">Cập nhật giá hàng loạt</h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <ProductLabel htmlFor="listPrice">Giá niêm yết</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="listPrice"
-                    name="listPrice"
-                    placeholder="Nhập giá niêm yết"
-                    value={bulkEditDto.listPrice ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        listPrice: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
+              <div className="p-4 md:p-6 border-b flex-shrink-0">
+                <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
+                  Cập nhật giá hàng loạt
+                </h1>
+              </div>
+
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full
+                    p-4 md:p-6 flex-grow overflow-y-auto min-h-0"
+              >
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <ProductLabel htmlFor="listPrice">
+                      Giá niêm yết
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="listPrice"
+                      name="listPrice"
+                      placeholder="Nhập giá niêm yết"
+                      value={bulkEditDto.listPrice ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          listPrice:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="supplierRisingPrice">
+                      Giá tăng NCC
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="supplierRisingPrice"
+                      name="supplierRisingPrice"
+                      placeholder="Nhập giá tăng NCC"
+                      value={bulkEditDto.supplierRisingPrice ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          supplierRisingPrice:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="otherPriceByCompany">
+                      Giá khác (Cty)
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="otherPriceByCompany"
+                      name="otherPriceByCompany"
+                      placeholder="Nhập giá khác (Cty)"
+                      value={bulkEditDto.otherPriceByCompany ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          otherPriceByCompany:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="quantity">Số lượng</ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      placeholder="Nhập số lượng"
+                      value={bulkEditDto.quantity ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          quantity:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="shippingFee">
+                      Phí vận chuyển
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="shippingFee"
+                      name="shippingFee"
+                      placeholder="Nhập phí vận chuyển"
+                      value={bulkEditDto.shippingFee ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          shippingFee:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="taxId">Thuế</ProductLabel>
+                    <ReactSelect<{ value: number; label: string }>
+                      placeholder="Chọn thuế"
+                      noOptionsMessage={() => "Không có kết quả"}
+                      options={productSupplierTaxList.map((tax) => ({
+                        value: tax.id,
+                        label: tax.name,
+                      }))}
+                      value={
+                        productSupplierTaxList.find(
+                          (tax) => tax.id === bulkEditDto.taxId
+                        )
+                          ? {
+                              value: bulkEditDto.taxId!,
+                              label: productSupplierTaxList.find(
+                                (tax) => tax.id === bulkEditDto.taxId
+                              )!.name,
+                            }
+                          : null
+                      }
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          taxId: e?.value ?? null,
+                        }))
+                      }
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          minHeight: "44px",
+                          height: "44px",
+                          fontFamily: "Roboto, sans-serif",
+                          fontSize: "14px",
+                        }),
+                        valueContainer: (base) => ({
+                          ...base,
+                          height: "44px",
+                          padding: "0 8px",
+                        }),
+                        indicatorsContainer: (base) => ({
+                          ...base,
+                          height: "44px",
+                        }),
+                        option: (base, state) => ({
+                          ...base,
+                          fontFamily: "Roboto, sans-serif",
+                          backgroundColor: state.isFocused
+                            ? "#f3f4f6"
+                            : "white",
+                          color: "black",
+                        }),
+                      }}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <ProductLabel htmlFor="supplierRisingPrice">Giá tăng NCC</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="supplierRisingPrice"
-                    name="supplierRisingPrice"
-                    placeholder="Nhập giá tăng NCC"
-                    value={bulkEditDto.supplierRisingPrice ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        supplierRisingPrice: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="otherPriceByCompany">Giá khác (Cty)</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="otherPriceByCompany"
-                    name="otherPriceByCompany"
-                    placeholder="Nhập giá khác (Cty)"
-                    value={bulkEditDto.otherPriceByCompany ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        otherPriceByCompany: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="quantity">Số lượng</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="quantity"
-                    name="quantity"
-                    placeholder="Nhập số lượng"
-                    value={bulkEditDto.quantity ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        quantity: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="shippingFee">Phí vận chuyển</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="shippingFee"
-                    name="shippingFee"
-                    placeholder="Nhập phí vận chuyển"
-                    value={bulkEditDto.shippingFee ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        shippingFee: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="discount">Chiết khấu</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="discount"
-                    name="discount"
-                    placeholder="Nhập chiết khấu"
-                    value={bulkEditDto.discount ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        discount: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="policyStandard">Chính sách chuẩn</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="policyStandard"
-                    name="policyStandard"
-                    placeholder="Nhập chính sách chuẩn"
-                    value={bulkEditDto.policyStandard ?? 76}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        policyStandard: e.target.value === '' ? 76 : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="supplierDiscountCash">Chiết khấu tiền mặt NCC</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="supplierDiscountCash"
-                    name="supplierDiscountCash"
-                    placeholder="Nhập chiết khấu tiền mặt NCC"
-                    value={bulkEditDto.supplierDiscountCash ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        supplierDiscountCash: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="supplierDiscountPercentage">Chiết khấu % NCC</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="supplierDiscountPercentage"
-                    name="supplierDiscountPercentage"
-                    placeholder="Nhập chiết khấu % NCC"
-                    value={bulkEditDto.supplierDiscountPercentage ?? ''}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        supplierDiscountPercentage: e.target.value === '' ? null : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="firstPolicyStandardAfterDiscount">Chính sách 1 sau CK</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="firstPolicyStandardAfterDiscount"
-                    name="firstPolicyStandardAfterDiscount"
-                    placeholder="Nhập chính sách 1 sau CK"
-                    value={bulkEditDto.firstPolicyStandardAfterDiscount ?? 5}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        firstPolicyStandardAfterDiscount: e.target.value === '' ? 5 : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="secondPolicyStandardAfterDiscount">Chính sách 2 sau CK</ProductLabel>
-                  <ProductInputField
-                    type="number"
-                    id="secondPolicyStandardAfterDiscount"
-                    name="secondPolicyStandardAfterDiscount"
-                    placeholder="Nhập chính sách 2 sau CK"
-                    value={bulkEditDto.secondPolicyStandardAfterDiscount ?? 5}
-                    onChange={e =>
-                      setBulkEditDto(dto => ({
-                        ...dto,
-                        secondPolicyStandardAfterDiscount: e.target.value === '' ? 5 : Number(e.target.value)
-                      }))
-                    }
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="taxId">Thuế</ProductLabel>
-                  <ReactSelect<{ value: number; label: string }>
-                    placeholder="Chọn thuế"
-                    noOptionsMessage={() => 'Không có kết quả'}
-                    options={productSupplierTaxList.map(tax => ({
-                      value: tax.id,
-                      label: tax.name
-                    }))}
-                    value={productSupplierTaxList.find(tax => tax.id === bulkEditDto.taxId) ? {
-                      value: bulkEditDto.taxId!,
-                      label: productSupplierTaxList.find(tax => tax.id === bulkEditDto.taxId)!.name
-                    } : null}
-                    onChange={e => setBulkEditDto(dto => ({ ...dto, taxId: e?.value ?? null }))}
-                    styles={{
-                      control: (base) => ({
-                        ...base,
-                        minHeight: "44px", // Chiều cao tổng thể
-                        height: "44px",
-                        fontFamily: "Roboto, sans-serif",
-                        fontSize: "14px",
-                      }),
-                      valueContainer: (base) => ({
-                        ...base,
-                        height: "44px",
-                        padding: "0 8px",
-                      }),
-                      indicatorsContainer: (base) => ({
-                        ...base,
-                        height: "44px",
-                      }),
-                      option: (base, state) => ({
-                        ...base,
-                        fontFamily: "Roboto, sans-serif",
-                        backgroundColor: state.isFocused ? "#f3f4f6" : "white",
-                        color: "black",
-                      }),
-                    }}
-                  />
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <ProductLabel htmlFor="discount">Chiết khấu</ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="discount"
+                      name="discount"
+                      placeholder="Nhập chiết khấu"
+                      value={bulkEditDto.discount ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          discount:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="supplierDiscountCash">
+                      Chiết khấu tiền mặt NCC
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="supplierDiscountCash"
+                      name="supplierDiscountCash"
+                      placeholder="Nhập chiết khấu tiền mặt NCC"
+                      value={bulkEditDto.supplierDiscountCash ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          supplierDiscountCash:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="supplierDiscountPercentage">
+                      Chiết khấu % NCC
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="supplierDiscountPercentage"
+                      name="supplierDiscountPercentage"
+                      placeholder="Nhập chiết khấu % NCC"
+                      value={bulkEditDto.supplierDiscountPercentage ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          supplierDiscountPercentage:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="policyStandard">
+                      Chính sách chuẩn
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="policyStandard"
+                      name="policyStandard"
+                      placeholder="Nhập chính sách chuẩn"
+                      value={bulkEditDto.policyStandard ?? 76}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          policyStandard:
+                            e.target.value === "" ? 76 : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="firstPolicyStandardAfterDiscount">
+                      Chính sách 1 sau CK
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="firstPolicyStandardAfterDiscount"
+                      name="firstPolicyStandardAfterDiscount"
+                      placeholder="Nhập chính sách 1 sau CK"
+                      value={bulkEditDto.firstPolicyStandardAfterDiscount ?? 5}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          firstPolicyStandardAfterDiscount:
+                            e.target.value === "" ? 5 : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
+                  <div>
+                    <ProductLabel htmlFor="secondPolicyStandardAfterDiscount">
+                      Chính sách 2 sau CK
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="secondPolicyStandardAfterDiscount"
+                      name="secondPolicyStandardAfterDiscount"
+                      placeholder="Nhập chính sách 2 sau CK"
+                      value={bulkEditDto.secondPolicyStandardAfterDiscount ?? 5}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          secondPolicyStandardAfterDiscount:
+                            e.target.value === "" ? 5 : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-              <Button
-                type="submit"
-                disabled={
-                  selectedIds.length === 0 ||
-                  Object.values(bulkEditDto).every(v => v === null)
-                }
-                className="w-full bg-blue-600 text-white mt-6"
-              >
-                Cập nhật
-              </Button>
+
+              <div className="p-4 md:p-6 border-t flex-shrink-0">
+                <Button
+                  type="submit"
+                  disabled={
+                    selectedIds.length === 0 ||
+                    Object.values(bulkEditDto).every((v) => v === null)
+                  }
+                  className="w-full bg-blue-600 text-white"
+                >
+                  Cập nhật
+                </Button>
+              </div>
             </form>
           </Modal>
         </TableComponentCard>
