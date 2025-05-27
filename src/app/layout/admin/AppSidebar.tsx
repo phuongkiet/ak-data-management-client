@@ -58,7 +58,7 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: 'Quản lý người dùng',
     subItems: [
-      { icon: <ChevronRightIcon />, name: 'Danh sách tài khoản', path: '/signup', pro: false },
+      { icon: <ChevronRightIcon />, name: 'Danh sách tài khoản', path: '/admin/users', pro: false },
       { icon: <ChevronRightIcon />, name: 'Tạo tài khoản mới', path: '/signup', pro: false }
     ]
   }

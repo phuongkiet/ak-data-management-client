@@ -1,49 +1,45 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { observer } from 'mobx-react-lite'
 
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons'
+import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '../../icons/index.ts'
 import ProductLabel from '../form/product-form/ProductLabel.tsx'
 import Input from '../form/product-form/input/product/ProductInputField.tsx'
-import Button from '../ui/button/Button'
+import Button from '../ui/button/Button.tsx'
 import { useStore } from '../../app/stores/store.ts'
 import { toast } from 'react-toastify'
 
-function SignInForm() {
+function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false)
   const { userStore } = useStore()
-  const navigate = useNavigate()
+  const { token } = useParams()
 
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: ''
+      password: '',
+      confirmPassword: '',
+      token: token
     },
     validationSchema: Yup.object({
       email: Yup.string().email('Email không hợp lệ').required('Bắt buộc'),
-      password: Yup.string().required('Bắt buộc')
+      password: Yup.string().required('Bắt buộc'),
+      confirmPassword: Yup.string().required('Bắt buộc').oneOf([Yup.ref('password')], 'Mật khẩu không khớp')
     }),
-    onSubmit: async (values, { setSubmitting }) => {
+    onSubmit: async (values, {setSubmitting}) => {
       try {
-        const res = await userStore.login(values)
-
-        if (res.success) {
-          toast.success('Đăng nhập thành công.')
-        } else if (res.errors?.includes('Địa chỉ email chưa được xác thực.')) {
-          // Gửi lại email xác thực
-          await userStore.resendEmailConfirm({email: values.email})
-          // Chuyển đến trang verify email
-          navigate('/verify-email')
+        const res = await userStore.resetPassword(values);
+        if(res) {
+          toast.success("Thay đổi mật khẩu thành công.");
         } else {
-          toast.error(res.errors?.[0] || 'Đăng nhập thất bại')
+          toast.error("Thay đổi mật khẩu thất bại.");
         }
+        setSubmitting(false);
       } catch (err) {
-        toast.error('Đã xảy ra lỗi hệ thống.')
-        console.error(err)
-      } finally {
-        setSubmitting(false)
+        toast.error("Đã xảy ra lỗi hệ thống.");
+        console.error(err);
       }
     }
   })
@@ -56,17 +52,17 @@ function SignInForm() {
           className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <ChevronLeftIcon className="size-5" />
-          Trở về trang chủ
+          Trở về 
         </Link>
       </div>
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div>
           <div className="mb-5 sm:mb-8">
             <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
-              Đăng nhập
+              Thay đổi mật khẩu
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Nhập địa chỉ email để đăng nhập
+              Nhập địa chỉ email để thay đổi mật khẩu
             </p>
           </div>
           <form onSubmit={formik.handleSubmit}>
@@ -87,7 +83,7 @@ function SignInForm() {
                 <div className="mt-1">
                   <span className="text-red-500 font-light text-sm italic">
                     {formik.errors.email}
-                  </span>
+                </span>
                 </div>
               </div>
               <div>
@@ -124,7 +120,7 @@ function SignInForm() {
               </div>
               <div className="flex items-center justify-between">
                 <Link
-                  to="/forgot-password"
+                  to="/reset-password"
                   className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
                 >
                   Quên mật khẩu?
@@ -132,7 +128,7 @@ function SignInForm() {
               </div>
               <div>
                 <Button disabled={formik.isSubmitting} type="submit" className="w-full" size="sm">
-                  {formik.isSubmitting ? 'Đang xử lý...' : 'Đăng nhập'}
+                  Đăng nhập
                 </Button>
               </div>
             </div>
@@ -143,4 +139,4 @@ function SignInForm() {
   )
 }
 
-export default observer(SignInForm)
+export default observer(ResetPasswordForm)

@@ -34,6 +34,11 @@ import AntiSlipperyTable from '../../pages/Tables/anti-slippery/AntiSlipperyTabl
 import ProcessingTable from '../../pages/Tables/processing/ProcessingTable.tsx'
 import CompanyCodeTable from '../../pages/Tables/company-code/CompanyCodeTable.tsx'
 import FactoryTable from '../../pages/Tables/factory/FactoryTable.tsx'
+import { ProtectedRoute } from './protectedRoute.tsx'
+import UserTable from '../../pages/Users/user-table/UserTable.tsx'
+import ForgotPassword from '../../pages/AuthPages/ForgotPassword.tsx'
+import ResetPassword from '../../pages/AuthPages/ResetPassword.tsx'
+import VerifyEmail from '../../pages/AuthPages/VerifyEmail.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -110,25 +115,29 @@ export const routes: RouteObject[] = [
       { path: 'line-chart', element: <LineChart /> },
       { path: 'bar-chart', element: <BarChart /> },
 
-      // // Protected route
-      // {
-      //   path: "admin",
-      //   element: <ProtectedRoute allowedRoles={["Admin"]} />,
-      //   children: [
-      //     {
-      //       index: true,
-      //       element: (
-      //         <Home/>
-      //       ),
-      //     }
-      //   ]
-      // }
+      // Protected route
+      {
+        path: "admin",
+        element: <ProtectedRoute allowedRoles={["Admin"]} />,
+        children: [
+          {
+            index: true,
+            path: 'users',
+            element: (
+              <UserTable/>
+            ),
+          }
+        ]
+      }
     ]
   },
 
 // Auth Routes
   { path: '/signin', element: <SignIn /> },
   { path: '/signup', element: <SignUp /> },
+  { path: '/verify-email', element: <VerifyEmail /> },
+  { path: '/forgot-password', element: <ForgotPassword /> },
+  { path: '/reset-password/:token', element: <ResetPassword /> },
 
 // Catch all
   { path: '*', element: <NotFound /> }

@@ -15,15 +15,22 @@ export interface UserLoginFormValues {
   password: string;
 }
 
-export interface UserAdminDTO {
+export interface UserDto {
   id: number;
   name: string;
   phoneNumber: string;
   email: string;
-  birthday: Date;
   status: UserStatus;
-  createdAt: Date;
-  updatedAt: Date;
+  role: string;
+  birthday: string;
+}
+
+export interface AddUserDto{
+  birthday: string | null;
+  userName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
   roleId: number;
 }
 

@@ -3,8 +3,9 @@ import { router } from "../router/route.tsx";
 import { toast } from "react-toastify";
 import { store } from "../stores/store.ts";
 import {
+  AddUserDto,
   User,
-  UserAdminDTO,
+  UserDto,
   UserLoginFormValues,
 } from "../models/user/user.model.ts";
 import { PagedModel } from "../models/common/pagedModel.model.ts";
@@ -81,6 +82,7 @@ import {
   AddAreaDto,
   ProductAreaDto,
 } from "../models/product/productArea.model.ts";
+import { ForgotPasswordModel, ResendEmailConfirmModel, ResetPasswordModel, VerifyEmailModel } from "../models/auth/authentication.model.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -93,7 +95,7 @@ const DEPLOYED_URL = import.meta.env.VITE_API_V1_URL;
 // const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
 const NGROK_URL = import.meta.env.VITE_NGROK_URL;
 
-if(DEPLOYED_URL){
+if (DEPLOYED_URL) {
   // axios.defaults.baseURL = DEPLOYED_URL;
   axios.defaults.baseURL = "https://6ca6-1-53-27-45.ngrok-free.app/api/";
 } else {
@@ -164,7 +166,7 @@ const responseBody = <T>(
 axios.interceptors.request.use((config) => {
   const token = store.commonStore.token;
   if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
-  config.headers['ngrok-skip-browser-warning'] = 'true';
+  config.headers["ngrok-skip-browser-warning"] = "true";
   return config;
 });
 
@@ -185,27 +187,29 @@ const Account = {
   current: (): Promise<ApiResponseModel<User>> => requests.get<User>("/auth"),
   login: (user: UserLoginFormValues): Promise<ApiResponseModel<User>> =>
     requests.post<User>("/auth/login", user),
-  // register: (user: UserRegisterFormValues): Promise<ApiResponseModel<User>> => requests.post<User>('/auth/register', user),
-  // verifyEmail: (email: string, token: string): Promise<ApiResponseModel<void>> => requests.post<void>(`/auth/verifyEmail?token=${token}&email=${email}`, {}),
-  // forgotPassword: (email: string): Promise<ApiResponseModel<void>> => requests.get<void>(`/auth/forgotPassword-web?email=${email}`),
-  // changePassword: (values: any): Promise<ApiResponseModel<void>> => requests.post<void>(`/auth/changeUserPassword`, values),
-  // resetPassword: (values: any): Promise<ApiResponseModel<any>> => requests.post(`/auth/resetPassword-web`, values),
-  // resendEmailConfirm: (email: string) => requests.get(`/auth/resendEmailConfirmationLink?email=${email}`),
+  verifyEmail: (
+    dto: VerifyEmailModel
+  ): Promise<ApiResponseModel<string>> =>
+    requests.post<string>(`/auth/verify-otp`, dto),
+  forgotPassword: (dto: ForgotPasswordModel): Promise<ApiResponseModel<string>> =>
+    requests.post<string>(`/auth/forgotPassword`, dto),
+  resetPassword: (dto: ResetPasswordModel): Promise<ApiResponseModel<string>> =>
+    requests.post<string>(`/auth/resetPassword`, dto),
+  resendEmailConfirm: (dto: ResendEmailConfirmModel): Promise<ApiResponseModel<string>> =>
+    requests.post<string>(`/auth/resend-verification-otp`, dto),
+  // changePassword: (values: any): Promise<ApiResponseModel<string>> =>
+  //   requests.post<string>(`/auth/changeUserPassword`, values),
 };
 
 const UserAdmin = {
-  adminList: (
-    pageSize?: number,
-    pageNumber?: number,
-    term?: string
-  ): Promise<ApiResponseModel<PagedModel<UserAdminDTO>>> => {
+  adminList: (term?: string): Promise<ApiResponseModel<UserDto[]>> => {
     const params = new URLSearchParams();
-    if (pageSize) params.append("pageSize", pageSize.toString());
-    if (pageNumber) params.append("pageNumber", pageNumber.toString());
     if (term) params.append("term", term);
 
-    return requests.get<PagedModel<UserAdminDTO>>(`/user?${params.toString()}`);
+    return requests.get<UserDto[]>(`/users?${params.toString()}`);
   },
+  addUser: (user: AddUserDto): Promise<ApiResponseModel<string>> =>
+    requests.post<string>("/users/add-user", user),
 };
 
 const Product = {
@@ -253,8 +257,12 @@ const Product = {
   getProductById: (id: number): Promise<ApiResponseModel<ProductDetail>> =>
     requests.get<ProductDetail>("/products/product-detail?productId=" + id),
 
-  getStrategyProductById: (id: number): Promise<ApiResponseModel<StrategyProductDetailDto>> =>
-    requests.get<StrategyProductDetailDto>("/products/strategy-product-detail?productId=" + id),
+  getStrategyProductById: (
+    id: number
+  ): Promise<ApiResponseModel<StrategyProductDetailDto>> =>
+    requests.get<StrategyProductDetailDto>(
+      "/products/strategy-product-detail?productId=" + id
+    ),
 
   getNextOrderNumber: (supplierId: number): Promise<ApiResponseModel<number>> =>
     requests.get<number>("/products/suppliers-order?supplierId=" + supplierId),
