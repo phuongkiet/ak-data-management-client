@@ -10,6 +10,7 @@ import {
   SupplierSizeCombinationDto,
   ProductMetadataDto,
   EditBulkStrategyProductDto,
+  EditStrategyProductDto,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
@@ -36,6 +37,7 @@ export default class ProductStore {
   productForm: AddProductDto = {} as AddProductDto;
   productDetail: ProductDetail = {} as ProductDetail;
   strategyProductDetail: StrategyProductDetailDto = {} as StrategyProductDetailDto;
+  strategyProductForm: EditStrategyProductDto = {} as EditStrategyProductDto;
 
   existingSupplierSizeCombinations: SupplierSizeCombinationDto[] = [];
   loadingCombinations = false;
@@ -139,7 +141,7 @@ export default class ProductStore {
     
     try {
       await this.getTotalProducts();
-      await this.loadExistingSupplierSizeCombinations();
+      // await this.loadExistingSupplierSizeCombinations();
     } catch (error) {
       console.error("Failed to initialize product store:", error);
     }
@@ -301,6 +303,7 @@ export default class ProductStore {
       if (!product) throw new Error("Không có dữ liệu sản phẩm");
 
       runInAction(() => {
+        this.calculateStrategyProductFields(product);
         this.strategyProductDetail = {
           ...{
             ...product,
@@ -330,19 +333,21 @@ export default class ProductStore {
 
   //Supplier
   getNextOrderNumberAuto = async () => {
+    console.log("getNextOrderNumberAuto called, supplierId:", this.productForm.supplierId);
     try {
-      if (this.productForm.supplierId) {
-        const response = await agent.Product.getNextOrderNumber(
-          this.productForm.supplierId
-        );
-        runInAction(() => {
-          if (response.data) {
-            this.productForm.productOrderNumber = response.data;
-          } else {
-            toast.error(response.errors || "Không lấy được số thứ tự.");
-          }
-        });
+      if (!this.productForm.supplierId) {
+        return; // Return early if no supplierId
       }
+      const response = await agent.Product.getNextOrderNumber(
+        this.productForm.supplierId
+      );
+      runInAction(() => {
+        if (response.data) {
+          this.productForm.productOrderNumber = response.data;
+        } else {
+          toast.error(response.errors || "Không lấy được số thứ tự.");
+        }
+      });
     } catch (error) {
       console.error("Error getting next order number:", error);
       this.productForm.productOrderNumber = 0; // fallback
@@ -456,6 +461,122 @@ export default class ProductStore {
     } catch (error) {
       console.error("Error editing product:", error);
       toast.error("Lỗi khi sửa sản phẩm");
+      return false;
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
+
+  updateStrategyProductForm = <K extends keyof EditStrategyProductDto>(
+    field: K,
+    value: EditStrategyProductDto[K]
+  ) => {
+    runInAction(() => {
+      // Chỉ cập nhật form với các field có thể edit
+      this.strategyProductForm[field] = value;
+      console.log(`Updated editable field ${field} with value:`, value);
+      console.log('Current editable form state:', this.strategyProductForm);
+    });
+  };
+
+  // Tách riêng logic tính toán
+  calculateStrategyProductFields(product: StrategyProductDetailDto) {
+    console.log('Starting calculation with product:', product);
+
+    // 1. ConfirmListPrice
+    const listPrice = product.listPrice ?? 0;
+    const supplierRisingPrice = product.supplierRisingPrice ?? 0;
+    const otherPriceByCompany = product.otherPriceByCompany ?? 0;
+    const quantity = product.quantity ?? 0;
+    product.confirmListPrice = listPrice + supplierRisingPrice + (otherPriceByCompany * quantity);
+    console.log('Calculated ConfirmListPrice:', product.confirmListPrice);
+
+    // 2. SupplierEstimatedPayableAmount
+    const discountPercentage = product.discount ?? 0;
+    const shippingFee = product.shippingFee ?? 0;
+    const taxRate = product.taxRateNumber ?? 0;
+    const taxRateNumber = 1 + taxRate / 100;
+    console.log(taxRateNumber);
+    let baseValue = product.confirmListPrice * (1 - discountPercentage) + shippingFee;
+    if (product.taxId === 1 || product.taxId === 2) {
+      product.supplierEstimatedPayableAmount = baseValue * taxRateNumber;
+    } else {
+      product.supplierEstimatedPayableAmount = baseValue;
+    }
+    console.log('Calculated SupplierEstimatedPayableAmount:', product.supplierEstimatedPayableAmount);
+
+    // 3. RetailPrice
+    const policyStandard = product.policyStandardNumber ?? 0;
+    const policyStandardNumber = 1 + policyStandard / 100;
+    let rawRetailPrice = product.supplierEstimatedPayableAmount * policyStandardNumber;
+    product.retailPrice = listPrice > 0 ? Math.round(rawRetailPrice / 1000) * 1000 : 0;
+    console.log('Calculated RetailPrice:', product.retailPrice);
+
+    // 4. EstimatedPurchasePriceAfterSupplierDiscount
+    const supplierDiscountPercentage = product.supplierDiscountPercentage ?? 0;
+    const supplierDiscountCash = product.supplierDiscountCash ?? 0;
+    product.estimatedPurchasePriceAfterSupplierDiscount =
+      product.supplierEstimatedPayableAmount * (1 - supplierDiscountPercentage) - supplierDiscountCash;
+    console.log('Calculated EstimatedPurchasePriceAfterSupplierDiscount:', product.estimatedPurchasePriceAfterSupplierDiscount);
+
+    // 5. First Remaining Price After Discount
+    const firstPolicyStandardAfterDiscount = product.firstPolicyStandardAfterDiscount ?? 0;
+    const firstPolicyStandardNumber = 1 + firstPolicyStandardAfterDiscount / 100;
+    product.firstRemainingPriceAfterDiscount = product.retailPrice - (product.retailPrice * firstPolicyStandardNumber);
+    console.log('Calculated FirstRemainingPriceAfterDiscount:', product.firstRemainingPriceAfterDiscount);
+
+    // 6. First Fixed Policy Price
+    product.firstFixedPolicyPrice = product.firstRemainingPriceAfterDiscount * 0.4;
+    console.log('Calculated FirstFixedPolicyPrice:', product.firstFixedPolicyPrice);
+
+    // 7. First Actual Received Price
+    product.firstActualReceivedPriceAfterPolicyDiscount =
+      product.firstRemainingPriceAfterDiscount - product.firstFixedPolicyPrice;
+    console.log('Calculated FirstActualReceivedPriceAfterPolicyDiscount:', product.firstActualReceivedPriceAfterPolicyDiscount);
+
+    // 8. Second Remaining Price After Discount
+    const secondPolicyStandardAfterDiscount = product.secondPolicyStandardAfterDiscount ?? 0;
+    const secondPolicyStandardNumber = secondPolicyStandardAfterDiscount / 100;
+    product.secondRemainingPriceAfterDiscount = product.retailPrice - (product.retailPrice * secondPolicyStandardNumber);
+    console.log('Calculated SecondRemainingPriceAfterDiscount:', product.secondRemainingPriceAfterDiscount);
+
+    // 9. Second Fixed Policy Price
+    product.secondFixedPolicyPrice = product.secondRemainingPriceAfterDiscount * 0.4;
+    console.log('Calculated SecondFixedPolicyPrice:', product.secondFixedPolicyPrice);
+
+    // 10. Second Actual Received Price
+    product.secondActualReceivedPriceAfterPolicyDiscount =
+      product.secondRemainingPriceAfterDiscount - product.secondFixedPolicyPrice;
+    console.log('Calculated SecondActualReceivedPriceAfterPolicyDiscount:', product.secondActualReceivedPriceAfterPolicyDiscount);
+
+    console.log('Final calculated product:', product);
+  };
+
+  editStrategyProduct = async (productId: number, product: EditStrategyProductDto) => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.editStrategyProduct(productId, product);
+      if (response.success) {
+        runInAction(() => {
+          toast.success(response.data);
+          // Sau khi lưu thành công, load lại detail để lấy các giá trị được tính toán từ backend
+          this.loadStrategyProductDetail(productId);
+          this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
+          this.loading = false;
+        });
+        return true;
+      } else {
+        runInAction(() => {
+          toast.error(response.errors?.[0] || "Lỗi khi sửa sản phẩm chiến lược");
+          this.loading = false;
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error editing strategy product:", error);
+      toast.error("Lỗi khi sửa sản phẩm chiến lược");
       return false;
     } finally {
       runInAction(() => {

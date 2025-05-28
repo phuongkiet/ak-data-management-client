@@ -39,6 +39,7 @@ import UserTable from '../../pages/Users/user-table/UserTable.tsx'
 import ForgotPassword from '../../pages/AuthPages/ForgotPassword.tsx'
 import ResetPassword from '../../pages/AuthPages/ResetPassword.tsx'
 import VerifyEmail from '../../pages/AuthPages/VerifyEmail.tsx'
+import StrategyProductDetail from '../../pages/StrategyProducts/StrategyProductDetail.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -61,6 +62,7 @@ export const routes: RouteObject[] = [
       { path: 'add-product', element: <AddProduct />},
       { path: 'strategy-products', element: <StrategyProductTable /> },
       { path: 'products/detail/:id', element: <ProductDetail/>},
+      { path: 'strategy-products/detail/:id', element: <StrategyProductDetail/>},
       // Tables - Suppliers
       { path: 'suppliers', element: <SupplierTable /> },
       // { path: 'add-supplier', element: <AddProduct />},

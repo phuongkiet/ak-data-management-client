@@ -18,6 +18,7 @@ import {
   StrategyProductDetailDto,
   StrategyProductDto,
   SupplierSizeCombinationDto,
+  EditStrategyProductDto,
 } from "../models/product/product.model.ts";
 import { ProductSupplierDto } from "../models/product/productSupplier.model.ts";
 import {
@@ -97,7 +98,7 @@ const NGROK_URL = import.meta.env.VITE_NGROK_URL;
 
 if (DEPLOYED_URL) {
   // axios.defaults.baseURL = DEPLOYED_URL;
-  axios.defaults.baseURL = "https://6ca6-1-53-27-45.ngrok-free.app/api/";
+  axios.defaults.baseURL = "https://fcb3-42-112-134-172.ngrok-free.app/api/";
 } else {
   // axios.defaults.baseURL = LOCAL_URL;
   axios.defaults.baseURL = NGROK_URL;
@@ -304,6 +305,15 @@ const Product = {
     requests.put<string>(
       "/products/bulk-strategy-edit-product",
       editBulkStrategyProductDto
+    ),
+
+  editStrategyProduct: (
+    id: number,
+    editStrategyProductDto: EditStrategyProductDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(
+      `/products/strategy-edit-product?productId=${id}`,
+      editStrategyProductDto
     ),
 };
 

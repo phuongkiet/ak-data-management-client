@@ -83,6 +83,7 @@ export interface StrategyProductDto {
 
 export interface StrategyProductDetailDto {
   id: number;
+  autoBarCode: string;
   companyItemCode: string;
   supplierItemCode: string;
   size: string;
@@ -103,6 +104,7 @@ export interface StrategyProductDetailDto {
   confirmListPrice?: number;
 
   quantity?: number;
+  taxId: number;
   taxStatus: string;
   taxRate: number; // percentage
   taxRateNumber: number; // 1. percentage
