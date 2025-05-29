@@ -14,8 +14,12 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
   const { productStore } = useStore();
   const form = productStore.strategyProductForm;
   const update = productStore.updateStrategyProductForm;
+  const { supplierTaxStore } = useStore();
+  const { productSupplierTaxList } = supplierTaxStore;
+  const detail = productStore.strategyProductDetail;
 
   const calculate = () => {
+    const selectedTax = productSupplierTaxList?.find((tax: { id: number }) => tax.id === (form.taxId ?? 0));
     const tempDetail = {
       ...product,
       ...form,
@@ -43,8 +47,8 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
       secondPolicyStandardAfterDiscount: form.secondPolicyStandardAfterDiscount === null ? undefined : form.secondPolicyStandardAfterDiscount,
       taxId: form.taxId === null || form.taxId === undefined ? 0 : form.taxId,
       taxStatus: product?.taxStatus ?? '',
-      taxRate: product?.taxRate ?? 0,
-      taxRateNumber: product?.taxRateNumber ?? 0,
+      taxRate: selectedTax?.taxRate ?? 0,
+      taxRateNumber: selectedTax ? 1 + (selectedTax.taxRate ?? 0) / 100 : 1,
     };
     productStore.calculateStrategyProductFields(tempDetail);
   };
@@ -117,7 +121,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Xác nhận giá niêm yết</ProductLabel>
             <NumericFormat
-              value={product?.confirmListPrice ?? ""}
+              value={detail.confirmListPrice ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -153,7 +157,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Tiền phải trả NCC (ước tính)</ProductLabel>
             <NumericFormat
-              value={product?.supplierEstimatedPayableAmount ?? ""}
+              value={detail.supplierEstimatedPayableAmount ?? ""}
               thousandSeparator
               displayType="input"
               disabled
@@ -164,7 +168,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Giá bán lẻ chưa KM</ProductLabel>
             <NumericFormat
-              value={product?.retailPrice ?? ""}
+              value={detail.retailPrice ?? ""}
               thousandSeparator
               displayType="input"
               disabled
@@ -199,7 +203,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Giá mua sau KM NCC (ước tính)</ProductLabel>
             <NumericFormat
-              value={product?.estimatedPurchasePriceAfterSupplierDiscount ?? ""}
+              value={detail.estimatedPurchasePriceAfterSupplierDiscount ?? ""}
               thousandSeparator
               displayType="input"
               disabled

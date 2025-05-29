@@ -128,6 +128,23 @@ export default class ProductStore {
   constructor() {
     makeAutoObservable(this);
     this.resetProductForm();
+    // Set mặc định cho form chiến lược khi khởi tạo
+    if (!this.strategyProductForm || Object.keys(this.strategyProductForm).length === 0) {
+      this.strategyProductForm = {
+        listPrice: null,
+        supplierRisingPrice: null,
+        otherPriceByCompany: null,
+        quantity: null,
+        shippingFee: null,
+        discount: null,
+        policyStandard: 76,
+        supplierDiscountCash: null,
+        supplierDiscountPercentage: null,
+        firstPolicyStandardAfterDiscount: 5,
+        secondPolicyStandardAfterDiscount: 5,
+        taxId: null,
+      };
+    }
 
     const savedPageNumber = localStorage.getItem("pageNumber");
     const savedPageSize = localStorage.getItem("pageSize");
@@ -486,70 +503,119 @@ export default class ProductStore {
     console.log('Starting calculation with product:', product);
 
     // 1. ConfirmListPrice
-    const listPrice = product.listPrice ?? 0;
-    const supplierRisingPrice = product.supplierRisingPrice ?? 0;
-    const otherPriceByCompany = product.otherPriceByCompany ?? 0;
-    const quantity = product.quantity ?? 0;
-    product.confirmListPrice = listPrice + supplierRisingPrice + (otherPriceByCompany * quantity);
+    const listPrice = Number(product.listPrice) || 0;
+    const supplierRisingPrice = Number(product.supplierRisingPrice) || 0;
+    const otherPriceByCompany = Number(product.otherPriceByCompany) || 0;
+    const quantityPerBox = Number(product.quantity) || 0;
+    const confirmListPrice = listPrice + supplierRisingPrice + (otherPriceByCompany * quantityPerBox);
+    product.confirmListPrice = confirmListPrice;
     console.log('Calculated ConfirmListPrice:', product.confirmListPrice);
 
     // 2. SupplierEstimatedPayableAmount
-    const discountPercentage = product.discount ?? 0;
-    const shippingFee = product.shippingFee ?? 0;
-    const taxRate = product.taxRateNumber ?? 0;
-    const taxRateNumber = 1 + taxRate / 100;
-    console.log(taxRateNumber);
-    let baseValue = product.confirmListPrice * (1 - discountPercentage) + shippingFee;
+    const discountPercentage = Number(product.discount) || 0;
+    const shippingFee = Number(product.shippingFee) || 0;
+    const taxRateNumber = Number(product.taxRateNumber) || 1;
+    
+    // Tính giá sau chiết khấu
+    const priceAfterDiscount = confirmListPrice * (1 - discountPercentage);
+    
+    // Áp dụng thuế cho giá sau chiết khấu
+    let priceAfterTax = priceAfterDiscount;
     if (product.taxId === 1 || product.taxId === 2) {
-      product.supplierEstimatedPayableAmount = baseValue * taxRateNumber;
-    } else {
-      product.supplierEstimatedPayableAmount = baseValue;
+      priceAfterTax = priceAfterDiscount * taxRateNumber;
     }
+    
+    // Cộng phí vận chuyển vào sau khi đã tính thuế
+    const supplierEstimatedPayableAmount = priceAfterTax + shippingFee;
+    product.supplierEstimatedPayableAmount = Math.round(supplierEstimatedPayableAmount / 1000) * 1000;
     console.log('Calculated SupplierEstimatedPayableAmount:', product.supplierEstimatedPayableAmount);
 
     // 3. RetailPrice
-    const policyStandard = product.policyStandardNumber ?? 0;
+    const policyStandard = Number(product.policyStandardNumber) || 0;
     const policyStandardNumber = 1 + policyStandard / 100;
-    let rawRetailPrice = product.supplierEstimatedPayableAmount * policyStandardNumber;
+    let rawRetailPrice = supplierEstimatedPayableAmount * policyStandardNumber;
     product.retailPrice = listPrice > 0 ? Math.round(rawRetailPrice / 1000) * 1000 : 0;
     console.log('Calculated RetailPrice:', product.retailPrice);
 
     // 4. EstimatedPurchasePriceAfterSupplierDiscount
-    const supplierDiscountPercentage = product.supplierDiscountPercentage ?? 0;
-    const supplierDiscountCash = product.supplierDiscountCash ?? 0;
-    product.estimatedPurchasePriceAfterSupplierDiscount =
-      product.supplierEstimatedPayableAmount * (1 - supplierDiscountPercentage) - supplierDiscountCash;
+    const supplierDiscountPercentage = Number(product.supplierDiscountPercentage) || 0;
+    const supplierDiscountCash = Number(product.supplierDiscountCash) || 0;
+    product.estimatedPurchasePriceAfterSupplierDiscount = Math.round((supplierEstimatedPayableAmount * (1 - supplierDiscountPercentage) - supplierDiscountCash) / 1000) * 1000;
     console.log('Calculated EstimatedPurchasePriceAfterSupplierDiscount:', product.estimatedPurchasePriceAfterSupplierDiscount);
 
     // 5. First Remaining Price After Discount
-    const firstPolicyStandardAfterDiscount = product.firstPolicyStandardAfterDiscount ?? 0;
-    const firstPolicyStandardNumber = 1 + firstPolicyStandardAfterDiscount / 100;
-    product.firstRemainingPriceAfterDiscount = product.retailPrice - (product.retailPrice * firstPolicyStandardNumber);
+    const firstPolicyStandardAfterDiscount = Number(product.firstPolicyStandardAfterDiscount) || 0;
+    const firstPolicyStandardNumber = firstPolicyStandardAfterDiscount / 100;
+    product.firstRemainingPriceAfterDiscount = Math.round((product.retailPrice - (product.retailPrice * firstPolicyStandardNumber)) / 1000) * 1000;
     console.log('Calculated FirstRemainingPriceAfterDiscount:', product.firstRemainingPriceAfterDiscount);
 
     // 6. First Fixed Policy Price
-    product.firstFixedPolicyPrice = product.firstRemainingPriceAfterDiscount * 0.4;
+    product.firstFixedPolicyPrice = Math.round((product.firstRemainingPriceAfterDiscount * 0.4) / 1000) * 1000;
     console.log('Calculated FirstFixedPolicyPrice:', product.firstFixedPolicyPrice);
 
     // 7. First Actual Received Price
-    product.firstActualReceivedPriceAfterPolicyDiscount =
-      product.firstRemainingPriceAfterDiscount - product.firstFixedPolicyPrice;
+    product.firstActualReceivedPriceAfterPolicyDiscount = Math.round((product.firstRemainingPriceAfterDiscount - product.firstFixedPolicyPrice) / 1000) * 1000;
     console.log('Calculated FirstActualReceivedPriceAfterPolicyDiscount:', product.firstActualReceivedPriceAfterPolicyDiscount);
 
     // 8. Second Remaining Price After Discount
-    const secondPolicyStandardAfterDiscount = product.secondPolicyStandardAfterDiscount ?? 0;
+    const secondPolicyStandardAfterDiscount = Number(product.secondPolicyStandardAfterDiscount) || 0;
     const secondPolicyStandardNumber = secondPolicyStandardAfterDiscount / 100;
-    product.secondRemainingPriceAfterDiscount = product.retailPrice - (product.retailPrice * secondPolicyStandardNumber);
+    product.secondRemainingPriceAfterDiscount = Math.round((product.retailPrice - (product.retailPrice * secondPolicyStandardNumber)) / 1000) * 1000;
     console.log('Calculated SecondRemainingPriceAfterDiscount:', product.secondRemainingPriceAfterDiscount);
 
     // 9. Second Fixed Policy Price
-    product.secondFixedPolicyPrice = product.secondRemainingPriceAfterDiscount * 0.4;
+    product.secondFixedPolicyPrice = Math.round((product.secondRemainingPriceAfterDiscount * 0.4) / 1000) * 1000;
     console.log('Calculated SecondFixedPolicyPrice:', product.secondFixedPolicyPrice);
 
     // 10. Second Actual Received Price
-    product.secondActualReceivedPriceAfterPolicyDiscount =
-      product.secondRemainingPriceAfterDiscount - product.secondFixedPolicyPrice;
+    product.secondActualReceivedPriceAfterPolicyDiscount = Math.round((product.secondRemainingPriceAfterDiscount - product.secondFixedPolicyPrice) / 1000) * 1000;
     console.log('Calculated SecondActualReceivedPriceAfterPolicyDiscount:', product.secondActualReceivedPriceAfterPolicyDiscount);
+
+    // === Web Prices ===
+    function calculateWebPriceValue(
+      basePrice: number,
+      unitName: string,
+      currentQuantity: number,
+      currentAreaPerUnit: number
+    ): number {
+      if (!currentQuantity) return 0;
+      let calculatedValue = 0;
+      if (unitName === "THÙNG") {
+        calculatedValue = basePrice / currentQuantity;
+      } else if (unitName === "M2") {
+        calculatedValue = basePrice * currentAreaPerUnit;
+      } else if (currentAreaPerUnit > 0) {
+        calculatedValue = basePrice * currentAreaPerUnit;
+      } else if (currentAreaPerUnit === 0) {
+        calculatedValue = basePrice * currentQuantity;
+      } else {
+        return 0;
+      }
+      return Math.round(calculatedValue / 1000) * 1000;
+    }
+    const calculatedUnitName = product.calculatedUnit ?? "";
+    const areaPerUnit = Number(product.area) || 0;
+    const quantity = Number(product.quantity) || 0;
+    product.webProductPrice = calculateWebPriceValue(
+      product.retailPrice ?? 0,
+      calculatedUnitName,
+      quantity,
+      areaPerUnit
+    );
+    product.webDiscountedPrice = calculateWebPriceValue(
+      product.firstRemainingPriceAfterDiscount ?? 0,
+      calculatedUnitName,
+      quantity,
+      areaPerUnit
+    );
+    product.webSecondDiscountedPrice = calculateWebPriceValue(
+      product.secondRemainingPriceAfterDiscount ?? 0,
+      calculatedUnitName,
+      quantity,
+      areaPerUnit
+    );
+    // Gán lại object để các component observer tự động nhận giá trị mới
+    this.strategyProductDetail = { ...product };
 
     console.log('Final calculated product:', product);
   };

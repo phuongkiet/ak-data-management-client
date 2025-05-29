@@ -19,10 +19,8 @@ const StrategyProductInputGroupRight = ({
   const { productSupplierTaxList } = supplierTaxStore;
 
   const calculate = () => {
-    // Gọi hàm tính toán trên store, truyền vào object detail tạm thời (kết hợp form và detail)
+    const selectedTax = productSupplierTaxList.find(tax => tax.id === (form.taxId ?? 0));
     const tempDetail = {
-      ...product,
-      ...form,
       id: product?.id ?? 0,
       autoBarCode: product?.autoBarCode ?? '',
       companyItemCode: product?.companyItemCode ?? '',
@@ -33,22 +31,22 @@ const StrategyProductInputGroupRight = ({
       changedUnit: product?.changedUnit ?? '',
       calculatedUnit: product?.calculatedUnit ?? '',
       area: product?.area ?? 0,
-      listPrice: form.listPrice === null ? undefined : form.listPrice,
-      supplierRisingPrice: form.supplierRisingPrice === null ? undefined : form.supplierRisingPrice,
-      otherPriceByCompany: form.otherPriceByCompany === null ? undefined : form.otherPriceByCompany,
-      quantity: form.quantity === null ? undefined : form.quantity,
-      shippingFee: form.shippingFee === null ? undefined : form.shippingFee,
-      discount: form.discount === null ? undefined : form.discount,
-      policyStandard: form.policyStandard === null || form.policyStandard === undefined ? 0 : form.policyStandard,
-      supplierDiscountCash: form.supplierDiscountCash === null ? undefined : form.supplierDiscountCash,
-      supplierDiscountPercentage: form.supplierDiscountPercentage === null ? undefined : form.supplierDiscountPercentage,
-      firstPolicyStandardAfterDiscount: form.firstPolicyStandardAfterDiscount === null ? undefined : form.firstPolicyStandardAfterDiscount,
-      secondPolicyStandardAfterDiscount: form.secondPolicyStandardAfterDiscount === null ? undefined : form.secondPolicyStandardAfterDiscount,
-      taxId: form.taxId === null || form.taxId === undefined ? 0 : form.taxId,
       taxStatus: product?.taxStatus ?? '',
-      taxRate: product?.taxRate ?? 0,
-      taxRateNumber: product?.taxRateNumber ?? 0,
-      policyStandardNumber: product?.policyStandardNumber ?? 0,
+      listPrice: form.listPrice === null ? 0 : form.listPrice,
+      supplierRisingPrice: form.supplierRisingPrice === null ? 0 : form.supplierRisingPrice,
+      otherPriceByCompany: form.otherPriceByCompany === null ? 0 : form.otherPriceByCompany,
+      quantity: form.quantity === null ? 0 : form.quantity,
+      shippingFee: form.shippingFee === null ? 0 : form.shippingFee,
+      discount: form.discount === null ? 0 : form.discount,
+      supplierDiscountCash: form.supplierDiscountCash === null ? 0 : form.supplierDiscountCash,
+      supplierDiscountPercentage: form.supplierDiscountPercentage === null ? 0 : form.supplierDiscountPercentage,
+      taxId: form.taxId === null || form.taxId === undefined ? 0 : form.taxId,
+      taxRate: selectedTax?.taxRate ?? 0,
+      taxRateNumber: selectedTax ? 1 + (selectedTax.taxRate ?? 0) / 100 : 1,
+      policyStandard: form.policyStandard !== null && form.policyStandard !== undefined ? form.policyStandard : 76,
+      policyStandardNumber: form.policyStandard !== null && form.policyStandard !== undefined ? form.policyStandard : 76,
+      firstPolicyStandardAfterDiscount: form.firstPolicyStandardAfterDiscount !== null && form.firstPolicyStandardAfterDiscount !== undefined ? form.firstPolicyStandardAfterDiscount : 5,
+      secondPolicyStandardAfterDiscount: form.secondPolicyStandardAfterDiscount !== null && form.secondPolicyStandardAfterDiscount !== undefined ? form.secondPolicyStandardAfterDiscount : 5,
     };
     productStore.calculateStrategyProductFields(tempDetail);
   };
@@ -58,7 +56,7 @@ const StrategyProductInputGroupRight = ({
       <div>
         <ProductLabel>Chính sách chuẩn</ProductLabel>
         <NumericFormat
-          value={form.policyStandard ?? ""}
+          value={form.policyStandard ?? 76}
           thousandSeparator
           displayType="input"
           disabled={false}
@@ -106,7 +104,7 @@ const StrategyProductInputGroupRight = ({
         <div>
           <ProductLabel htmlFor="input">Chính sách 1</ProductLabel>
           <NumericFormat
-            value={form?.firstPolicyStandardAfterDiscount ?? ""}
+            value={form?.firstPolicyStandardAfterDiscount ?? 5}
             thousandSeparator
             displayType="input"
             disabled={false}
@@ -129,7 +127,7 @@ const StrategyProductInputGroupRight = ({
         <div>
           <ProductLabel htmlFor="input">Chính sách 2</ProductLabel>
           <NumericFormat
-            value={form.secondPolicyStandardAfterDiscount ?? ""}
+            value={form.secondPolicyStandardAfterDiscount ?? 5}
             thousandSeparator
             displayType="input"
             disabled={false}
