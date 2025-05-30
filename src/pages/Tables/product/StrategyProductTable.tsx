@@ -41,6 +41,8 @@ const StrategyProductTable = () => {
     firstPolicyStandardAfterDiscount: null as number | null,
     secondPolicyStandardAfterDiscount: null as number | null,
     taxId: null as number | null,
+    quantityPerBox: null as number | null,
+    weightPerUnit: null as number | null,
   });
 
   useEffect(() => {
@@ -97,8 +99,8 @@ const StrategyProductTable = () => {
             className="
               w-full max-w-[800px] flex flex-col rounded-lg shadow-xl bg-white mx-auto
               h-[95vh] md:h-auto
-              max-h-screen md:max-h-[85vh]
-              my-2 sm:my-4 md:my-auto
+              max-h-screen md:max-h-[90vh]
+              my-2 sm:my-4 md:my-8
               overflow-y-auto md:overflow-hidden
             "
           >
@@ -128,6 +130,8 @@ const StrategyProductTable = () => {
                       secondPolicyStandardAfterDiscount:
                         bulkEditDto.secondPolicyStandardAfterDiscount ?? 5,
                       taxId: bulkEditDto.taxId,
+                      quantityPerBox: bulkEditDto.quantityPerBox,
+                      weightPerUnit: bulkEditDto.weightPerUnit,
                     },
                   });
                   setIsBulkModalOpen(false);
@@ -144,6 +148,8 @@ const StrategyProductTable = () => {
                     firstPolicyStandardAfterDiscount: null,
                     secondPolicyStandardAfterDiscount: null,
                     taxId: null,
+                    quantityPerBox: null,
+                    weightPerUnit: null,
                   });
                 } catch (error) {
                   console.error("Error updating products:", error);
@@ -160,9 +166,30 @@ const StrategyProductTable = () => {
 
               <div
                 className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full
-                    p-4 md:p-6 flex-grow overflow-y-auto min-h-0"
+                    p-4 md:py-3 px-6 flex-grow overflow-y-auto min-h-0"
               >
                 <div className="flex flex-col gap-4">
+                <div>
+                    <ProductLabel htmlFor="quantityPerBox">
+                      Số lượng/thùng
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="quantityPerBox"
+                      name="quantityPerBox"
+                      placeholder="Nhập số lượng/thùng"
+                      value={bulkEditDto.quantityPerBox ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          quantityPerBox:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
                   <div>
                     <ProductLabel htmlFor="listPrice">
                       Giá niêm yết
@@ -323,6 +350,27 @@ const StrategyProductTable = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">
+                <div>
+                    <ProductLabel htmlFor="weightPerUnit">
+                      Khối lượng/viên
+                    </ProductLabel>
+                    <ProductInputField
+                      type="number"
+                      id="weightPerUnit"
+                      name="weightPerUnit"
+                      placeholder="Nhập khối lượng/viên"
+                      value={bulkEditDto.weightPerUnit ?? ""}
+                      onChange={(e) =>
+                        setBulkEditDto((dto) => ({
+                          ...dto,
+                          weightPerUnit:
+                            e.target.value === ""
+                              ? null
+                              : Number(e.target.value),
+                        }))
+                      }
+                    />
+                  </div>
                   <div>
                     <ProductLabel htmlFor="discount">Chiết khấu</ProductLabel>
                     <ProductInputField
@@ -444,7 +492,7 @@ const StrategyProductTable = () => {
                 </div>
               </div>
 
-              <div className="p-4 md:p-6 border-t flex-shrink-0">
+              <div className="p-4 md:p-3 border-t flex-shrink-0">
                 <Button
                   type="submit"
                   disabled={
