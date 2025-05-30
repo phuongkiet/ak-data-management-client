@@ -24,6 +24,7 @@ const StrategyProductDetail = () => {
   useEffect(() => {
     if (id) {
       loadStrategyProductDetail(+id);
+      console.log(strategyProductDetail.autoBarcode)
     }
   }, [id, loadStrategyProductDetail]);
 
@@ -58,14 +59,14 @@ const StrategyProductDetail = () => {
     <div>
       <PageMeta
         title="An Khánh Data Management"
-        description={"Sản phẩm " + strategyProductDetail.autoBarCode}
+        description={"Sản phẩm " + strategyProductDetail.autoBarcode}
       />
       <span>
         Sản phẩm{" "}
         <PageBreadcrumb
           pageTitle={
-            strategyProductDetail.autoBarCode
-              ? strategyProductDetail.autoBarCode
+            strategyProductDetail.autoBarcode
+              ? strategyProductDetail.autoBarcode
               : "..."
           }
         />

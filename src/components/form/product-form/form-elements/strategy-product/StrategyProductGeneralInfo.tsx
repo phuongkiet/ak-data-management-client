@@ -5,14 +5,16 @@ import Input from "../../input/product/ProductInputField.tsx";
 import { observer } from "mobx-react-lite";
 import { StrategyProductDetailDto } from "../../../../../app/models/product/product.model.ts";
 import { NumericFormat } from "react-number-format";
+import { useStore } from "../../../../../app/stores/store.ts";
 
 interface ProductProps {
   product?: StrategyProductDetailDto;
 }
 
 const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
-  // const { productStore } = useStore();
-
+  const { productStore } = useStore();
+  const form = productStore.strategyProductForm;
+  const update = productStore.updateStrategyProductForm;
   return (
     <ComponentCard title="Thông tin mã hàng">
       <div className="grid grid-cols-2 gap-6">
@@ -24,7 +26,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
               type="text"
               disabled
               placeholder="Ô tự động điền"
-              value={product?.autoBarCode || ""}
+              value={product?.autoBarcode || ""}
             />
           </div>
           <div>
@@ -60,23 +62,38 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
         <div className="space-y-6">
           {/* Hàng 1: Đơn vị tính | Đơn vị tính tự động */}
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <ProductLabel>Đơn vị tính</ProductLabel>
-              <Input
-                type="text"
-                disabled
-                placeholder="Ô tự động điền"
-                value={product?.calculatedUnit || ""}
-              />
+            <div className="">
+              <div>
+                <ProductLabel>Số lượng/thùng</ProductLabel>
+                <Input
+                  type="number"
+                  placeholder="Ô tự động điền"
+                  value={ form.quantityPerBox ?? product?.quantityPerBox ?? 0}
+                  onChange={(e) =>
+                    { update("quantityPerBox", parseInt(e.target.value) ?? 0)}
+                  }
+                />
+              </div>
             </div>
-            <div>
-              <ProductLabel>Đơn vị tính tự động</ProductLabel>
-              <Input
-                type="text"
-                disabled
-                placeholder="Ô tự động điền"
-                value={product?.changedUnit || ""}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <ProductLabel>ĐVT</ProductLabel>
+                <Input
+                  type="text"
+                  disabled
+                  placeholder="Ô tự động điền"
+                  value={product?.calculatedUnit || ""}
+                />
+              </div>
+              <div>
+                <ProductLabel>ĐVT chuẩn</ProductLabel>
+                <Input
+                  type="text"
+                  disabled
+                  placeholder="Ô tự động điền"
+                  value={product?.changedUnit || ""}
+                />
+              </div>
             </div>
           </div>
           {/* Hàng 2: Kg/viên, Kg/thùng | m2/viên, m2/thùng */}
@@ -85,39 +102,40 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
               <div>
                 <ProductLabel>Kg/viên</ProductLabel>
                 <Input
-                  type="text"
-                  disabled
+                  type="number"
                   placeholder="Ô tự động điền"
-                  value={""}
+                  value={ form.weightPerUnit?.toString() ?? product?.weightPerUnit?.toString() ?? 0}
+                  onChange={(e) =>
+                    { update("weightPerUnit", parseInt(e.target.value) ?? 0)}
+                  }
                 />
               </div>
               <div>
-                <ProductLabel>Kg/thùng</ProductLabel>
+                <ProductLabel>m2/viên</ProductLabel>
                 <Input
-                  type="text"
-                  disabled
+                  type="number"
                   placeholder="Ô tự động điền"
-                  value={""}
+                  value={product?.area?.toString() || ""}
                 />
               </div>
             </div>
             <div className="space-y-6">
               <div>
-                <ProductLabel>m2/viên</ProductLabel>
+                <ProductLabel>Kg/thùng</ProductLabel>
                 <Input
-                  type="text"
+                  type="number"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={product?.area?.toString() || ""}
+                  value={product?.weightPerBox?.toString() || ""}
                 />
               </div>
               <div>
                 <ProductLabel>m2/thùng</ProductLabel>
                 <Input
-                  type="text"
+                  type="number"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={""}
+                  value={product?.areaPerBox?.toString() || ""}
                 />
               </div>
             </div>
@@ -136,7 +154,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
               />
             </div>
             <div>
-              <ProductLabel>Giá khuyến mãi 1</ProductLabel>
+              <ProductLabel>Giá KM 1</ProductLabel>
               <NumericFormat
                 value={product?.webDiscountedPrice ?? ""}
                 thousandSeparator
@@ -147,7 +165,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
               />
             </div>
             <div>
-              <ProductLabel>Giá khuyến mãi 2</ProductLabel>
+              <ProductLabel>Giá KM 2</ProductLabel>
               <NumericFormat
                 value={product?.webSecondDiscountedPrice ?? ""}
                 thousandSeparator

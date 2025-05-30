@@ -22,7 +22,7 @@ const StrategyProductInputGroupRight = ({
     const selectedTax = productSupplierTaxList.find(tax => tax.id === (form.taxId ?? 0));
     const tempDetail = {
       id: product?.id ?? 0,
-      autoBarCode: product?.autoBarCode ?? '',
+      autoBarcode: product?.autoBarcode ?? '',
       companyItemCode: product?.companyItemCode ?? '',
       supplierItemCode: product?.supplierItemCode ?? '',
       size: product?.size ?? '',
@@ -31,6 +31,10 @@ const StrategyProductInputGroupRight = ({
       changedUnit: product?.changedUnit ?? '',
       calculatedUnit: product?.calculatedUnit ?? '',
       area: product?.area ?? 0,
+      quantityPerBox: product?.quantityPerBox ?? 0,
+      weightPerBox: product?.weightPerBox ?? 0,
+      areaPerBox: product?.areaPerBox ?? 0,
+      weightPerUnit: product?.weightPerUnit ?? 0,
       taxStatus: product?.taxStatus ?? '',
       listPrice: form.listPrice === null ? 0 : form.listPrice,
       supplierRisingPrice: form.supplierRisingPrice === null ? 0 : form.supplierRisingPrice,
@@ -206,11 +210,16 @@ const StrategyProductInputGroupRight = ({
             label: tax.name,
           }))}
           value={
-            form.taxId != null
+            (form.taxId != null
               ? productSupplierTaxList.find((tax) => tax.id === form.taxId)
                 ? { value: form.taxId, label: productSupplierTaxList.find((tax) => tax.id === form.taxId)!.name }
                 : null
-              : null
+              : product?.taxId != null
+                ? productSupplierTaxList.find((tax) => tax.id === product.taxId)
+                  ? { value: product.taxId, label: productSupplierTaxList.find((tax) => tax.id === product.taxId)!.name }
+                  : null
+                : null
+            )
           }
           styles={{
             control: (base) => ({

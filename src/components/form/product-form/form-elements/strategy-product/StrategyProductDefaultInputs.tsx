@@ -24,7 +24,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
       ...product,
       ...form,
       id: product?.id ?? 0,
-      autoBarCode: product?.autoBarCode ?? '',
+      autoBarcode: product?.autoBarcode ?? '',
       companyItemCode: product?.companyItemCode ?? '',
       supplierItemCode: product?.supplierItemCode ?? '',
       size: product?.size ?? '',
@@ -33,6 +33,10 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
       changedUnit: product?.changedUnit ?? '',
       calculatedUnit: product?.calculatedUnit ?? '',
       area: product?.area ?? 0,
+      quantityPerBox: product?.quantityPerBox ?? 0,
+      weightPerBox: product?.weightPerBox ?? 0,
+      areaPerBox: product?.areaPerBox ?? 0,
+      weightPerUnit: product?.weightPerUnit ?? 0,
       listPrice: form.listPrice === null ? undefined : form.listPrice,
       supplierRisingPrice: form.supplierRisingPrice === null ? undefined : form.supplierRisingPrice,
       otherPriceByCompany: form.otherPriceByCompany === null ? undefined : form.otherPriceByCompany,
@@ -61,7 +65,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div className="space-y-0">
             <ProductLabel htmlFor="input">Giá niêm yết</ProductLabel>
             <NumericFormat
-              value={form.listPrice ?? ""}
+              value={detail?.listPrice ?? form.listPrice ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -76,7 +80,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel htmlFor="input">Giá tăng do NCC</ProductLabel>
             <NumericFormat
-              value={form.supplierRisingPrice ?? ""}
+              value={detail?.supplierRisingPrice ?? form.supplierRisingPrice ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -91,7 +95,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel htmlFor="input">Giá khác do An Khánh</ProductLabel>
             <NumericFormat
-              value={form.otherPriceByCompany ?? ""}
+              value={detail?.otherPriceByCompany ?? form.otherPriceByCompany ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -106,7 +110,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel htmlFor="input">Phí vận chuyển</ProductLabel>
             <NumericFormat
-              value={form.shippingFee ?? ""}
+              value={detail?.shippingFee ?? form.shippingFee ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -136,7 +140,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               type="text"
               disabled={false}
               placeholder="Nhập số lượng"
-              value={form.quantity ?? ""}
+              value={detail?.quantity ?? form.quantity ?? ""}
               onChange={(e) => { update("quantity", Number(e.target.value)); calculate(); }}
             />
           </div>
@@ -150,7 +154,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               type="text"
               disabled={false}
               placeholder="Nhập chiết khấu"
-              value={form.discount ?? ""}
+              value={detail?.discount ?? form.discount ?? ""}
               onChange={(e) => { update("discount", Number(e.target.value)); calculate(); }}
             />
           </div>
@@ -179,7 +183,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Khuyến mãi tiền mặt NCC</ProductLabel>
             <NumericFormat
-              value={form.supplierDiscountCash ?? ""}
+              value={detail?.supplierDiscountCash ?? form.supplierDiscountCash ?? ""}
               thousandSeparator
               displayType="input"
               disabled={false}
@@ -196,14 +200,14 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               type="number"
               disabled={false}
               placeholder="Nhập % khuyến mãi"
-              value={form.supplierDiscountPercentage || ""}
+              value={detail?.supplierDiscountPercentage ?? form.supplierDiscountPercentage ?? ""}
               onChange={(e) => { update("supplierDiscountPercentage", Number(e.target.value)); calculate(); }}
             />
           </div>
           <div>
             <ProductLabel>Giá mua sau KM NCC (ước tính)</ProductLabel>
             <NumericFormat
-              value={detail.estimatedPurchasePriceAfterSupplierDiscount ?? ""}
+              value={Math.round(detail.estimatedPurchasePriceAfterSupplierDiscount ?? 0)}
               thousandSeparator
               displayType="input"
               disabled

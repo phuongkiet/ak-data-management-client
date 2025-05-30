@@ -83,7 +83,7 @@ export interface StrategyProductDto {
 
 export interface StrategyProductDetailDto {
   id: number;
-  autoBarCode: string;
+  autoBarcode: string;
   companyItemCode: string;
   supplierItemCode: string;
   size: string;
@@ -94,6 +94,10 @@ export interface StrategyProductDetailDto {
   webDiscountedPrice?: number;
   webSecondDiscountedPrice?: number;
 
+  quantityPerBox: number;
+  weightPerBox: number;
+  areaPerBox: number;
+  weightPerUnit: number;
   changedUnit: string; // "vien"
   area: number; // m2 / vien
   calculatedUnit: string; // "m2"
@@ -394,6 +398,8 @@ export interface EditStrategyProductDto {
   firstPolicyStandardAfterDiscount: number | null;
   secondPolicyStandardAfterDiscount: number | null;
   taxId: number | null;
+  quantityPerBox: number | null;
+  weightPerUnit: number | null;
 }
 
 export interface EditBulkStrategyProductDto {
