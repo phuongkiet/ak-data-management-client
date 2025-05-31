@@ -39,6 +39,7 @@ export const ProductMetadataProvider: React.FC<{
     waterAbsorptionStore,
     areaStore,
     supplierTaxStore,
+    roleStore
   } = useStore();
   const [metadata, setMetadata] = useState<ProductMetadata>({
     ProductMetadataDto: {
@@ -58,7 +59,8 @@ export const ProductMetadataProvider: React.FC<{
       productSupplierDtos: [],
       productSurfaceDtos: [],
       waterAbsoroptionDtos: [],
-      supplierTaxDtos: []
+      supplierTaxDtos: [],
+      roleDtos: []
     },
     loading: true,
     error: null,
@@ -110,6 +112,8 @@ export const ProductMetadataProvider: React.FC<{
         waterAbsorptionStore.setProductWaterAbsorptionList(fetchedMetadata.waterAbsoroptionDtos);
 
         supplierTaxStore.setProductSupplierTaxList(fetchedMetadata.supplierTaxDtos);
+
+        roleStore.setRoleList(fetchedMetadata.roleDtos);
 
         setMetadata({
           ProductMetadataDto: fetchedMetadata,

@@ -79,7 +79,7 @@ export default function UserTableComponent({ data }: UserTableComponentProps) {
       cell: row => {
         const isActive = row.status === 1 ? "Đang hoạt động" : "Đã khóa";
         return (
-          <Badge size="sm" color={isActive ? "success" : "error"}>
+          <Badge size="sm" color={row.status === 1 ? "success" : "error"}>
             {isActive}
           </Badge>
         );

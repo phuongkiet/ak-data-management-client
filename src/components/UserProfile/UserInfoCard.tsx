@@ -3,8 +3,12 @@ import Modal from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/product-form/input/product/ProductInputField.tsx";
 import ProductLabel from "../form/product-form/ProductLabel.tsx";
+import { useStore } from "../../app/stores/store.ts";
+import { formatDate } from "../../app/common/common.ts";
 
 export default function UserInfoCard() {
+  const { userStore } = useStore();
+  const { user } = userStore;
   const { isOpen, openModal, closeModal } = useModal();
   const handleSave = () => {
     // Handle save logic here
@@ -16,52 +20,52 @@ export default function UserInfoCard() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            Thông tin cá nhân
           </h4>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                First Name
+                Họ tên
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Hiếu
+                {user?.name}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
+                Số điện thoại
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Seo
+                {user?.phoneNumber}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                Email
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
+                {user?.email}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                Ngày sinh
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
+                {formatDate(user?.birthday)}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
+                Vai trò
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {user?.role.join(" ")}
               </p>
             </div>
           </div>

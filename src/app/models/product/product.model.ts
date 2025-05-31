@@ -16,6 +16,7 @@ import { ProductSupplierDto } from "./productSupplier.model.ts";
 import { ProductSurfaceDto } from "./productSurface.model.ts";
 import { ProductWaterAbsorptionDto } from "./productWaterAbsorption.model.ts";
 import { SupplierTaxDto } from "./supplierTax.model.ts";
+import { RoleDto } from "../role/role.model.ts";
 
 export interface ProductDto {
   id: number;
@@ -383,6 +384,7 @@ export interface ProductMetadataDto {
   productSurfaceDtos: ProductSurfaceDto[];
   waterAbsoroptionDtos: ProductWaterAbsorptionDto[];
   supplierTaxDtos: SupplierTaxDto[];
+  roleDtos: RoleDto[];
 }
 
 export interface EditStrategyProductDto {

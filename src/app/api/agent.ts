@@ -98,7 +98,7 @@ const NGROK_URL = import.meta.env.VITE_NGROK_URL;
 
 if (DEPLOYED_URL) {
   // axios.defaults.baseURL = DEPLOYED_URL;
-  axios.defaults.baseURL = "https://fcb3-42-112-134-172.ngrok-free.app/api/";
+  axios.defaults.baseURL = "https://d8cb-42-112-134-172.ngrok-free.app/api/";
 } else {
   // axios.defaults.baseURL = LOCAL_URL;
   axios.defaults.baseURL = NGROK_URL;

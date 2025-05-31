@@ -27,10 +27,10 @@ export interface UserDto {
 
 export interface AddUserDto{
   birthday: string | null;
+  fullName: string;
   userName: string;
   phoneNumber: string;
   email: string;
-  password: string;
   roleId: number;
 }
 

@@ -15,7 +15,7 @@ export default class UserStore {
 
   userForm: AddUserDto = {
     birthday: null,
-    password: '',
+    fullName: '',
     userName: '',
     phoneNumber: '',
     email: '',
@@ -151,6 +151,30 @@ export default class UserStore {
       await agent.Account.resendEmailConfirm(dto);
     } catch (error) {
       console.error("resendEmailConfirm error", error); 
+    }
+  }
+
+  addUser = async (dto: AddUserDto) => {
+    this.loading = true;
+    try {
+      const result = await agent.UserAdmin.addUser(dto);
+      if (result.success) {
+        toast.success("Thêm người dùng thành công");
+        this.loading = false;
+        this.listAllUser();
+        return true;
+      } else {
+        toast.error("Lỗi khi thêm người dùng");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Failed to add user", error);
+      toast.error("Lỗi khi thêm người dùng");
+      return false;
     }
   }
 }
