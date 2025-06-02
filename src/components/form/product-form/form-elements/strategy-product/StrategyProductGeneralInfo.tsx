@@ -62,38 +62,23 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
         <div className="space-y-6">
           {/* Hàng 1: Đơn vị tính | Đơn vị tính tự động */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="">
-              <div>
-                <ProductLabel>Số lượng/thùng</ProductLabel>
-                <Input
-                  type="number"
-                  placeholder="Ô tự động điền"
-                  value={ form.quantityPerBox ?? product?.quantityPerBox ?? 0}
-                  onChange={(e) =>
-                    { update("quantityPerBox", parseInt(e.target.value) ?? 0)}
-                  }
-                />
-              </div>
+            <div>
+              <ProductLabel>ĐVT</ProductLabel>
+              <Input
+                type="text"
+                disabled
+                placeholder="Ô tự động điền"
+                value={product?.calculatedUnit || ""}
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <ProductLabel>ĐVT</ProductLabel>
-                <Input
-                  type="text"
-                  disabled
-                  placeholder="Ô tự động điền"
-                  value={product?.calculatedUnit || ""}
-                />
-              </div>
-              <div>
-                <ProductLabel>ĐVT chuẩn</ProductLabel>
-                <Input
-                  type="text"
-                  disabled
-                  placeholder="Ô tự động điền"
-                  value={product?.changedUnit || ""}
-                />
-              </div>
+            <div>
+              <ProductLabel>ĐVT chuẩn</ProductLabel>
+              <Input
+                type="text"
+                disabled
+                placeholder="Ô tự động điền"
+                value={product?.changedUnit || ""}
+              />
             </div>
           </div>
           {/* Hàng 2: Kg/viên, Kg/thùng | m2/viên, m2/thùng */}
@@ -104,10 +89,14 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                 <Input
                   type="number"
                   placeholder="Ô tự động điền"
-                  value={ form.weightPerUnit?.toString() ?? product?.weightPerUnit?.toString() ?? 0}
-                  onChange={(e) =>
-                    { update("weightPerUnit", parseInt(e.target.value) ?? 0)}
+                  value={
+                    form.weightPerUnit?.toString() ??
+                    product?.weightPerUnit?.toString() ??
+                    0
                   }
+                  onChange={(e) => {
+                    update("weightPerUnit", parseInt(e.target.value) ?? 0);
+                  }}
                 />
               </div>
               <div>

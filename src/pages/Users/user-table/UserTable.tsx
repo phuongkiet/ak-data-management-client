@@ -31,10 +31,24 @@ function UserTable() {
     roleId: 0
   });
 
+  function changeRoleName(roleName: string) {
+    switch (roleName) {
+      case "Admin":
+        return "Quản trị viên";
+      case "Strategist":
+        return "Chiến lược giá";
+      case "Client":
+        return "Nhân viên";
+      default:
+        return roleName;
+    }
+  }
+
   const roleOptions = roleStore.roleList.map((role) => ({
     value: role.id,
-    label: role.name,
+    label: changeRoleName(role.name),
   }));
+
   const selectedRole = roleOptions.find(option => option.value === formData.roleId) || null;
 
   useEffect(() => {
@@ -89,12 +103,13 @@ function UserTable() {
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <ProductLabel htmlFor="userName">Tên người dùng</ProductLabel>
+                      <ProductLabel htmlFor="userName" tooltipId="unique-tooltip-id"
+                        tooltip="Đây là username, không được trùng với username của người dùng khác">Tên tài khoản</ProductLabel>
                       <ProductInputField
                         type="text"
                         id="userName"
                         name="userName"
-                        placeholder="Nhập tên người dùng"
+                        placeholder="Nhập tên tài khoản"
                         value={formData.userName}
                         onChange={(e) =>
                           setFormData((data) => ({
@@ -139,7 +154,8 @@ function UserTable() {
                       />
                     </div>
                     <div>
-                      <ProductLabel htmlFor="birthday">Ngày sinh</ProductLabel>
+                      <ProductLabel htmlFor="birthday" tooltipId="unique-tooltip-id"
+                        tooltip="Đây là ngày sinh, nhập theo cú pháp tháng/ngày/năm">Ngày sinh</ProductLabel>
                       <ProductInputField
                         type="date"
                         id="birthday"
@@ -156,7 +172,8 @@ function UserTable() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <ProductLabel htmlFor="fullName">Họ tên</ProductLabel>
+                      <ProductLabel htmlFor="fullName" tooltipId="unique-tooltip-id"
+                        tooltip="Đây là họ tên, yêu cầu nhập đầy đủ họ và tên">Họ tên</ProductLabel>
                       <ProductInputField
                         type="text"
                         id="fullName"

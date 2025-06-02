@@ -108,7 +108,6 @@ export interface StrategyProductDetailDto {
   otherPriceByCompany?: number;
   confirmListPrice?: number;
 
-  quantity?: number;
   taxId: number;
   taxStatus: string;
   taxRate: number; // percentage
@@ -313,7 +312,6 @@ export interface EditProductDto {
   listPrice?: number | null;
   supplierRisingPrice?: number | null;
   otherPriceByCompany?: number | null;
-  quantity?: number | null;
   confirmListPrice?: number | null;
   shippingFee?: number | null;
   discount?: number | null;
@@ -391,7 +389,6 @@ export interface EditStrategyProductDto {
   listPrice: number | null;
   supplierRisingPrice: number | null;
   otherPriceByCompany: number | null;
-  quantity: number | null;
   shippingFee: number | null;
   discount: number | null;
   policyStandard: number | null;

@@ -134,7 +134,6 @@ export default class ProductStore {
         listPrice: null,
         supplierRisingPrice: null,
         otherPriceByCompany: null,
-        quantity: null,
         shippingFee: null,
         discount: null,
         policyStandard: 76,
@@ -505,7 +504,7 @@ export default class ProductStore {
     const listPrice = Number(product.listPrice) || 0;
     const supplierRisingPrice = Number(product.supplierRisingPrice) || 0;
     const otherPriceByCompany = Number(product.otherPriceByCompany) || 0;
-    const quantityPerBox = Number(product.quantity) || 0;
+    const quantityPerBox = Number(product.quantityPerBox) || 0;
     const confirmListPrice = listPrice + supplierRisingPrice + (otherPriceByCompany * quantityPerBox);
     product.confirmListPrice = confirmListPrice;
 
@@ -584,7 +583,7 @@ export default class ProductStore {
     }
     const calculatedUnitName = product.calculatedUnit ?? "";
     const areaPerUnit = Number(product.area) || 0;
-    const quantity = Number(product.quantity) || 0;
+    const quantity = Number(product.quantityPerBox) || 0;
     product.webProductPrice = calculateWebPriceValue(
       product.retailPrice ?? 0,
       calculatedUnitName,
