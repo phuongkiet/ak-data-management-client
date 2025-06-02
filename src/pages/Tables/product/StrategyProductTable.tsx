@@ -32,7 +32,6 @@ const StrategyProductTable = () => {
     listPrice: null as number | null,
     supplierRisingPrice: null as number | null,
     otherPriceByCompany: null as number | null,
-    quantity: null as number | null,
     shippingFee: null as number | null,
     discount: null as number | null,
     policyStandard: null as number | null,
@@ -118,7 +117,7 @@ const StrategyProductTable = () => {
                       listPrice: bulkEditDto.listPrice,
                       supplierRisingPrice: bulkEditDto.supplierRisingPrice,
                       otherPriceByCompany: bulkEditDto.otherPriceByCompany,
-                      quantity: bulkEditDto.quantity,
+                      quantityPerBox: bulkEditDto.quantityPerBox,
                       shippingFee: bulkEditDto.shippingFee,
                       discount: bulkEditDto.discount,
                       policyStandard: bulkEditDto.policyStandard ?? 76,
@@ -130,7 +129,6 @@ const StrategyProductTable = () => {
                       secondPolicyStandardAfterDiscount:
                         bulkEditDto.secondPolicyStandardAfterDiscount ?? 5,
                       taxId: bulkEditDto.taxId,
-                      quantityPerBox: bulkEditDto.quantityPerBox,
                       weightPerUnit: bulkEditDto.weightPerUnit,
                     },
                   });
@@ -139,7 +137,6 @@ const StrategyProductTable = () => {
                     listPrice: null,
                     supplierRisingPrice: null,
                     otherPriceByCompany: null,
-                    quantity: null,
                     shippingFee: null,
                     discount: null,
                     policyStandard: null,
@@ -254,17 +251,17 @@ const StrategyProductTable = () => {
                     />
                   </div>
                   <div>
-                    <ProductLabel htmlFor="quantity">Số lượng</ProductLabel>
+                    <ProductLabel htmlFor="quantityPerBox">Số lượng</ProductLabel>
                     <ProductInputField
                       type="number"
-                      id="quantity"
-                      name="quantity"
+                      id="quantityPerBox"
+                      name="quantityPerBox"
                       placeholder="Nhập số lượng"
-                      value={bulkEditDto.quantity ?? ""}
+                      value={bulkEditDto.quantityPerBox ?? ""}
                       onChange={(e) =>
                         setBulkEditDto((dto) => ({
                           ...dto,
-                          quantity:
+                          quantityPerBox:
                             e.target.value === ""
                               ? null
                               : Number(e.target.value),

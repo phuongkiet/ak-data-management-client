@@ -5,6 +5,7 @@ import { useStore } from "../../../../../app/stores/store.ts";
 import { observer } from "mobx-react-lite";
 import { StrategyProductDetailDto } from "../../../../../app/models/product/product.model.ts";
 import { NumericFormat } from "react-number-format";
+import { useEffect } from "react";
 
 interface ProductProps {
   product?: StrategyProductDetailDto;
@@ -14,73 +15,13 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
   const { productStore } = useStore();
   const form = productStore.strategyProductForm;
   const update = productStore.updateStrategyProductForm;
-  const { supplierTaxStore } = useStore();
-  const { productSupplierTaxList } = supplierTaxStore;
   const detail = productStore.strategyProductDetail;
 
-  const calculate = () => {
-    const selectedTax = productSupplierTaxList?.find(
-      (tax: { id: number }) => tax.id === (form.taxId ?? 0)
-    );
-    const tempDetail = {
-      ...product,
-      ...form,
-      id: product?.id ?? 0,
-      autoBarcode: product?.autoBarcode ?? "",
-      companyItemCode: product?.companyItemCode ?? "",
-      supplierItemCode: product?.supplierItemCode ?? "",
-      size: product?.size ?? "",
-      supplierName: product?.supplierName ?? "",
-      displayWebsiteName: product?.displayWebsiteName ?? "",
-      changedUnit: product?.changedUnit ?? "",
-      calculatedUnit: product?.calculatedUnit ?? "",
-      area: product?.area ?? 0,
-      weightPerBox: product?.weightPerBox ?? 0,
-      areaPerBox: product?.areaPerBox ?? 0,
-      weightPerUnit: product?.weightPerUnit ?? 0,
-      listPrice: form.listPrice === null ? undefined : form.listPrice,
-      supplierRisingPrice:
-        form.supplierRisingPrice === null
-          ? undefined
-          : form.supplierRisingPrice,
-      otherPriceByCompany:
-        form.otherPriceByCompany === null
-          ? undefined
-          : form.otherPriceByCompany,
-      quantityPerBox:
-        form.quantityPerBox !== null && form.quantityPerBox !== undefined
-          ? form.quantityPerBox
-          : (product?.quantityPerBox ?? 0),
-      shippingFee: form.shippingFee === null ? undefined : form.shippingFee,
-      discount: form.discount === null ? undefined : form.discount,
-      policyStandard:
-        form.policyStandard === null || form.policyStandard === undefined
-          ? 0
-          : form.policyStandard,
-      policyStandardNumber: product?.policyStandardNumber ?? 0,
-      supplierDiscountCash:
-        form.supplierDiscountCash === null
-          ? undefined
-          : form.supplierDiscountCash,
-      supplierDiscountPercentage:
-        form.supplierDiscountPercentage === null
-          ? undefined
-          : form.supplierDiscountPercentage,
-      firstPolicyStandardAfterDiscount:
-        form.firstPolicyStandardAfterDiscount === null
-          ? undefined
-          : form.firstPolicyStandardAfterDiscount,
-      secondPolicyStandardAfterDiscount:
-        form.secondPolicyStandardAfterDiscount === null
-          ? undefined
-          : form.secondPolicyStandardAfterDiscount,
-      taxId: form.taxId === null || form.taxId === undefined ? 0 : form.taxId,
-      taxStatus: product?.taxStatus ?? "",
-      taxRate: selectedTax?.taxRate ?? 0,
-      taxRateNumber: selectedTax ? 1 + (selectedTax.taxRate ?? 0) / 100 : 1,
-    };
-    productStore.calculateStrategyProductFields(tempDetail);
-  };
+  useEffect(() => {
+    if (product?.taxId && product.taxId !== form.taxId) {
+      update("taxId", product.taxId);
+    }
+  }, [product?.taxId, form.taxId, update]);
 
   return (
     <ComponentCard title="Thông tin giá mã hàng">
@@ -99,7 +40,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
                 update("listPrice", values.floatValue ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -117,7 +57,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
                 update("supplierRisingPrice", values.floatValue ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -135,7 +74,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
                 update("otherPriceByCompany", values.floatValue ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -151,7 +89,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
                 update("shippingFee", values.floatValue ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -172,10 +109,10 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
             <Input
               type="number"
               placeholder="Ô tự động điền"
+              step={0.1}
               value={form.quantityPerBox ?? product?.quantityPerBox ?? 0}
               onChange={(e) => {
                 update("quantityPerBox", Number(e.target.value) ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -192,7 +129,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               value={detail?.discount ?? form.discount ?? ""}
               onChange={(e) => {
                 update("discount", Number(e.target.value));
-                calculate();
               }}
             />
           </div>
@@ -231,7 +167,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
                 update("supplierDiscountCash", values.floatValue ?? 0);
-                calculate();
               }}
             />
           </div>
@@ -248,7 +183,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               }
               onChange={(e) => {
                 update("supplierDiscountPercentage", Number(e.target.value));
-                calculate();
               }}
             />
           </div>

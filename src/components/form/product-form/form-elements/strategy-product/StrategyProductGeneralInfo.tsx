@@ -88,6 +88,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                 <ProductLabel>Kg/viên</ProductLabel>
                 <Input
                   type="number"
+                  step={0.1}
                   placeholder="Ô tự động điền"
                   value={
                     form.weightPerUnit?.toString() ??
@@ -103,6 +104,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                 <ProductLabel>m2/viên</ProductLabel>
                 <Input
                   type="number"
+                  disabled
                   placeholder="Ô tự động điền"
                   value={product?.area?.toString() || ""}
                 />

@@ -524,7 +524,7 @@ export default class ProductStore {
     
     // Cộng phí vận chuyển vào sau khi đã tính thuế
     const supplierEstimatedPayableAmount = priceAfterTax + shippingFee;
-    product.supplierEstimatedPayableAmount = Math.round(supplierEstimatedPayableAmount / 1000) * 1000;
+    product.supplierEstimatedPayableAmount = supplierEstimatedPayableAmount;
 
     // 3. RetailPrice
     const policyStandard = Number(product.policyStandardNumber) || 0;

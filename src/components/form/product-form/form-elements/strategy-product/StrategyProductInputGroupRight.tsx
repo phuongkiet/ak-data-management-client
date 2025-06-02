@@ -5,6 +5,7 @@ import { StrategyProductDetailDto } from "../../../../../app/models/product/prod
 import ReactSelect from "react-select";
 import { NumericFormat } from "react-number-format";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 
 interface ProductProps {
   product?: StrategyProductDetailDto;
@@ -18,41 +19,11 @@ const StrategyProductInputGroupRight = ({
   const update = productStore.updateStrategyProductForm;
   const { productSupplierTaxList } = supplierTaxStore;
 
-  const calculate = () => {
-    const selectedTax = productSupplierTaxList.find(tax => tax.id === (form.taxId ?? 0));
-    const tempDetail = {
-      id: product?.id ?? 0,
-      autoBarcode: product?.autoBarcode ?? '',
-      companyItemCode: product?.companyItemCode ?? '',
-      supplierItemCode: product?.supplierItemCode ?? '',
-      size: product?.size ?? '',
-      supplierName: product?.supplierName ?? '',
-      displayWebsiteName: product?.displayWebsiteName ?? '',
-      changedUnit: product?.changedUnit ?? '',
-      calculatedUnit: product?.calculatedUnit ?? '',
-      area: product?.area ?? 0,
-      weightPerBox: product?.weightPerBox ?? 0,
-      areaPerBox: product?.areaPerBox ?? 0,
-      weightPerUnit: product?.weightPerUnit ?? 0,
-      taxStatus: product?.taxStatus ?? '',
-      listPrice: form.listPrice === null ? 0 : form.listPrice,
-      supplierRisingPrice: form.supplierRisingPrice === null ? 0 : form.supplierRisingPrice,
-      otherPriceByCompany: form.otherPriceByCompany === null ? 0 : form.otherPriceByCompany,
-      quantityPerBox: form.quantityPerBox === null ? 0 : form.quantityPerBox,
-      shippingFee: form.shippingFee === null ? 0 : form.shippingFee,
-      discount: form.discount === null ? 0 : form.discount,
-      supplierDiscountCash: form.supplierDiscountCash === null ? 0 : form.supplierDiscountCash,
-      supplierDiscountPercentage: form.supplierDiscountPercentage === null ? 0 : form.supplierDiscountPercentage,
-      taxId: form.taxId === null || form.taxId === undefined ? 0 : form.taxId,
-      taxRate: selectedTax?.taxRate ?? 0,
-      taxRateNumber: selectedTax ? 1 + (selectedTax.taxRate ?? 0) / 100 : 1,
-      policyStandard: form.policyStandard !== null && form.policyStandard !== undefined ? form.policyStandard : 76,
-      policyStandardNumber: form.policyStandard !== null && form.policyStandard !== undefined ? form.policyStandard : 76,
-      firstPolicyStandardAfterDiscount: form.firstPolicyStandardAfterDiscount !== null && form.firstPolicyStandardAfterDiscount !== undefined ? form.firstPolicyStandardAfterDiscount : 5,
-      secondPolicyStandardAfterDiscount: form.secondPolicyStandardAfterDiscount !== null && form.secondPolicyStandardAfterDiscount !== undefined ? form.secondPolicyStandardAfterDiscount : 5,
-    };
-    productStore.calculateStrategyProductFields(tempDetail);
-  };
+  useEffect(() => {
+    if (product?.taxId && product.taxId !== form.taxId) {
+      update("taxId", product.taxId);
+    }
+  }, [product?.taxId, form.taxId, update]);
 
   return (
     <ComponentCard title="Thuế và Chính sách">
@@ -75,7 +46,6 @@ const StrategyProductInputGroupRight = ({
           onValueChange={(values) => {
             const value = values.floatValue ?? 0;
             update("policyStandard", value);
-            calculate();
           }}
         />
       </div>
@@ -123,7 +93,6 @@ const StrategyProductInputGroupRight = ({
             onValueChange={(values) => {
               const value = values.floatValue ?? 0;
               update("firstPolicyStandardAfterDiscount", value);
-              calculate();
             }}
           />
         </div>
@@ -146,7 +115,6 @@ const StrategyProductInputGroupRight = ({
             onValueChange={(values) => {
               const value = values.floatValue ?? 0;
               update("secondPolicyStandardAfterDiscount", value);
-              calculate();
             }}
           />
         </div>
@@ -246,7 +214,6 @@ const StrategyProductInputGroupRight = ({
           }}
           onChange={(option) => {
             update("taxId", option?.value ?? null);
-            calculate();
           }}
         />
       </div>

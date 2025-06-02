@@ -7,6 +7,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import StrategyProductDefaultInputs from "../../components/form/product-form/form-elements/strategy-product/StrategyProductDefaultInputs";
 import StrategyProductInputGroupRight from "../../components/form/product-form/form-elements/strategy-product/StrategyProductInputGroupRight";
 import StrategyProductGeneralInfo from "../../components/form/product-form/form-elements/strategy-product/StrategyProductGeneralInfo";
+
 const StrategyProductDetail = () => {
   const { productStore } = useStore();
   const {
@@ -21,10 +22,10 @@ const StrategyProductDetail = () => {
     productStore.strategyProductForm
   );
 
+  // Load product detail when id changes
   useEffect(() => {
     if (id) {
       loadStrategyProductDetail(+id);
-      console.log(strategyProductDetail.autoBarcode)
     }
   }, [id, loadStrategyProductDetail]);
 
@@ -33,20 +34,11 @@ const StrategyProductDetail = () => {
     setUpdateProduct(productStore.strategyProductForm);
   }, [productStore.strategyProductForm]);
 
-  // 3. Handle field change
-//   const handleFieldChange = (field: string, value: any) => {
-//     setUpdateProduct((prev) => ({
-//       ...prev,
-//       [field]: value,
-//     }));
-//     console.log(updateProduct);
-//   };
-
   if (!id) {
     return <div>Không tìm thấy sản phẩm</div>;
   }
 
-  // 4. Save handler
+  // 3. Save handler
   const handleSave = async () => {
     const updatedProduct = { ...updateProduct };
     const result = await editStrategyProduct(+id, updatedProduct);
