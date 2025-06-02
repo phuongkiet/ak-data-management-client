@@ -94,7 +94,7 @@ export interface ApiResponseModel<T> {
 
 const DEPLOYED_URL = import.meta.env.VITE_API_V1_URL;
 const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
-const NGROK_URL = import.meta.env.VITE_NGROK_URL;
+// const NGROK_URL = import.meta.env.VITE_NGROK_URL;
 
 if (DEPLOYED_URL) {
   // axios.defaults.baseURL = DEPLOYED_URL;
