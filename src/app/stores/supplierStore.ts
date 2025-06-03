@@ -1,10 +1,11 @@
 import { ProductSupplierDto, AddSupplierDto } from '../models/product/productSupplier.model.ts'
-import { makeAutoObservable, runInAction } from 'mobx'
+import { makeObservable, observable, action, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { ProductAreaDto } from '../models/product/productArea.model.ts';
+import BaseStore from './baseStore';
 
-export default class SupplierStore {
+export default class SupplierStore extends BaseStore {
   productSupplierList: ProductSupplierDto[] = [];
   productSupplierRegistry = new Map<number, ProductSupplierDto>();
   loading = false;
@@ -23,11 +24,29 @@ export default class SupplierStore {
   };
 
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productSupplierList: observable,
+      productSupplierRegistry: observable,
+      loading: observable,
+      orderNumber: observable,
+      term: observable,
+      areaValue: observable,
+      supplierForm: observable,
+      setProductSupplierList: action,
+      setTerm: action,
+      loadSuppliers: action,
+      updateSupplierForm: action,
+      resetSupplierForm: action,
+      addSupplier: action,
+      updateAreaValue: action,
+      getOrderNumber: action
+    });
   }
 
   setProductSupplierList = (list: ProductSupplierDto[]) => {
     this.productSupplierList = list;
+    this.notifyChange();
   }
 
   setTerm = (term: string) => {
@@ -48,6 +67,7 @@ export default class SupplierStore {
         this.productSupplierList.forEach(supplier => {
           if (supplier.id != null) this.productSupplierRegistry.set(supplier.id, supplier);
         });
+        this.notifyChange();
       });
     } catch (error) {
       runInAction(() => {
@@ -82,6 +102,7 @@ export default class SupplierStore {
         toast.success(response.data);
         this.resetSupplierForm();
         await this.loadSuppliers();
+        this.notifyChange();
         return true;
       } else {
         toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi tạo nhà cung cấp');
@@ -102,23 +123,18 @@ export default class SupplierStore {
   };
 
   updateAreaValue = <K extends keyof ProductAreaDto>(field: K, value: ProductAreaDto[K]) => {
-    console.log('Updating area value:', field, value);
     runInAction(() => {
       this.areaValue[field] = value;
-      console.log('Updated area value:', this.areaValue);
     });
   };
 
   getOrderNumber = async (term: string) => {
-    console.log('Getting order number for term:', term);
     this.loading = true;
     try {
       const response = await agent.ProductSupplier.getNextSupplierOrderNumber(term);
-      console.log('Order number response:', response);
       if (response.data !== undefined) {
         runInAction(() => {
           this.orderNumber = response.data || 0;
-          console.log('Updated order number:', this.orderNumber);
         });
       } else {
         toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi lấy thứ tự của mã nhà cung cấp');

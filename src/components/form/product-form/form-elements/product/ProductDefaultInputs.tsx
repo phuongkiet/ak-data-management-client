@@ -13,6 +13,7 @@ import { appCurrency } from "../../../../../app/common/common.ts";
 import { NumericFormat } from "react-number-format";
 import { useState, useEffect } from "react";
 import FactoryGroup from "../../product-factory/Factory.tsx";
+import { useNetworkStatus } from "../../../../../hooks/useNetworkStatus";
 
 interface ProductProps {
   product?: ProductDetail;
@@ -25,6 +26,7 @@ const ProductDefaultInputs = ({
   isCreateMode,
   onChange,
 }: ProductProps) => {
+  const isOnline = useNetworkStatus();
   const {
     productStore,
     companyCodeStore,
@@ -45,12 +47,12 @@ const ProductDefaultInputs = ({
   const [isValidSupplierCode, setIsValidSupplierCode] = useState<
     boolean | null
   >(null);
-  const [productCode, setProductCode] = useState<string>("");
   const [websiteProductName, setWebsiteProductName] = useState<string>("");
   const [otherNote, setOtherNote] = useState<string>(product?.otherNote || "");
   const [deliveryEstimatedDate, setDeliveryEstimatedDate] = useState<string>(
     product?.deliveryEstimatedDate || ""
   );
+  const [manualOrderNumber, setManualOrderNumber] = useState<string>("");
 
   // Add effect to update product code when supplier changes
   useEffect(() => {
@@ -67,7 +69,7 @@ const ProductDefaultInputs = ({
   const handleConfirmAutoBarCodeChange = () => {
     if (
       productStore.productForm.supplierId &&
-      productStore.productForm.productOrderNumber
+      (productStore.productForm.productOrderNumber || manualOrderNumber)
     ) {
       const supplier = productSupplierList.find(
         (x) => x.id === productStore.productForm.supplierId
@@ -78,7 +80,8 @@ const ProductDefaultInputs = ({
 
       if (supplier?.supplierShortCode) {
         const patternCode = pattern?.shortCode || "";
-        const newBarCode = `${supplier.supplierShortCode}.${productStore.productForm.productOrderNumber}${patternCode}`;
+        const orderNumber = isOnline ? productStore.productForm.productOrderNumber : manualOrderNumber;
+        const newBarCode = `${supplier.supplierShortCode}.${orderNumber}${patternCode}`;
         productStore.updateProductForm("autoBarCode", newBarCode);
       }
     }
@@ -90,6 +93,7 @@ const ProductDefaultInputs = ({
   }, [
     productStore.productForm.supplierId,
     productStore.productForm.productOrderNumber,
+    manualOrderNumber,
     productStore.productForm.processingId,
     productStore.productForm.brickPatternId,
   ]);
@@ -97,15 +101,14 @@ const ProductDefaultInputs = ({
   const handleProductCodeChange = () => {
     if (
       productStore.productForm.supplierId &&
-      productStore.productForm.productOrderNumber
+      (productStore.productForm.productOrderNumber || manualOrderNumber)
     ) {
       const supplier = productSupplierList.find(
         (x) => x.id === productStore.productForm.supplierId
       );
       if (supplier?.supplierShortCode) {
-        console.log(productCode);
-        const newProductCode = `${supplier.supplierShortCode}.${productStore.productForm.productOrderNumber}`;
-        setProductCode(newProductCode);
+        const orderNumber = isOnline ? productStore.productForm.productOrderNumber : manualOrderNumber;
+        const newProductCode = `${supplier.supplierShortCode}.${orderNumber}`;
         productStore.updateProductForm("productCode", newProductCode);
       }
     }
@@ -117,7 +120,17 @@ const ProductDefaultInputs = ({
   }, [
     productStore.productForm.supplierId,
     productStore.productForm.productOrderNumber,
+    manualOrderNumber,
   ]);
+
+  const handleManualOrderNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setManualOrderNumber(value);
+    const numericValue = parseInt(value) || 0;
+    productStore.updateProductForm("productOrderNumber", numericValue);
+    handleProductCodeChange();
+    handleConfirmAutoBarCodeChange();
+  };
 
   const handleConfirmProductCodeChange = () => {
     if (productStore.productForm.companyCodeId && supplierItemCode) {
@@ -363,13 +376,23 @@ const ProductDefaultInputs = ({
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-                  <Input
-                    type="number"
-                    id="input"
-                    placeholder="Số thứ tự tự động"
-                    disabled
-                    value={productStore.productForm.productOrderNumber || ""}
-                  />
+                  {(isOnline || productStore.productForm.productOrderNumber) ? (
+                    <Input
+                      type="number"
+                      id="input"
+                      placeholder="Số thứ tự tự động"
+                      disabled
+                      value={productStore.productForm.productOrderNumber || ""}
+                    />
+                  ) : (
+                    <Input
+                      type="text"
+                      id="input"
+                      placeholder="Nhập số thứ tự"
+                      value={manualOrderNumber}
+                      onChange={handleManualOrderNumberChange}
+                    />
+                  )}
                 </div>
                 <div>
                   <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
@@ -441,13 +464,23 @@ const ProductDefaultInputs = ({
 
             <div>
               <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-              <Input
-                type="number"
-                id="input"
-                placeholder="Số thứ tự tự động"
-                disabled
-                value={productStore.productForm.productOrderNumber || ""}
-              />
+              {(isOnline || productStore.productForm.productOrderNumber) ? (
+                <Input
+                  type="number"
+                  id="input"
+                  placeholder="Số thứ tự tự động"
+                  disabled
+                  value={productStore.productForm.productOrderNumber || ""}
+                />
+              ) : (
+                <Input
+                  type="text"
+                  id="input"
+                  placeholder="Nhập số thứ tự"
+                  value={manualOrderNumber}
+                  onChange={handleManualOrderNumberChange}
+                />
+              )}
             </div>
 
             <div>

@@ -16,6 +16,8 @@ import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
 import { AdvancedSearchDto } from "../models/common/advancedSearch.model";
 import { store } from "../stores/store";
+import { OfflineStorage } from "../services/offlineStorage";
+import { SyncService } from "../services/syncService";
 
 export default class ProductStore {
   //Product
@@ -373,6 +375,18 @@ export default class ProductStore {
   createProduct = async () => {
     this.loading = true;
     try {
+      // Check if we're online
+      if (!SyncService.isOnline()) {
+        // Store in offline queue
+        const pendingId = OfflineStorage.addPendingProduct(this.productForm);
+        runInAction(() => {
+          toast.success("Sản phẩm đã được lưu và sẽ được đồng bộ khi có mạng");
+          this.resetProductForm();
+        });
+        return pendingId;
+      }
+
+      // If online, proceed with normal creation
       const response = await agent.Product.addNewProduct(this.productForm);
       if (response.data) {
         runInAction(() => {

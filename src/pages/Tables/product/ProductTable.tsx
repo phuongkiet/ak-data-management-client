@@ -10,12 +10,14 @@ import Modal from "../../../components/ui/modal/index.tsx";
 import { runInAction } from "mobx";
 import { ProductSupplierDto } from "../../../app/models/product/productSupplier.model.ts";
 import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
+import { useApi } from "../../../hooks/useApi";
 
 function ProductTable() {
   const { productStore, supplierStore, sizeStore, commonStore } = useStore();
+  const { isOnline } = useApi();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(productStore.pageSize || 10);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
@@ -42,9 +44,17 @@ function ProductTable() {
   const { productSizeList, loadSizes } = sizeStore;
 
   useEffect(() => {
+    if (isOnline) {
+      loadProducts();
+    }
+  }, [pageSize, pageNumber, term, isOnline]);
+
+  useEffect(() => {
     if (!commonStore.token) return;
 
     const initializeData = async () => {
+      if (!isOnline) return;
+      
       // Load initial data
       await Promise.all([
         loadSuppliers(),
@@ -91,11 +101,11 @@ function ProductTable() {
     };
 
     initializeData();
-  }, [commonStore.token]); // Only depend on token
+  }, [commonStore.token, isOnline]); // Add isOnline dependency
 
   // Separate effect for handling filter changes
   useEffect(() => {
-    if (supplierStore.loading || sizeStore.loading || productStore.loadingCombinations) return;
+    if (!isOnline || supplierStore.loading || sizeStore.loading || productStore.loadingCombinations) return;
 
     productStore.setFilters({
       pageNumber,
@@ -106,16 +116,15 @@ function ProductTable() {
     });
 
     loadProducts();
-  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive]);
+  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive, isOnline]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
-    productStore.setPageNumber(page);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
+    productStore.pageSize = newPageSize;
     setPageSize(newPageSize);
-    productStore.setPageSize(newPageSize);
     setPageNumber(1); // Reset to first page
   };
 
@@ -248,6 +257,10 @@ function ProductTable() {
     }
   };
 
+  const handleSearch = (searchTerm: string) => {
+    setTerm(searchTerm);
+  };
+
   return (
     <>
       <PageMeta
@@ -333,10 +346,13 @@ function ProductTable() {
               </div>
             </>
           }
-          onSearch={(term) => {
-            setTerm(term);
-            setPageNumber(1);
-          }}
+          onSearch={handleSearch}
+          searchTerm={term ?? ""}
+          onPageSizeChange={handlePageSizeChange}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          loading={loading}
+          isOnline={isOnline}
         >
           <ProductTableComponent
             data={productList}

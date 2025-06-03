@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import AppLayoutBase from './admin/AppLayout.tsx';
 import { ProductMetadataProvider } from '../context/ProductMetadataContext';
 import { observer } from "mobx-react-lite";
+import { SyncService } from '../services/syncService';
+import { NetworkStatus } from '../components/common/NetworkStatus';
 
 const AppLayout = observer(AppLayoutBase);
 
@@ -26,6 +28,11 @@ const App = observer(() => {
     }
   }, [commonStore, userStore, location.pathname, navigate]);
 
+  // Initialize sync service
+  useEffect(() => {
+    SyncService.init();
+  }, []);
+
   if (!commonStore.appLoaded) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -35,11 +42,13 @@ const App = observer(() => {
   }
 
   return (
-    <div className="app">
-      <ProductMetadataProvider>
-        <AppLayout/>
-      </ProductMetadataProvider>
-    </div>
+    <NetworkStatus>
+      <div className="app">
+        <ProductMetadataProvider>
+          <AppLayout/>
+        </ProductMetadataProvider>
+      </div>
+    </NetworkStatus>
   );
 });
 

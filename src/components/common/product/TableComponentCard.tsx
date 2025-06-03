@@ -7,8 +7,8 @@ import Modal from "../../ui/modal";
 interface ComponentCardProps {
   title: string;
   children: React.ReactNode;
-  className?: string; // Additional custom classes for styling
-  desc?: string; // Description text,
+  className?: string;
+  desc?: string;
   addButtonLink?: string;
   addButtonText?: string;
   addButtonStyle?: string;
@@ -18,9 +18,15 @@ interface ComponentCardProps {
   modalStyle?: string;
   useModal?: boolean;
   isModalOpen?: boolean;
-  additionalButtons?: React.ReactNode; // Add support for additional buttons
-  onSearch?: (term: string) => void; // Optional search handler
+  additionalButtons?: React.ReactNode;
+  onSearch?: (term: string) => void;
   searchPlaceholder?: string;
+  searchTerm?: string;
+  onPageSizeChange: (newPageSize: number) => void;
+  pageSize: number;
+  totalCount: number;
+  loading: boolean;
+  isOnline: boolean;
 }
 
 const TableComponentCard: React.FC<ComponentCardProps> = ({
@@ -40,15 +46,17 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   additionalButtons,
   onSearch,
   searchPlaceholder = "Tìm kiếm...",
+  searchTerm,
+  // onPageSizeChange,
+  // pageSize,
+  // totalCount,
+  // loading,
+  isOnline
 }) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
-  const isModalOpen =
-    externalIsModalOpen !== undefined
-      ? externalIsModalOpen
-      : internalIsModalOpen;
+  const isModalOpen = externalIsModalOpen !== undefined ? externalIsModalOpen : internalIsModalOpen;
   const navigate = useNavigate();
   const { productStore } = useStore();
-  const [searchValue, setSearchValue] = useState("");
 
   const handleAddClick = () => {
     if (useModal && modalContent) {
@@ -61,55 +69,36 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-  };
-
-  const handleSearch = () => {
-    if (onSearch) onSearch(searchValue);
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") handleSearch();
+    if (onSearch) onSearch(e.target.value);
   };
 
   return (
-    <div
-      className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}
-    >
-      {/* Card Header */}
+    <div className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between px-4 md:px-6 py-5 gap-2 md:gap-0">
         <div className="flex items-center gap-2 md:gap-0">
           <h3 className="text-base font-medium text-gray-800 dark:text-white/90">
             {title}
           </h3>
-          {/* Desktop Buttons */}
           <div className="hidden md:inline-flex items-center">
             {addButtonLink && (
               <Button
                 type="button"
                 onClick={handleAddClick}
-                className={
-                  addButtonStyle
-                    ? addButtonStyle
-                    : "ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
-                }
+                className={addButtonStyle || "ml-4 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"}
               >
                 {addButtonText}
               </Button>
             )}
             {additionalButtons}
           </div>
-          {/* Mobile Buttons */}
           <div className="inline-flex md:hidden items-center gap-2 ml-2">
-            {/* Add button */}
             {addButtonLink && (
               <div
                 onClick={handleAddClick}
-                className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                className={`bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center ${!isOnline ? 'opacity-50 cursor-not-allowed' : ''}`}
                 style={{ width: 35, height: 35, cursor: "pointer" }}
                 aria-label="Thêm mới"
               >
-                {/* Plus SVG icon */}
                 <svg
                   className="h-6 w-6 text-white"
                   fill="none"
@@ -132,20 +121,19 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
           <div className="w-full md:w-auto flex items-center mt-2 md:mt-0">
             <input
               type="text"
-              value={searchValue}
+              value={searchTerm}
               onChange={handleSearchInputChange}
-              onKeyDown={handleSearchKeyDown}
               placeholder={searchPlaceholder}
               className="border rounded px-3 py-2 mr-2 focus:outline-blue-950 w-full md:w-auto"
+              disabled={!isOnline}
             />
-            {/* Mobile: Magnifier icon, Desktop: Text */}
             <Button
-              onClick={handleSearch}
+              onClick={() => onSearch(searchTerm || '')}
               className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[40px] w-10 md:w-auto flex items-center justify-center"
               aria-label="Tìm kiếm"
+              disabled={!isOnline}
             >
               <span className="md:hidden">
-                {/* Magnifier SVG icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 text-white"
@@ -159,7 +147,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
                     cy="11"
                     r="7"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth={2}
                     fill="none"
                   />
                   <line
@@ -168,7 +156,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
                     x2="16.65"
                     y2="16.65"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth={2}
                     strokeLinecap="round"
                   />
                 </svg>
@@ -183,13 +171,9 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
           <p className="text-sm text-gray-500 dark:text-gray-400">{desc}</p>
         </div>
       )}
-
-      {/* Card Body */}
       <div className="p-4 border-t border-gray-100 dark:border-gray-800 sm:p-6">
         <div className="space-y-6">{children}</div>
       </div>
-
-      {/* Modal */}
       {useModal && modalContent && (
         <Modal
           isOpen={isModalOpen}
