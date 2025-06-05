@@ -98,7 +98,7 @@ const LOCAL_URL = import.meta.env.VITE_LOCAL_API_V1_URL;
 
 if (DEPLOYED_URL) {
   // axios.defaults.baseURL = DEPLOYED_URL;
-  axios.defaults.baseURL = "https://1ba0-42-112-134-172.ngrok-free.app/api/";
+  axios.defaults.baseURL = DEPLOYED_URL;
 } else {
   axios.defaults.baseURL = LOCAL_URL;
   // axios.defaults.baseURL = NGROK_URL;
