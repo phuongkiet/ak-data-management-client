@@ -93,6 +93,7 @@ export default class ProductStore {
         secondDiscountConditions: 0,
 
         supplierItemCode: "",
+        confirmSupplierItemCode: "",
         supplerCode: "",
         productOrderNumber: undefined,
         productCode: "",
@@ -322,13 +323,44 @@ export default class ProductStore {
       if (!product) throw new Error("Không có dữ liệu sản phẩm");
 
       runInAction(() => {
-        this.calculateStrategyProductFields(product);
-        this.strategyProductDetail = {
-          ...{
-            ...product,
-          },
-        };
-        console.log(this.strategyProductDetail);
+        // Set default values for product before calculation
+        if (product.policyStandard == null || product.policyStandard === 0) {
+          product.policyStandard = 76;
+        }
+        if (product.firstPolicyStandardAfterDiscount == null || product.firstPolicyStandardAfterDiscount === 0) {
+          product.firstPolicyStandardAfterDiscount = 5;
+        }
+        if (product.secondPolicyStandardAfterDiscount == null || product.secondPolicyStandardAfterDiscount === 0) {
+          product.secondPolicyStandardAfterDiscount = 5;
+        }
+
+        // Chỉ set lại form nếu form đang rỗng
+        const isFormEmpty = Object.values(this.strategyProductForm).every(v => v == null || v === "" || v === 0);
+        if (isFormEmpty) {
+          this.strategyProductForm = {
+            listPrice: product.listPrice ?? null,
+            supplierRisingPrice: product.supplierRisingPrice ?? null,
+            otherPriceByCompany: product.otherPriceByCompany ?? null,
+            shippingFee: product.shippingFee ?? null,
+            discount: product.discount ?? null,
+            policyStandard: product.policyStandard,
+            supplierDiscountCash: product.supplierDiscountCash ?? null,
+            supplierDiscountPercentage: product.supplierDiscountPercentage ?? null,
+            firstPolicyStandardAfterDiscount: product.firstPolicyStandardAfterDiscount,
+            secondPolicyStandardAfterDiscount: product.secondPolicyStandardAfterDiscount,
+            taxId: product.taxId ?? null,
+            quantityPerBox: product.quantityPerBox ?? null,
+            weightPerUnit: product.weightPerUnit ?? null,
+          };
+        }
+
+        // Chỉ tính lại giá nếu đã có đủ thông tin thuế
+        if (product.taxId && product.taxRateNumber) {
+          console.log(product.taxRateNumber + " " + product.taxId);
+          this.calculateStrategyProductFields(product);
+        }
+
+        this.strategyProductDetail = { ...product };
         this.loading = false;
       });
     } catch (error) {
@@ -506,7 +538,17 @@ export default class ProductStore {
     runInAction(() => {
       // Chỉ cập nhật form với các field có thể edit
       this.strategyProductForm[field] = value;
-      console.log(this.strategyProductForm.quantityPerBox);
+      
+      // Tạo một bản sao của strategyProductDetail để tính toán lại
+      const updatedProduct = { ...this.strategyProductDetail };
+      
+      // Cập nhật giá trị mới vào bản sao, chỉ cập nhật các trường có trong form
+      if (field in updatedProduct) {
+        (updatedProduct as any)[field] = value;
+      }
+      
+      // Tính toán lại tất cả các giá trị
+      this.calculateStrategyProductFields(updatedProduct);
     });
   };
 
@@ -520,12 +562,12 @@ export default class ProductStore {
     const otherPriceByCompany = Number(product.otherPriceByCompany) || 0;
     const quantityPerBox = Number(product.quantityPerBox) || 0;
     const confirmListPrice = listPrice + supplierRisingPrice + (otherPriceByCompany * quantityPerBox);
-    product.confirmListPrice = confirmListPrice;
+    product.confirmListPrice = Math.round(confirmListPrice / 1000) * 1000;
 
     // 2. SupplierEstimatedPayableAmount
     const discountPercentage = Number(product.discount) / 100 || 0;
     const shippingFee = Number(product.shippingFee) || 0;
-    const taxRateNumber = Number(product.taxRateNumber) || 1;
+    const taxRateNumber = 1 + Number(product.taxRate) / 100 || 1;
     
     // Tính giá sau chiết khấu
     const priceAfterDiscount = confirmListPrice * (1 - discountPercentage);
@@ -537,41 +579,44 @@ export default class ProductStore {
     }
     
     // Cộng phí vận chuyển vào sau khi đã tính thuế
-    const supplierEstimatedPayableAmount = priceAfterTax + shippingFee;
-    product.supplierEstimatedPayableAmount = supplierEstimatedPayableAmount;
+    product.supplierEstimatedPayableAmount = priceAfterTax + shippingFee;
+    const supplierEstimatedPayableAmount = product.supplierEstimatedPayableAmount;
 
     // 3. RetailPrice
-    const policyStandard = Number(product.policyStandardNumber) || 0;
+    const policyStandard = Number(product.policyStandard) || 0;
+    console.log(policyStandard);
     const policyStandardNumber = 1 + policyStandard / 100;
+    console.log(policyStandardNumber);
     let rawRetailPrice = supplierEstimatedPayableAmount * policyStandardNumber;
     product.retailPrice = listPrice > 0 ? Math.round(rawRetailPrice / 1000) * 1000 : 0;
 
     // 4. EstimatedPurchasePriceAfterSupplierDiscount
     const supplierDiscountPercentage = Number(product.supplierDiscountPercentage) / 100 || 0;
     const supplierDiscountCash = Number(product.supplierDiscountCash) || 0;
-    product.estimatedPurchasePriceAfterSupplierDiscount = supplierEstimatedPayableAmount * (1 - supplierDiscountPercentage) - supplierDiscountCash;
+    const estimatedPurchasePrice = supplierEstimatedPayableAmount * (1 - supplierDiscountPercentage) - supplierDiscountCash;
+    product.estimatedPurchasePriceAfterSupplierDiscount = estimatedPurchasePrice;
 
     // 5. First Remaining Price After Discount
     const firstPolicyStandardAfterDiscount = Number(product.firstPolicyStandardAfterDiscount) || 0;
     const firstPolicyStandardNumber = firstPolicyStandardAfterDiscount / 100;
-    product.firstRemainingPriceAfterDiscount = Math.round((product.retailPrice - (product.retailPrice * firstPolicyStandardNumber)) / 1000) * 1000;
+    product.firstRemainingPriceAfterDiscount = (product.retailPrice - (product.retailPrice * firstPolicyStandardNumber));
 
     // 6. First Fixed Policy Price
-    product.firstFixedPolicyPrice = Math.round((product.firstRemainingPriceAfterDiscount * 0.4) / 1000) * 1000;
+    product.firstFixedPolicyPrice = (product.firstRemainingPriceAfterDiscount * 0.4);
 
     // 7. First Actual Received Price
-    product.firstActualReceivedPriceAfterPolicyDiscount = Math.round((product.firstRemainingPriceAfterDiscount - product.firstFixedPolicyPrice) / 1000) * 1000;
+    product.firstActualReceivedPriceAfterPolicyDiscount = (product.firstRemainingPriceAfterDiscount - product.firstFixedPolicyPrice);
 
     // 8. Second Remaining Price After Discount
     const secondPolicyStandardAfterDiscount = Number(product.secondPolicyStandardAfterDiscount) || 0;
     const secondPolicyStandardNumber = secondPolicyStandardAfterDiscount / 100;
-    product.secondRemainingPriceAfterDiscount = Math.round((product.retailPrice - (product.retailPrice * secondPolicyStandardNumber)) / 1000) * 1000;
+    product.secondRemainingPriceAfterDiscount = (product.retailPrice - (product.retailPrice * secondPolicyStandardNumber));
 
     // 9. Second Fixed Policy Price
-    product.secondFixedPolicyPrice = Math.round((product.secondRemainingPriceAfterDiscount * 0.4) / 1000) * 1000;
+    product.secondFixedPolicyPrice = (product.secondRemainingPriceAfterDiscount * 0.4);
 
     // 10. Second Actual Received Price
-    product.secondActualReceivedPriceAfterPolicyDiscount = Math.round((product.secondRemainingPriceAfterDiscount - product.secondFixedPolicyPrice) / 1000) * 1000;
+    product.secondActualReceivedPriceAfterPolicyDiscount = (product.secondRemainingPriceAfterDiscount - product.secondFixedPolicyPrice);
 
     // === Web Prices ===
     function calculateWebPriceValue(

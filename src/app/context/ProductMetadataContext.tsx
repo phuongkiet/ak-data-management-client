@@ -83,31 +83,44 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
   });
 
   const loadMetadata = async () => {
-    // If we have cached metadata and we're offline, use it
-    if (!isOnline) {
-      const cachedMetadata = OfflineStorage.getMetadata();
-      if (cachedMetadata) {
-        setMetadata({
-          ProductMetadataDto: cachedMetadata,
-          loading: false,
-          error: null,
-          lastUpdated: Date.now()
-        });
-        return;
-      }
+    // Nếu đã có metadata trong localStorage thì dùng luôn, không gọi lại API
+    const cachedMetadata = OfflineStorage.getMetadata();
+    if (cachedMetadata) {
+      setMetadata({
+        ProductMetadataDto: cachedMetadata,
+        loading: false,
+        error: null,
+        lastUpdated: Date.now()
+      });
+      // Cập nhật các store liên quan nếu cần
+      companyCodeStore.setProductCompanyCodeList(cachedMetadata.companyCodeDtos);
+      calculatedUnitStore.setProductCalculatedUnitList(cachedMetadata.calculatedUnitDtos);
+      antiSlipperyStore.setProductAntiSlipperyList(cachedMetadata.productAntiSlipperyDtos);
+      areaStore.setProductAreaList(cachedMetadata.productAreaDtos);
+      bodyColorStore.setProductBodyColorList(cachedMetadata.productBodyColorDtos);
+      colorStore.setProductColorList(cachedMetadata.productColorDtos);
+      factoryStore.setProductFactoryList(cachedMetadata.productFactoryDtos);
+      materialStore.setProductMaterialList(cachedMetadata.productMaterialDtos);
+      originStore.setProductOriginList(cachedMetadata.productOriginDtos);
+      patternStore.setProductPatternList(cachedMetadata.productPatternDtos);
+      processingStore.setProductProcessingList(cachedMetadata.productProcessingDtos);
+      sizeStore.setProductSizeList(cachedMetadata.productSizeDtos);
+      storageStore.setProductStorageList(cachedMetadata.productStorageDtos);
+      supplierStore.setProductSupplierList(cachedMetadata.productSupplierDtos);
+      surfaceStore.setProductSurfaceList(cachedMetadata.productSurfaceDtos);
+      waterAbsorptionStore.setProductWaterAbsorptionList(cachedMetadata.waterAbsoroptionDtos);
+      supplierTaxStore.setProductSupplierTaxList(cachedMetadata.supplierTaxDtos);
+      roleStore.setRoleList(cachedMetadata.roleDtos);
+      return;
     }
 
+    // Nếu không có metadata, mới gọi API
     try {
       setMetadata((prev) => ({ ...prev, loading: true, error: null }));
-
       const response = await agent.Product.getProductMetadata();
-      
       if (response && response.data) {
         const fetchedMetadata = response.data;
-
-        // Save to localStorage
         OfflineStorage.saveMetadata(fetchedMetadata);
-
         // Update stores
         companyCodeStore.setProductCompanyCodeList(fetchedMetadata.companyCodeDtos);
         calculatedUnitStore.setProductCalculatedUnitList(fetchedMetadata.calculatedUnitDtos);
@@ -127,7 +140,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         waterAbsorptionStore.setProductWaterAbsorptionList(fetchedMetadata.waterAbsoroptionDtos);
         supplierTaxStore.setProductSupplierTaxList(fetchedMetadata.supplierTaxDtos);
         roleStore.setRoleList(fetchedMetadata.roleDtos);
-
         setMetadata({
           ProductMetadataDto: fetchedMetadata,
           loading: false,
@@ -169,7 +181,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     if (shouldLoadMetadata) {
       loadMetadata();
     }
-  }, [isOnline]);
+  }, [isOnline, metadata.lastUpdated]);
 
   // Effect to watch for category changes
   useEffect(() => {

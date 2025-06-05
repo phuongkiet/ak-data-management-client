@@ -22,11 +22,11 @@ interface ComponentCardProps {
   onSearch?: (term: string) => void;
   searchPlaceholder?: string;
   searchTerm?: string;
-  onPageSizeChange: (newPageSize: number) => void;
-  pageSize: number;
-  totalCount: number;
-  loading: boolean;
-  isOnline: boolean;
+  onPageSizeChange?: (newPageSize: number) => void;
+  pageSize?: number;
+  totalCount?: number;
+  loading?: boolean;
+  isOnline?: boolean;
 }
 
 const TableComponentCard: React.FC<ComponentCardProps> = ({
@@ -47,10 +47,6 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   onSearch,
   searchPlaceholder = "Tìm kiếm...",
   searchTerm,
-  // onPageSizeChange,
-  // pageSize,
-  // totalCount,
-  // loading,
   isOnline
 }) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);

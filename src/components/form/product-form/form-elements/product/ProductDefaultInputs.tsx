@@ -40,7 +40,7 @@ const ProductDefaultInputs = ({
   const { productCompanyCodeList } = companyCodeStore
   const { productPatternList } = patternStore
 
-  const [confirmProductCode, setConfirmProductCode] = useState<
+  const [confirmSupplierItemCode, setConfirmSupplierItemCode] = useState<
     string | undefined
   >("");
   const [supplierItemCode, setSupplierItemCode] = useState<string>("");
@@ -142,8 +142,8 @@ const ProductDefaultInputs = ({
 
       if (companyCode?.codeName) {
         const newSkuCode = `${companyCode.codeName} ${lastSixChars}`;
-        setConfirmProductCode(newSkuCode);
-        productStore.updateProductForm("supplierItemCode", newSkuCode);
+        setConfirmSupplierItemCode(newSkuCode);
+        productStore.updateProductForm("confirmSupplierItemCode", newSkuCode);
       }
     }
   };
@@ -313,7 +313,7 @@ const ProductDefaultInputs = ({
                   id="input"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={confirmProductCode}
+                  value={confirmSupplierItemCode}
                   onChange={handleConfirmProductCodeChange}
                 />
               </div>
@@ -501,7 +501,7 @@ const ProductDefaultInputs = ({
                 id="input"
                 disabled
                 placeholder="Ô tự động điền"
-                value={confirmProductCode}
+                value={confirmSupplierItemCode}
                 onChange={handleConfirmProductCodeChange}
               />
             </div>

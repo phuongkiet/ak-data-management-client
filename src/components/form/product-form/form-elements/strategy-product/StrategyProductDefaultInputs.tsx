@@ -31,7 +31,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div className="space-y-0">
             <ProductLabel htmlFor="input">Giá niêm yết</ProductLabel>
             <NumericFormat
-              value={detail?.listPrice ?? form.listPrice ?? ""}
+              value={product?.listPrice ?? form.listPrice ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -39,16 +39,15 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               placeholder="Nhập giá niêm yết"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
-                update("listPrice", values.floatValue ?? 0);
+                const value = values.floatValue ?? 0;
+                update("listPrice", value);
               }}
             />
           </div>
           <div>
             <ProductLabel htmlFor="input">Giá tăng do NCC</ProductLabel>
             <NumericFormat
-              value={
-                detail?.supplierRisingPrice ?? form.supplierRisingPrice ?? ""
-              }
+              value={product?.supplierRisingPrice ?? form.supplierRisingPrice ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -56,16 +55,15 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               placeholder="Nhập giá tăng"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
-                update("supplierRisingPrice", values.floatValue ?? 0);
+                const value = values.floatValue ?? 0;
+                update("supplierRisingPrice", value);
               }}
             />
           </div>
           <div>
             <ProductLabel htmlFor="input">Giá khác do An Khánh</ProductLabel>
             <NumericFormat
-              value={
-                detail?.otherPriceByCompany ?? form.otherPriceByCompany ?? ""
-              }
+              value={product?.otherPriceByCompany ?? form.otherPriceByCompany ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -73,14 +71,15 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               placeholder="Nhập giá khác"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
-                update("otherPriceByCompany", values.floatValue ?? 0);
+                const value = values.floatValue ?? 0;
+                update("otherPriceByCompany", value);
               }}
             />
           </div>
           <div>
             <ProductLabel htmlFor="input">Phí vận chuyển</ProductLabel>
             <NumericFormat
-              value={detail?.shippingFee ?? form.shippingFee ?? ""}
+              value={product?.shippingFee ?? form.shippingFee ?? ""}
               thousandSeparator
               displayType="input"
               allowNegative={false}
@@ -88,7 +87,8 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               placeholder="Nhập phí vận chuyển"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
-                update("shippingFee", values.floatValue ?? 0);
+                const value = values.floatValue ?? 0;
+                update("shippingFee", value);
               }}
             />
           </div>
@@ -166,7 +166,9 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
               placeholder="Nhập khuyến mãi tiền mặt"
               className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               onValueChange={(values) => {
-                update("supplierDiscountCash", values.floatValue ?? 0);
+                const value = values.floatValue ?? 0;
+                const roundedValue = Math.round(value / 1000) * 1000;
+                update("supplierDiscountCash", roundedValue);
               }}
             />
           </div>
@@ -189,9 +191,7 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
           <div>
             <ProductLabel>Giá mua sau KM NCC (ước tính)</ProductLabel>
             <NumericFormat
-              value={Math.round(
-                detail.estimatedPurchasePriceAfterSupplierDiscount ?? 0
-              )}
+              value={detail.estimatedPurchasePriceAfterSupplierDiscount ?? ""}
               thousandSeparator
               displayType="input"
               disabled

@@ -21,6 +21,17 @@ export default class SupplierTaxStore {
 
   setProductSupplierTaxList = (list: SupplierTaxDto[]) => {
     this.productSupplierTaxList = list;
+    // Update registry when list changes
+    this.productSupplierTaxRegistry.clear();
+    list.forEach(tax => {
+      if (tax.id != null) {
+        this.productSupplierTaxRegistry.set(tax.id, tax);
+      }
+    });
+  }
+
+  getTaxById = (id: number): SupplierTaxDto | undefined => {
+    return this.productSupplierTaxRegistry.get(id);
   }
 
 //   resetSupplierTaxForm = () => {

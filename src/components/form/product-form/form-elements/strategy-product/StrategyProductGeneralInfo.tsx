@@ -90,13 +90,13 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                   type="number"
                   step={0.1}
                   placeholder="Ô tự động điền"
-                  value={
-                    form.weightPerUnit?.toString() ??
-                    product?.weightPerUnit?.toString() ??
-                    0
-                  }
+                  value={product?.weightPerUnit?.toString() ?? form.weightPerUnit?.toString() ?? ""}
                   onChange={(e) => {
-                    update("weightPerUnit", parseInt(e.target.value) ?? 0);
+                    const weightPerUnit = parseFloat(e.target.value) ?? 0;
+                    update("weightPerUnit", weightPerUnit);
+                    if (form.quantityPerBox) {
+                      update("weightPerUnit", weightPerUnit * form.quantityPerBox);
+                    }
                   }}
                 />
               </div>
@@ -104,9 +104,9 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                 <ProductLabel>m2/viên</ProductLabel>
                 <Input
                   type="number"
-                  disabled
+                  step={0.01}
                   placeholder="Ô tự động điền"
-                  value={product?.area?.toString() || ""}
+                  value={product?.area?.toString() ?? ""}
                 />
               </div>
             </div>

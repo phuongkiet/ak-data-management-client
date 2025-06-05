@@ -237,6 +237,7 @@ export interface AddProductDto {
 
   // Basic info
   supplierItemCode: string;
+  confirmSupplierItemCode: string;
   supplerCode: string;
   productOrderNumber?: number;
   productCode: string;

@@ -5,7 +5,6 @@ import { StrategyProductDetailDto } from "../../../../../app/models/product/prod
 import ReactSelect from "react-select";
 import { NumericFormat } from "react-number-format";
 import { observer } from "mobx-react-lite";
-import { useEffect } from "react";
 
 interface ProductProps {
   product?: StrategyProductDetailDto;
@@ -19,18 +18,14 @@ const StrategyProductInputGroupRight = ({
   const update = productStore.updateStrategyProductForm;
   const { productSupplierTaxList } = supplierTaxStore;
 
-  useEffect(() => {
-    if (product?.taxId && product.taxId !== form.taxId) {
-      update("taxId", product.taxId);
-    }
-  }, [product?.taxId, form.taxId, update]);
+  if (!productSupplierTaxList.length) return <div>Đang tải thuế...</div>;
 
   return (
     <ComponentCard title="Thuế và Chính sách">
       <div>
         <ProductLabel>Chính sách chuẩn</ProductLabel>
         <NumericFormat
-          value={form.policyStandard ?? 76}
+          value={product?.policyStandard ?? form.policyStandard ?? 76}
           thousandSeparator
           displayType="input"
           disabled={false}
@@ -213,7 +208,19 @@ const StrategyProductInputGroupRight = ({
             }),
           }}
           onChange={(option) => {
-            update("taxId", option?.value ?? null);
+            if (option) {
+              const tax = supplierTaxStore.getTaxById(option.value);
+              if (tax) {
+                // Cập nhật cả taxId và taxRateNumber
+                update("taxId", option.value);
+                const updatedProduct = { ...productStore.strategyProductDetail };
+                updatedProduct.taxId = option.value;
+                updatedProduct.taxRateNumber = tax.taxRate;
+                productStore.calculateStrategyProductFields(updatedProduct);
+              }
+            } else {
+              update("taxId", null);
+            }
           }}
         />
       </div>

@@ -11,6 +11,7 @@ import ProductLabel from "../../../components/form/product-form/ProductLabel";
 import ProductInputField from "../../../components/form/product-form/input/product/ProductInputField";
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
+import { useApi } from "../../../hooks/useApi";
 
 const StrategyProductTable = () => {
   const { productStore, supplierTaxStore } = useStore();
@@ -25,6 +26,7 @@ const StrategyProductTable = () => {
     totalCount,
     term,
   } = productStore;
+  const { isOnline } = useApi();
   const { productSupplierTaxList } = supplierTaxStore;
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -77,6 +79,7 @@ const StrategyProductTable = () => {
               Cập nhật giá
             </Button>
           }
+          isOnline={isOnline}
           onSearch={(term) => {
             setTerm(term);
             setPageNumber(1);
