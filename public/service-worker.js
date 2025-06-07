@@ -12,6 +12,10 @@ self.addEventListener("install", event => {
 });
 
 self.addEventListener("fetch", event => {
+  // Chỉ cache file tĩnh, không cache API
+  if (event.request.url.includes('/api/')) {
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
