@@ -34,11 +34,7 @@ export default class UserStore {
         if (this.user) {
           store.commonStore.setToken(this.user.token);
         }
-        if (this.user?.role.includes("Admin")) {
-          router.navigate("/");
-        } else if (this.user?.role.includes("Strategist")) {
-          router.navigate("/");
-        }
+        router.navigate("/");
       });
       return { success: true };
     } catch (error: any) {
