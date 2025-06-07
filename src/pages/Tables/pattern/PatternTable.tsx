@@ -9,19 +9,22 @@ import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx
 import Input from "../../../components/form/input/InputField.tsx";
 import TextArea from "../../../components/form/input/TextArea.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function PatternTable() {
   const { patternStore } = useStore();
   const { loadPatterns, productPatternList, loading } = patternStore;
-
+  const { isOnline } = useApi();
   // Add modal state and handlers
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadPatterns();
-  }, []);
+    if (isOnline) {
+      loadPatterns();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await patternStore.addPattern();

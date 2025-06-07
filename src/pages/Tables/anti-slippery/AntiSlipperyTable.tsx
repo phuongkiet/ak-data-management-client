@@ -9,19 +9,23 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import TextArea from "../../../components/form/input/TextArea.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function AntiSlipperyTable() {
   const { antiSlipperyStore } = useStore();
   const { loadAntiSlipperys, productAntiSlipperyList, loading } =
     antiSlipperyStore;
+  const { isOnline } = useApi();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadAntiSlipperys();
-  }, []);
+    if (isOnline) {
+      loadAntiSlipperys();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await antiSlipperyStore.addAntiSlippery();

@@ -8,18 +8,21 @@ import BodyColorTableComponent from "../../../components/tables/body-color/BodyC
 import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function BodyColorTable() {
   const { bodyColorStore } = useStore();
   const { loadBodyColors, productBodyColorList, loading } = bodyColorStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadBodyColors();
-  }, []);
+    if (isOnline) {
+      loadBodyColors();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await bodyColorStore.addBodyColor();

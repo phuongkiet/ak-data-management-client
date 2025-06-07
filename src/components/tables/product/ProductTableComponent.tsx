@@ -220,6 +220,20 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       name: "Mã hàng",
       selector: (row) => row.confirmAutoBarCode,
       sortable: true,
+      cell: (row) => {
+        const isUploaded =
+          Number(row.uploadWebsiteStatus) === 1 ||
+          row.uploadWebsiteStatus === "Uploaded";
+        return (
+          isUploaded ? (
+            <a href={`https://ankhanhhouse.com/san-pham/${row.confirmAutoBarCode}`}>
+              <span className="underline">{row.confirmAutoBarCode}</span>
+            </a>
+          ) : (
+            <span>{row.confirmAutoBarCode}</span>
+          )
+        );
+      },
     },
     {
       name: "Mã NCC",

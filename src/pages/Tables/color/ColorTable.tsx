@@ -9,17 +9,20 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import { ChromePicker } from "react-color";
+import { useApi } from "../../../hooks/useApi.ts";
 function ColorTable() {
   const { colorStore } = useStore();
   const { loadColors, productColorList, loading } = colorStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadColors();
-  }, []);
+    if (isOnline) {
+      loadColors();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await colorStore.addColor();

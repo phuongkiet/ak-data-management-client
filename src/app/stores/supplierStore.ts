@@ -4,6 +4,7 @@ import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { ProductAreaDto } from '../models/product/productArea.model.ts';
 import BaseStore from './baseStore';
+import { OfflineStorage } from '../services/offlineStorage';
 
 export default class SupplierStore extends BaseStore {
   productSupplierList: ProductSupplierDto[] = [];
@@ -45,8 +46,20 @@ export default class SupplierStore extends BaseStore {
   }
 
   setProductSupplierList = (list: ProductSupplierDto[]) => {
-    this.productSupplierList = list;
-    this.notifyChange();
+    runInAction(() => {
+      this.productSupplierList = list;
+      this.productSupplierRegistry.clear();
+      list.forEach(supplier => {
+        if (supplier.id != null) this.productSupplierRegistry.set(supplier.id, supplier);
+      });
+      
+      // Update metadata in localStorage without triggering change notification
+      const currentMetadata = OfflineStorage.getMetadata();
+      if (currentMetadata) {
+        currentMetadata.productSupplierDtos = list;
+        OfflineStorage.saveMetadata(currentMetadata);
+      }
+    });
   }
 
   setTerm = (term: string) => {
@@ -59,15 +72,8 @@ export default class SupplierStore extends BaseStore {
     try {
       const result = await agent.ProductSupplier.supplierList(term);
       runInAction(() => {
-        this.productSupplierList = result.data || [];
+        this.setProductSupplierList(result.data || []);
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productSupplierRegistry.clear();
-        this.productSupplierList.forEach(supplier => {
-          if (supplier.id != null) this.productSupplierRegistry.set(supplier.id, supplier);
-        });
-        this.notifyChange();
       });
     } catch (error) {
       runInAction(() => {
@@ -99,10 +105,12 @@ export default class SupplierStore extends BaseStore {
     try {
       const response = await agent.ProductSupplier.addSupplier(this.supplierForm);
       if (response.data) {
-        toast.success(response.data);
-        this.resetSupplierForm();
-        await this.loadSuppliers();
-        this.notifyChange();
+        runInAction(() => {
+          toast.success(response.data);
+          this.resetSupplierForm();
+          // Load suppliers and update metadata
+          this.loadSuppliers();
+        });
         return true;
       } else {
         toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi tạo nhà cung cấp');

@@ -9,18 +9,21 @@ import Button from "../../../components/ui/button/Button.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import TextArea from "../../../components/form/input/TextArea.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function MaterialTable() {
   const { materialStore } = useStore();
   const { loadMaterials, productMaterialList, loading } = materialStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadMaterials();
-  }, []);
+    if (isOnline) {
+      loadMaterials();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await materialStore.addMaterial();

@@ -9,11 +9,12 @@ import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx
 import Input from "../../../components/form/input/InputField.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import SupplierSelect from "../../../components/form/product-form/supplier/SupplierSelect.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function FactoryTable() {
   const { factoryStore, supplierStore } = useStore();
   const { loadFactories, productFactoryList, loading } = factoryStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rawFactoryName, setRawFactoryName] = useState("");
   const handleModalOpen = () => setIsModalOpen(true);
@@ -28,8 +29,10 @@ function FactoryTable() {
   };
 
   useEffect(() => {
-    loadFactories();
-  }, []);
+    if (isOnline) {
+      loadFactories();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await factoryStore.addFactory();

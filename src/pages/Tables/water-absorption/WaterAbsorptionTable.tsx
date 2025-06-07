@@ -9,6 +9,7 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import ReactSelect from "react-select";
+import { useApi } from "../../../hooks/useApi.ts";
 
 const operatorOptions = [
   { value: "≥", label: "≥" },
@@ -22,7 +23,7 @@ function WaterAbsorptionTable() {
   const { waterAbsorptionStore } = useStore();
   const { loadWaterAbsorption, productWaterAbsorptionList, loading } =
     waterAbsorptionStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [operator, setOperator] = useState("");
   const [level, setLevel] = useState("");
@@ -31,8 +32,10 @@ function WaterAbsorptionTable() {
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadWaterAbsorption();
-  }, []);
+    if (isOnline) {
+      loadWaterAbsorption();
+    }
+  }, [isOnline]);
 
   useEffect(() => {
     if (operator && level) {

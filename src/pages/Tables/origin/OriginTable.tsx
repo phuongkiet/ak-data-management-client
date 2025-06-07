@@ -8,18 +8,21 @@ import OriginTableComponent from "../../../components/tables/origin/OriginTableC
 import Button from "../../../components/ui/button/Button.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function OriginTable() {
   const { originStore } = useStore();
   const { loadOrigins, productOriginList, loading } = originStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadOrigins();
-  }, []);
+    if (isOnline) {
+      loadOrigins();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await originStore.addOrigin();

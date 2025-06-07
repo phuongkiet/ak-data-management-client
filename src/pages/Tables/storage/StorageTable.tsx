@@ -8,18 +8,21 @@ import StorageTableComponent from "../../../components/tables/storage/StorageTab
 import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function StorageTable() {
   const { storageStore } = useStore();
   const { loadStorages, productStorageList, loading } = storageStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadStorages();
-  }, []);
+    if (isOnline) {
+      loadStorages();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await storageStore.addStorage();

@@ -8,11 +8,12 @@ import SizeTableComponent from "../../../components/tables/size/SizeTableCompone
 import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function SizeTable() {
   const { sizeStore } = useStore();
   const { loadSizes, productSizeList, loading } = sizeStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
@@ -24,9 +25,11 @@ function SizeTable() {
   };
 
   useEffect(() => {
-    loadSizes();
-    handleChangeAutoSized();
-  }, [sizeStore.sizeForm.wide, sizeStore.sizeForm.length]);
+    if(isOnline){
+      loadSizes();
+      handleChangeAutoSized();
+    }
+  }, [sizeStore.sizeForm.wide, sizeStore.sizeForm.length, isOnline]);
 
   const handleSubmit = async () => {
     const result = await sizeStore.addSize();

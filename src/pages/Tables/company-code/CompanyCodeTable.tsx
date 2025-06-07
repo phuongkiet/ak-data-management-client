@@ -8,19 +8,22 @@ import CompanyCodeTableComponent from "../../../components/tables/company-code/C
 import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 
 function CompanyCodeTable() {
   const { companyCodeStore } = useStore();
   const { loadCompanyCodes, productCompanyCodeList, loading } =
     companyCodeStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
-    loadCompanyCodes();
-  }, []);
+    if (isOnline) {
+      loadCompanyCodes();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await companyCodeStore.addCompanyCode();

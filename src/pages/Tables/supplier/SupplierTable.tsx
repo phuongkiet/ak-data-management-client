@@ -9,9 +9,12 @@ import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx
 import Input from "../../../components/form/input/InputField.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import Area from "../../../components/form/product-form/area/Area.tsx";
+import { runInAction } from "mobx";
+import { useApi } from "../../../hooks/useApi";
 
 function SupplierTable() {
   const { supplierStore } = useStore();
+  const { isOnline } = useApi();
   const {
     loadSuppliers,
     productSupplierList,
@@ -30,48 +33,42 @@ function SupplierTable() {
   const [productSupplier, setProductSupplier] = useState<string>("");
 
   useEffect(() => {
-    loadSuppliers();
-  }, []);
+    if (isOnline) {
+      loadSuppliers();
+    }
+  }, [isOnline]);
 
   useEffect(() => {
     if (customerClassification && areaValue.id) {
       const combinedValue = `${areaValue.shortCode}${customerClassification}`;
       getOrderNumber(combinedValue);
-    } else {
-      console.log("Conditions not met:", {
-        areaId: areaValue.id,
-        customerClassification,
-        shortCode: areaValue.shortCode,
-      });
     }
-  }, [areaValue, customerClassification, getOrderNumber]);
+  }, [areaValue.id, areaValue.shortCode, customerClassification]);
 
   useEffect(() => {
     // Only update if all required values are present
     if (areaValue.shortCode && customerClassification && orderNumber) {
       const shortCode = `${areaValue.shortCode}${customerClassification}${orderNumber}`;
-      supplierStore.updateSupplierForm("supplierShortCode", shortCode);
-
-      // For supplierCodeName, need supplierName and productSupplier
       const supplierName = supplierStore.supplierForm.supplierName;
-      if (supplierName && productSupplier) {
-        const codeName = `${supplierName}-${productSupplier}-${shortCode}`;
-        supplierStore.updateSupplierForm("supplierCodeName", codeName);
-      } else {
-        supplierStore.updateSupplierForm("supplierCodeName", "");
-      }
+      
+      // Update both fields in a single runInAction to prevent multiple re-renders
+      runInAction(() => {
+        supplierStore.updateSupplierForm("supplierShortCode", shortCode);
+        
+        if (supplierName && productSupplier) {
+          const codeName = `${supplierName}-${productSupplier}-${shortCode}`;
+          supplierStore.updateSupplierForm("supplierCodeName", codeName);
+        } else {
+          supplierStore.updateSupplierForm("supplierCodeName", "");
+        }
+      });
     } else {
-      supplierStore.updateSupplierForm("supplierShortCode", "");
-      supplierStore.updateSupplierForm("supplierCodeName", "");
+      runInAction(() => {
+        supplierStore.updateSupplierForm("supplierShortCode", "");
+        supplierStore.updateSupplierForm("supplierCodeName", "");
+      });
     }
-  }, [
-    areaValue.shortCode,
-    customerClassification,
-    orderNumber,
-    supplierStore,
-    supplierStore.supplierForm.supplierName,
-    productSupplier,
-  ]);
+  }, [areaValue.shortCode, customerClassification, orderNumber, supplierStore.supplierForm.supplierName, productSupplier]);
 
   const resetForm = () => {
     setCustomerClassification("");
@@ -108,6 +105,12 @@ function SupplierTable() {
       />
       <PageBreadcrumb pageTitle="Nhà cung cấp" />
       <div className="space-y-6">
+        {!isOnline && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Không có kết nối mạng!</strong>
+            <span className="block sm:inline"> Vui lòng kiểm tra kết nối mạng của bạn.</span>
+          </div>
+        )}
         <TableComponentCard
           title="Bảng nhà cung cấp"
           addButtonLink={"add-supplier"}
@@ -161,7 +164,7 @@ function SupplierTable() {
                       <ProductLabel
                         htmlFor="customerClassification"
                         tooltipId="unique-tooltip-id"
-                        tooltip="Enter the customer classification code (e.g., A, B, C)"
+                        tooltip="Nhập mã phân loại khách hàng (ví dụ: D, F, C, P)"
                       >
                         Phân loại khách hàng
                       </ProductLabel>

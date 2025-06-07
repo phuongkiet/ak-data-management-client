@@ -8,6 +8,7 @@ import UserTableComponent from "../../../components/tables/user/UserTableCompone
 import Button from "../../../components/ui/button/Button.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../../components/form/product-form/input/product/ProductInputField.tsx";
+import { useApi } from "../../../hooks/useApi.ts";
 import { toast } from "react-toastify";
 import { AddUserDto } from "../../../app/models/user/user.model.ts";
 import ReactSelect from "react-select";
@@ -20,7 +21,7 @@ function UserTable() {
     userList,
     loading,
   } = userStore;
-
+  const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<AddUserDto>({
     birthday: null,
@@ -52,8 +53,10 @@ function UserTable() {
   const selectedRole = roleOptions.find(option => option.value === formData.roleId) || null;
 
   useEffect(() => {
-    listAllUser();
-  }, []);
+    if (isOnline) {
+      listAllUser();
+    }
+  }, [isOnline]);
 
   return (
     <>

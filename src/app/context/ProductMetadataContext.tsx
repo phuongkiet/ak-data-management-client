@@ -4,6 +4,7 @@ import { ProductMetadataDto } from "../models/product/product.model";
 import agent from "../api/agent";
 import { OfflineStorage } from "../services/offlineStorage";
 import { useNetworkStatus } from "../../hooks/useNetworkStatus";
+import { runInAction } from "mobx";
 
 interface ProductMetadata {
   ProductMetadataDto: ProductMetadataDto;
@@ -44,7 +45,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
   } = useStore();
 
   const [metadata, setMetadata] = useState<ProductMetadata>(() => {
-    // Try to load from localStorage first
     const savedMetadata = OfflineStorage.getMetadata();
     if (savedMetadata) {
       return {
@@ -54,7 +54,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         lastUpdated: Date.now()
       };
     }
-    // Default state if no saved metadata
     return {
       ProductMetadataDto: {
         companyCodeDtos: [],
@@ -82,8 +81,30 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     };
   });
 
+  const updateStores = (metadata: ProductMetadataDto) => {
+    runInAction(() => {
+      companyCodeStore.setProductCompanyCodeList(metadata.companyCodeDtos);
+      calculatedUnitStore.setProductCalculatedUnitList(metadata.calculatedUnitDtos);
+      antiSlipperyStore.setProductAntiSlipperyList(metadata.productAntiSlipperyDtos);
+      areaStore.setProductAreaList(metadata.productAreaDtos);
+      bodyColorStore.setProductBodyColorList(metadata.productBodyColorDtos);
+      colorStore.setProductColorList(metadata.productColorDtos);
+      factoryStore.setProductFactoryList(metadata.productFactoryDtos);
+      materialStore.setProductMaterialList(metadata.productMaterialDtos);
+      originStore.setProductOriginList(metadata.productOriginDtos);
+      patternStore.setProductPatternList(metadata.productPatternDtos);
+      processingStore.setProductProcessingList(metadata.productProcessingDtos);
+      sizeStore.setProductSizeList(metadata.productSizeDtos);
+      storageStore.setProductStorageList(metadata.productStorageDtos);
+      supplierStore.setProductSupplierList(metadata.productSupplierDtos);
+      surfaceStore.setProductSurfaceList(metadata.productSurfaceDtos);
+      waterAbsorptionStore.setProductWaterAbsorptionList(metadata.waterAbsoroptionDtos);
+      supplierTaxStore.setProductSupplierTaxList(metadata.supplierTaxDtos);
+      roleStore.setRoleList(metadata.roleDtos);
+    });
+  };
+
   const loadMetadata = async () => {
-    // Nếu đã có metadata trong localStorage thì dùng luôn, không gọi lại API
     const cachedMetadata = OfflineStorage.getMetadata();
     if (cachedMetadata) {
       setMetadata({
@@ -92,54 +113,17 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         error: null,
         lastUpdated: Date.now()
       });
-      // Cập nhật các store liên quan nếu cần
-      companyCodeStore.setProductCompanyCodeList(cachedMetadata.companyCodeDtos);
-      calculatedUnitStore.setProductCalculatedUnitList(cachedMetadata.calculatedUnitDtos);
-      antiSlipperyStore.setProductAntiSlipperyList(cachedMetadata.productAntiSlipperyDtos);
-      areaStore.setProductAreaList(cachedMetadata.productAreaDtos);
-      bodyColorStore.setProductBodyColorList(cachedMetadata.productBodyColorDtos);
-      colorStore.setProductColorList(cachedMetadata.productColorDtos);
-      factoryStore.setProductFactoryList(cachedMetadata.productFactoryDtos);
-      materialStore.setProductMaterialList(cachedMetadata.productMaterialDtos);
-      originStore.setProductOriginList(cachedMetadata.productOriginDtos);
-      patternStore.setProductPatternList(cachedMetadata.productPatternDtos);
-      processingStore.setProductProcessingList(cachedMetadata.productProcessingDtos);
-      sizeStore.setProductSizeList(cachedMetadata.productSizeDtos);
-      storageStore.setProductStorageList(cachedMetadata.productStorageDtos);
-      supplierStore.setProductSupplierList(cachedMetadata.productSupplierDtos);
-      surfaceStore.setProductSurfaceList(cachedMetadata.productSurfaceDtos);
-      waterAbsorptionStore.setProductWaterAbsorptionList(cachedMetadata.waterAbsoroptionDtos);
-      supplierTaxStore.setProductSupplierTaxList(cachedMetadata.supplierTaxDtos);
-      roleStore.setRoleList(cachedMetadata.roleDtos);
+      updateStores(cachedMetadata);
       return;
     }
 
-    // Nếu không có metadata, mới gọi API
     try {
       setMetadata((prev) => ({ ...prev, loading: true, error: null }));
       const response = await agent.Product.getProductMetadata();
       if (response && response.data) {
         const fetchedMetadata = response.data;
         OfflineStorage.saveMetadata(fetchedMetadata);
-        // Update stores
-        companyCodeStore.setProductCompanyCodeList(fetchedMetadata.companyCodeDtos);
-        calculatedUnitStore.setProductCalculatedUnitList(fetchedMetadata.calculatedUnitDtos);
-        antiSlipperyStore.setProductAntiSlipperyList(fetchedMetadata.productAntiSlipperyDtos);
-        areaStore.setProductAreaList(fetchedMetadata.productAreaDtos);
-        bodyColorStore.setProductBodyColorList(fetchedMetadata.productBodyColorDtos);
-        colorStore.setProductColorList(fetchedMetadata.productColorDtos);
-        factoryStore.setProductFactoryList(fetchedMetadata.productFactoryDtos);
-        materialStore.setProductMaterialList(fetchedMetadata.productMaterialDtos);
-        originStore.setProductOriginList(fetchedMetadata.productOriginDtos);
-        patternStore.setProductPatternList(fetchedMetadata.productPatternDtos);
-        processingStore.setProductProcessingList(fetchedMetadata.productProcessingDtos);
-        sizeStore.setProductSizeList(fetchedMetadata.productSizeDtos);
-        storageStore.setProductStorageList(fetchedMetadata.productStorageDtos);
-        supplierStore.setProductSupplierList(fetchedMetadata.productSupplierDtos);
-        surfaceStore.setProductSurfaceList(fetchedMetadata.productSurfaceDtos);
-        waterAbsorptionStore.setProductWaterAbsorptionList(fetchedMetadata.waterAbsoroptionDtos);
-        supplierTaxStore.setProductSupplierTaxList(fetchedMetadata.supplierTaxDtos);
-        roleStore.setRoleList(fetchedMetadata.roleDtos);
+        updateStores(fetchedMetadata);
         setMetadata({
           ProductMetadataDto: fetchedMetadata,
           loading: false,
@@ -151,7 +135,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       }
     } catch (error) {
       console.error('Error loading metadata:', error);
-      // If we have cached metadata, use it
       const cachedMetadata = OfflineStorage.getMetadata();
       if (cachedMetadata) {
         setMetadata({
@@ -160,6 +143,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
           error: null,
           lastUpdated: Date.now()
         });
+        updateStores(cachedMetadata);
       } else {
         setMetadata((prev) => ({
           ...prev,
@@ -171,7 +155,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     }
   };
 
-  // Effect for initial load and periodic refresh
   useEffect(() => {
     const shouldLoadMetadata = isOnline && (
       !metadata.lastUpdated || 
@@ -182,41 +165,6 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       loadMetadata();
     }
   }, [isOnline, metadata.lastUpdated]);
-
-  // Effect to watch for category changes
-  useEffect(() => {
-    if (!isOnline) return;
-
-    const handleCategoryChange = () => {
-      loadMetadata();
-    };
-
-    // Subscribe to category changes
-    const disposers = [
-      supplierStore.addChangeListener(handleCategoryChange),
-      // sizeStore.addChangeListener(handleCategoryChange),
-      // patternStore.addChangeListener(handleCategoryChange),
-      // surfaceStore.addChangeListener(handleCategoryChange),
-      // materialStore.addChangeListener(handleCategoryChange),
-      // colorStore.addChangeListener(handleCategoryChange),
-      // calculatedUnitStore.addChangeListener(handleCategoryChange),
-      // factoryStore.addChangeListener(handleCategoryChange),
-      // processingStore.addChangeListener(handleCategoryChange),
-      // companyCodeStore.addChangeListener(handleCategoryChange),
-      // storageStore.addChangeListener(handleCategoryChange),
-      // originStore.addChangeListener(handleCategoryChange),
-      // bodyColorStore.addChangeListener(handleCategoryChange),
-      // antiSlipperyStore.addChangeListener(handleCategoryChange),
-      // waterAbsorptionStore.addChangeListener(handleCategoryChange),
-      // areaStore.addChangeListener(handleCategoryChange),
-      // supplierTaxStore.addChangeListener(handleCategoryChange),
-      // roleStore.addChangeListener(handleCategoryChange)
-    ];
-
-    return () => {
-      disposers.forEach(dispose => dispose());
-    };
-  }, [isOnline]);
 
   return (
     <ProductMetadataContext.Provider
