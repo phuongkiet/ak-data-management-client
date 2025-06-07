@@ -39,9 +39,9 @@ function ProductTable() {
     loadingCombinations,
   } = productStore;
 
-  const { productSupplierList, loadSuppliers } = supplierStore;
+  const { productSupplierList } = supplierStore;
 
-  const { productSizeList, loadSizes } = sizeStore;
+  const { productSizeList } = sizeStore;
 
   useEffect(() => {
     if (isOnline) {
@@ -57,8 +57,6 @@ function ProductTable() {
       
       // Load initial data
       await Promise.all([
-        loadSuppliers(),
-        loadSizes(),
         loadProducts(),
         productStore.initialize()
       ]);

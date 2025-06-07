@@ -36,9 +36,7 @@ function SignInForm() {
           await userStore.resendEmailConfirm({email: values.email})
           // Chuyển đến trang verify email
           navigate('/verify-email')
-        } else {
-          toast.error(res.errors?.[0] || 'Đăng nhập thất bại')
-        }
+        } 
       } catch (err) {
         toast.error('Đã xảy ra lỗi hệ thống.')
         console.error(err)

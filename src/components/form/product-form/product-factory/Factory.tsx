@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
+import { useApi } from "../../../../hooks/useApi.ts";
 
 interface Option {
   value: number;
@@ -20,6 +21,7 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { productForm } = productStore;
   const { getFactoriesBySupplier, productFactoryList, loading } = factoryStore;
   const [selectedFactory, setSelectedFactory] = useState<Option | null>(null);
+  const { isOnline } = useApi();
 
   // Mapping list
   const factoryOptions: Option[] = productFactoryList.map((factory) => ({
@@ -34,7 +36,9 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
       setSelectedFactory(null); 
       
       if (productForm.supplierId) {
-        await getFactoriesBySupplier(productForm.supplierId);
+        if (isOnline) {
+          await getFactoriesBySupplier(productForm.supplierId);
+        }
         
         // Set initial selected factory if in edit mode
         if (!isCreateMode && product?.productFactoryId) {
