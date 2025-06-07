@@ -1,13 +1,11 @@
 import { useLocation, useNavigate } from 'react-router';
 import { useStore } from '../stores/store.ts';
 import { useEffect } from 'react';
-import AppLayoutBase from './admin/AppLayout.tsx';
+import RoleBasedLayout from './RoleBasedLayout.tsx';
 import { ProductMetadataProvider } from '../context/ProductMetadataContext';
 import { observer } from "mobx-react-lite";
 import { SyncService } from '../services/syncService';
 import { NetworkStatus } from '../components/common/NetworkStatus';
-
-const AppLayout = observer(AppLayoutBase);
 
 const App = observer(() => {
   const { commonStore, userStore } = useStore();
@@ -18,7 +16,9 @@ const App = observer(() => {
     if (commonStore.token) {
       userStore.getUser().finally(() => {
         commonStore.setAppLoaded();
-        console.log("App loaded, user:", userStore.user);
+        if (location.pathname === '/signin') {
+          navigate('/');
+        }
       });
     } else {
       commonStore.setAppLoaded();
@@ -26,7 +26,7 @@ const App = observer(() => {
         navigate('/signin');
       }
     }
-  }, [commonStore, userStore, location.pathname, navigate]);
+  }, [commonStore.token, location.pathname, navigate, userStore]);
 
   // Initialize sync service
   useEffect(() => {
@@ -45,7 +45,7 @@ const App = observer(() => {
     <NetworkStatus>
       <div className="app">
         <ProductMetadataProvider>
-          <AppLayout/>
+          <RoleBasedLayout/>
         </ProductMetadataProvider>
       </div>
     </NetworkStatus>

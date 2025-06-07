@@ -11,9 +11,10 @@ import CalculatedUnit from "../../calculated-unit/CalculatedUnit.tsx";
 import { ProductDetail } from "../../../../../app/models/product/product.model.ts";
 import { appCurrency } from "../../../../../app/common/common.ts";
 import { NumericFormat } from "react-number-format";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import FactoryGroup from "../../product-factory/Factory.tsx";
 import { useNetworkStatus } from "../../../../../hooks/useNetworkStatus";
+import { debounce } from "lodash";
 
 interface ProductProps {
   product?: ProductDetail;
@@ -53,6 +54,7 @@ const ProductDefaultInputs = ({
     product?.deliveryEstimatedDate || ""
   );
   const [manualOrderNumber, setManualOrderNumber] = useState<string>("");
+  const [isChecking, setIsChecking] = useState(false);
 
   // Add effect to update product code when supplier changes
   useEffect(() => {
@@ -219,19 +221,33 @@ const ProductDefaultInputs = ({
     onChange && onChange("confirmSupplierItemCode", newConfirmSupplierItemCode);
   };
 
-  const handleSupplierItemCodeChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  // Debounced check function
+  const debouncedCheck = useCallback(
+    debounce(async (value: string) => {
+      if (!value) {
+        setIsValidSupplierCode(null);
+        return;
+      }
+      setIsChecking(true);
+      try {
+        const isValid = await productStore.checkSupplierItemCode(value);
+        setIsValidSupplierCode(!isValid);
+      } catch (error) {
+        console.error("Error checking supplier code:", error);
+        setIsValidSupplierCode(false);
+      } finally {
+        setIsChecking(false);
+      }
+    }, 500),
+    []
+  );
+
+  const handleSupplierItemCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setSupplierItemCode(newValue);
     if (isCreateMode) {
       productStore.updateProductForm("supplierItemCode", newValue);
-      if (newValue) {
-        const isValid = await productStore.checkSupplierItemCode(newValue);
-        setIsValidSupplierCode(isValid ?? false);
-      } else {
-        setIsValidSupplierCode(null);
-      }
+      debouncedCheck(newValue);
     } else {
       updateConfirmSupplierItemCode(newValue, product?.companyCodeId);
     }
@@ -249,6 +265,13 @@ const ProductDefaultInputs = ({
       );
     }
   }, [product?.supplierItemCode, product?.companyCodeId, isCreateMode]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedCheck.cancel();
+    };
+  }, [debouncedCheck]);
 
   const editModeSku = (() => {
     if (!isCreateMode && product?.companyCodeId && product?.supplierItemCode) {
@@ -369,7 +392,7 @@ const ProductDefaultInputs = ({
                       : isValidSupplierCode
                       ? "text-blue-500"
                       : "text-red-500"
-                  }`}
+                  } ${isChecking ? "opacity-50" : ""}`}
                 />
               </div>
 
@@ -458,7 +481,7 @@ const ProductDefaultInputs = ({
                     : isValidSupplierCode
                     ? "text-blue-500"
                     : "text-red-500"
-                }`}
+                } ${isChecking ? "opacity-50" : ""}`}
               />
             </div>
 

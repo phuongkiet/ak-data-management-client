@@ -1,14 +1,14 @@
-import {Navigate, Outlet, useLocation} from 'react-router-dom';
-import {useStore} from "../stores/store.ts";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useStore } from "../stores/store.ts";
 import { observer } from "mobx-react-lite";
 
 interface Props {
   allowedRoles: string[];
 }
 
-export const ProtectedRoute = observer(({ allowedRoles } : Props) => {
+export const ProtectedRoute = observer(({ allowedRoles }: Props) => {
   const { userStore } = useStore();
-  const {user} = userStore;
+  const { user } = userStore;
   const location = useLocation();
 
   if (!user) {
@@ -16,8 +16,8 @@ export const ProtectedRoute = observer(({ allowedRoles } : Props) => {
   }
 
   if (!allowedRoles.includes(user.role[0])) {
-    return <Navigate to='/' state={{from: location}}/>
+    return <Navigate to="/" state={{ from: location }} />;
   }
 
-  return <Outlet/>;
+  return <Outlet />;
 });

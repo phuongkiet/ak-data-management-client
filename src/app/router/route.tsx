@@ -130,6 +130,20 @@ export const routes: RouteObject[] = [
             ),
           }
         ]
+      },
+
+      {
+        path: "/",
+        element: <ProtectedRoute allowedRoles={["Admin", "Strategist"]} />,
+        children: [
+          {
+            index: true,
+            path: 'strategy-products',
+            element: (
+              <StrategyProductTable/>
+            ),
+          }
+        ]
       }
     ]
   },

@@ -466,12 +466,11 @@ export default class ProductStore {
 
   checkSupplierItemCode = async (supplierItemCode: string) => {
     try {
-      const response = await agent.Product.checkSupplierItemCode(
-        supplierItemCode
-      );
+      const response = await agent.Product.checkSupplierItemCode(supplierItemCode);
       return response.data;
     } catch (error) {
       console.error("Error checking SKU:", error);
+      return false; // Return false on error to indicate invalid code
     }
   };
 
