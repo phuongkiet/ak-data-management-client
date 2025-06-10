@@ -1,3 +1,4 @@
+
 export interface ProductSupplierDto {
   id: number;
   supplierName: string;
@@ -30,6 +31,9 @@ export interface SupplierDetailDto{
   supplierStorageAddress: string | null;
   firstContactInfomation: string | null;
   secondContactInfomation: string | null;
+  taxId: number | null;
+  supplierFactories: number[];
+  productServices: number | null;
 }
 
 export interface AddSupplierDto{
@@ -68,4 +72,7 @@ export interface UpdateSupplierForStrategyDto{
   supplierStorageAddress: string | null;
   firstContactInfomation: string | null;
   secondContactInfomation: string | null;
+  taxId: number | null;
+  supplierFactories: number[];
+  productServices: number | null;
 }

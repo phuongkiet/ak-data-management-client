@@ -49,6 +49,7 @@ function SurfaceTable() {
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
           modalStyle="w-full max-w-4xl rounded-3xl space-y-4 p-6"
+          className="text-white"
           modalContent={
             <div>
               <h1 className="text-2xl font-bold mb-2">Tạo bề mặt</h1>
@@ -115,6 +116,7 @@ function SurfaceTable() {
           onSearch={(term) => {
             surfaceStore.setTerm(term);
           }}
+          isOnline={isOnline}
         >
           <SurfaceTableComponent
             data={productSurfaceList}

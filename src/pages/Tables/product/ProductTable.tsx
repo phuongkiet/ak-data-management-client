@@ -271,6 +271,7 @@ function ProductTable() {
           title="Bảng mã hàng"
           addButtonText={"Tạo mã hàng"}
           addButtonLink={"add-product"}
+          className="text-white"
           additionalButtons={
             <>
               <input
@@ -284,13 +285,13 @@ function ProductTable() {
               <div className="hidden md:inline-flex gap-2">
                 <Button
                   onClick={handleImportClick}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
                 >
                   Nhập file
                 </Button>
                 <Button
                   onClick={handleAdvancedOpen}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
                 >
                   Nâng cao
                 </Button>

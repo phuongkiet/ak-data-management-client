@@ -27,3 +27,8 @@ export enum UploadWebsiteStatus {
 export enum DiscountConditions {
   Basic = 0,
 }
+
+export enum ProductService {
+  DeliverConstruction = 1,
+  ReceiveAtStorage = 2,
+}

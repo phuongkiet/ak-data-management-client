@@ -70,9 +70,10 @@ const StrategyProductTable = () => {
       <div className="space-y-6">
         <TableComponentCard
           title="Bảng tính giá"
+          className="text-white"
           additionalButtons={
             <Button
-              className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800"
+              className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
               disabled={selectedIds.length === 0}
               onClick={() => setIsBulkModalOpen(true)}
             >

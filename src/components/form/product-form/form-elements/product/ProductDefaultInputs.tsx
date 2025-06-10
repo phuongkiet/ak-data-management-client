@@ -15,6 +15,8 @@ import { useState, useEffect, useCallback } from "react";
 import FactoryGroup from "../../product-factory/Factory.tsx";
 import { useNetworkStatus } from "../../../../../hooks/useNetworkStatus";
 import { debounce } from "lodash";
+import Button from "../../../../ui/button/Button.tsx";
+import ProcessingPriceModal from "./ProcessingPriceModal";
 
 interface ProductProps {
   product?: ProductDetail;
@@ -33,13 +35,13 @@ const ProductDefaultInputs = ({
     companyCodeStore,
     sizeStore,
     supplierStore,
-    patternStore
+    patternStore,
   } = useStore();
 
-  const { productSizeList } = sizeStore
-  const { productSupplierList } = supplierStore
-  const { productCompanyCodeList } = companyCodeStore
-  const { productPatternList } = patternStore
+  const { productSizeList } = sizeStore;
+  const { productSupplierList } = supplierStore;
+  const { productCompanyCodeList } = companyCodeStore;
+  const { productPatternList } = patternStore;
 
   const [confirmSupplierItemCode, setConfirmSupplierItemCode] = useState<
     string | undefined
@@ -55,6 +57,7 @@ const ProductDefaultInputs = ({
   );
   const [manualOrderNumber, setManualOrderNumber] = useState<string>("");
   const [isChecking, setIsChecking] = useState(false);
+  const [isProcessingPriceModalOpen, setIsProcessingPriceModalOpen] = useState(false);
 
   // Add effect to update product code when supplier changes
   useEffect(() => {
@@ -82,7 +85,9 @@ const ProductDefaultInputs = ({
 
       if (supplier?.supplierShortCode) {
         const patternCode = pattern?.shortCode || "";
-        const orderNumber = isOnline ? productStore.productForm.productOrderNumber : manualOrderNumber;
+        const orderNumber = isOnline
+          ? productStore.productForm.productOrderNumber
+          : manualOrderNumber;
         const newBarCode = `${supplier.supplierShortCode}.${orderNumber}${patternCode}`;
         productStore.updateProductForm("autoBarCode", newBarCode);
       }
@@ -96,7 +101,7 @@ const ProductDefaultInputs = ({
     productStore.productForm.supplierId,
     productStore.productForm.productOrderNumber,
     manualOrderNumber,
-    productStore.productForm.processingId,
+    productStore.productForm.productProcessingId,
     productStore.productForm.brickPatternId,
   ]);
 
@@ -109,7 +114,9 @@ const ProductDefaultInputs = ({
         (x) => x.id === productStore.productForm.supplierId
       );
       if (supplier?.supplierShortCode) {
-        const orderNumber = isOnline ? productStore.productForm.productOrderNumber : manualOrderNumber;
+        const orderNumber = isOnline
+          ? productStore.productForm.productOrderNumber
+          : manualOrderNumber;
         const newProductCode = `${supplier.supplierShortCode}.${orderNumber}`;
         productStore.updateProductForm("productCode", newProductCode);
       }
@@ -125,7 +132,9 @@ const ProductDefaultInputs = ({
     manualOrderNumber,
   ]);
 
-  const handleManualOrderNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleManualOrderNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const value = e.target.value;
     setManualOrderNumber(value);
     const numericValue = parseInt(value) || 0;
@@ -242,7 +251,9 @@ const ProductDefaultInputs = ({
     []
   );
 
-  const handleSupplierItemCodeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSupplierItemCodeChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const newValue = e.target.value;
     setSupplierItemCode(newValue);
     if (isCreateMode) {
@@ -399,7 +410,7 @@ const ProductDefaultInputs = ({
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-                  {(isOnline || productStore.productForm.productOrderNumber) ? (
+                  {isOnline || productStore.productForm.productOrderNumber ? (
                     <Input
                       type="number"
                       id="input"
@@ -430,13 +441,17 @@ const ProductDefaultInputs = ({
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+                <ProductLabel htmlFor="input">
+                  Tên hiển thị website
+                </ProductLabel>
                 <Input
                   type="text"
                   id="input"
                   placeholder="Ô tự động điền"
                   className="text-red-500"
-                  value={product?.displayWebsiteName || websiteProductName || ""}
+                  value={
+                    product?.displayWebsiteName || websiteProductName || ""
+                  }
                   onChange={handleWebsiteProductNameChange}
                 />
               </div>
@@ -487,7 +502,7 @@ const ProductDefaultInputs = ({
 
             <div>
               <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-              {(isOnline || productStore.productForm.productOrderNumber) ? (
+              {isOnline || productStore.productForm.productOrderNumber ? (
                 <Input
                   type="number"
                   id="input"
@@ -649,7 +664,9 @@ const ProductDefaultInputs = ({
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">Giá sản phẩm website</ProductLabel>
+                <ProductLabel htmlFor="input">
+                  Giá sản phẩm website
+                </ProductLabel>
                 <NumericFormat
                   value={product?.productPrice}
                   thousandSeparator
@@ -675,7 +692,9 @@ const ProductDefaultInputs = ({
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <ProductLabel htmlFor="input">Khối lượng KG/Viên</ProductLabel>
+                  <ProductLabel htmlFor="input">
+                    Khối lượng KG/Viên
+                  </ProductLabel>
                   <Input
                     type="number"
                     id="input"
@@ -745,7 +764,9 @@ const ProductDefaultInputs = ({
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+                <ProductLabel htmlFor="input">
+                  Tên hiển thị website
+                </ProductLabel>
                 <Input
                   type="text"
                   id="input"
@@ -957,14 +978,30 @@ const ProductDefaultInputs = ({
             </div>
           </div>
 
-          <div>
-            <ProductLabel>Gia công khác</ProductLabel>
-            <ProcessingGroup
-              product={product}
-              isCreateMode={isCreateMode}
-              onChange={onChange}
-            />
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-10">
+              <ProductLabel>Gia công khác</ProductLabel>
+              <ProcessingGroup
+                product={product}
+                isCreateMode={isCreateMode}
+                onChange={onChange}
+              />
+            </div>
+            <div className="col-span-2 flex items-end">
+              <Button 
+                className="w-full max-h-[44px] text-md font-semibold bg-[#334355] hover:bg-[#283849] text-white"
+                onClick={() => setIsProcessingPriceModalOpen(true)}
+              >
+                Xem giá
+              </Button>
+            </div>
           </div>
+
+          <ProcessingPriceModal
+            isOpen={isProcessingPriceModalOpen}
+            onClose={() => setIsProcessingPriceModalOpen(false)}
+            product={product}
+          />
 
           <div className="space-y-6 mt-6">
             <div>

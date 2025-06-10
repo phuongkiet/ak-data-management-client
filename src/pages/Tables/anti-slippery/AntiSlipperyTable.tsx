@@ -51,6 +51,7 @@ function AntiSlipperyTable() {
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
           modalStyle="w-full max-w-lg rounded-3xl space-y-4 p-6"
+          className="text-white"
           modalContent={
             <div>
               <h1 className="text-2xl font-bold mb-2">Tạo chất liệu</h1>
@@ -117,6 +118,7 @@ function AntiSlipperyTable() {
           onSearch={(term) => {
             antiSlipperyStore.setTerm(term);
           }}
+          isOnline={isOnline}
         >
           <AntiSlipperyTableComponent
             data={productAntiSlipperyList}

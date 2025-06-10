@@ -11,6 +11,7 @@ import {
   ProductMetadataDto,
   EditBulkStrategyProductDto,
   EditStrategyProductDto,
+  CalculateProcessingPriceRequest,
 } from "../models/product/product.model";
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
@@ -80,7 +81,7 @@ export default class ProductStore {
         antiSlipId: null,
         supplierId: null,
         companyCodeId: null,
-        processingId: null,
+        productProcessingId: null,
         waterAbsorptionId: null,
         taxId: null,
         calculatedUnitId: null,
@@ -705,6 +706,22 @@ export default class ProductStore {
       });
     } catch (error) {
       console.error("Error getting product metadata:", error);
+    }
+  };
+
+  calculateProcessingPrice = async (dto: CalculateProcessingPriceRequest) => {
+    try {
+      const response = await agent.Product.calculateProcessingPrice(dto);
+      if(response.success) {
+        return response.data;
+      } else {
+        toast.error(response.errors?.[0] || "Lỗi khi tính toán giá gia công");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error calculating processing price:", error);
+      toast.error("Lỗi khi tính toán giá gia công");
+      return null;
     }
   };
 }

@@ -55,13 +55,11 @@ export default class UserStore {
   getUser = async () => {
     try {
       const user = await agent.Account.current();
-      console.log("API /auth trả về:", user);
       if (user.data) {
         store.commonStore.setToken(user.data.token);
       }
       runInAction(() => {
         this.user = user.data;
-        console.log("userStore.user được set:", this.user);
       });
     } catch (error) {
       console.error("getUser error", error);
@@ -77,7 +75,6 @@ export default class UserStore {
     this.loading = true;
     try{
       const users = await agent.UserAdmin.adminList(term ?? undefined);
-      console.log("users", users);
       if(users.data){
         runInAction(() => {
           this.userList = users.data || [];

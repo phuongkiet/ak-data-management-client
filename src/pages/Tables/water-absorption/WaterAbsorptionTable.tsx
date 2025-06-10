@@ -22,7 +22,7 @@ const operatorOptions = [
 function WaterAbsorptionTable() {
   const { waterAbsorptionStore } = useStore();
   const { loadWaterAbsorption, productWaterAbsorptionList, loading } =
-    waterAbsorptionStore;
+    waterAbsorptionStore; 
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [operator, setOperator] = useState("");
@@ -70,6 +70,7 @@ function WaterAbsorptionTable() {
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
           modalStyle="w-full max-w-md rounded-3xl space-y-4 p-6"
+          className="text-white"
           modalContent={
             <div>
               <h1 className="text-2xl font-bold mb-2">Tạo mức độ hút nước</h1>
@@ -171,6 +172,7 @@ function WaterAbsorptionTable() {
           onSearch={(term) => {
             waterAbsorptionStore.setTerm(term);
           }}
+          isOnline={isOnline}
         >
           <WaterAbsorptionTableComponent
             data={productWaterAbsorptionList}

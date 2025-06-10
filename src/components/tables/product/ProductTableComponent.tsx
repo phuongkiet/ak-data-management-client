@@ -284,7 +284,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           Number(row.uploadWebsiteStatus) === 1 ||
           row.uploadWebsiteStatus === "Uploaded";
         return (
-          <Badge size="sm" color={isUploaded ? "success" : "error"}>
+          <Badge size="xs" color={isUploaded ? "success" : "error"}>
             {uploadWebsiteStatusToVietnamese(row.uploadWebsiteStatus)}
           </Badge>
         );

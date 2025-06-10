@@ -216,6 +216,7 @@ const StrategyProductInputGroupRight = ({
                 const updatedProduct = { ...productStore.strategyProductDetail };
                 updatedProduct.taxId = option.value;
                 updatedProduct.taxRateNumber = tax.taxRate;
+                updatedProduct.taxRate = tax.taxRate;
                 productStore.calculateStrategyProductFields(updatedProduct);
               }
             } else {

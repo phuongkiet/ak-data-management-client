@@ -120,6 +120,7 @@ function SupplierTable() {
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
           isModalOpen={isModalOpen}
+          className="text-white"
           modalContent={
             <div>
               <h1 className="text-2xl font-bold mb-2">Tạo nhà cung cấp</h1>
@@ -268,6 +269,7 @@ function SupplierTable() {
           onSearch={(term) => {
             supplierStore.setTerm(term);
           }}
+          isOnline={isOnline}
         >
           <SupplierTableComponent
             data={productSupplierList}

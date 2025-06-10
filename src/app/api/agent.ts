@@ -19,8 +19,10 @@ import {
   StrategyProductDto,
   SupplierSizeCombinationDto,
   EditStrategyProductDto,
+  CalculateProcessingPriceRequest,
+  CalculateProcessingPriceResponse,
 } from "../models/product/product.model.ts";
-import { ProductSupplierDto } from "../models/product/productSupplier.model.ts";
+import { ProductSupplierDto, SupplierDetailDto, UpdateSupplierForStrategyDto } from "../models/product/productSupplier.model.ts";
 import {
   AddMaterialDto,
   ProductMaterialDto,
@@ -315,6 +317,14 @@ const Product = {
       `/products/strategy-edit-product?productId=${id}`,
       editStrategyProductDto
     ),
+
+  calculateProcessingPrice: (
+    calculateProcessingPriceRequest: CalculateProcessingPriceRequest
+  ): Promise<ApiResponseModel<CalculateProcessingPriceResponse>> =>
+    requests.post<CalculateProcessingPriceResponse>(
+      "products/calculate-processing-product",
+      calculateProcessingPriceRequest
+    ),
 };
 
 const ProductSupplier = {
@@ -334,6 +344,9 @@ const ProductSupplier = {
     term: string
   ): Promise<ApiResponseModel<number>> =>
     requests.get<number>(`/suppliers/get-order?term=${term}`),
+  updateSupplier: (id: number, supplier: UpdateSupplierForStrategyDto): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/suppliers/strategist-update-supplier?supplierId=${id}`, supplier),
+  loadDetail: (id: number): Promise<ApiResponseModel<SupplierDetailDto>> => requests.get<SupplierDetailDto>(`/suppliers/supplier-detail?supplierId=` + id),
 };
 
 const ProductMaterial = {

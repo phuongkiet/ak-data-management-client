@@ -197,7 +197,7 @@ export interface ProductDetail {
   taxRate: number;
   calculatedUnitId: number;
   companyCodeId: number;
-  processingId: number[];
+  productProcessingId: number[];
   productFactoryId: number | null;
 
   priceDetermination: PriceDetermination;
@@ -222,7 +222,7 @@ export interface AddProductDto {
   antiSlipId: number | null;
   supplierId: number | null;
   companyCodeId: number | null;
-  processingId: number[] | null;
+  productProcessingId: number[] | null;
   waterAbsorptionId: number | null;
   taxId: number | null;
   calculatedUnitId: number | null;
@@ -406,6 +406,28 @@ export interface EditBulkStrategyProductDto {
   ids: number[];
   editStrategyProductDto: EditStrategyProductDto;
 }
+
+export interface CalculateProcessingPriceResponse {
+  // Basic information
+  processingCost: number;
+  // New dimension information
+  processedDimensions: string; // Example: "10x120 cm"
+  processedAreaM2: number;    // Area in m2 of one processed piece
+
+  // Price information per piece
+  retailPricePerPiece: number;
+  webPricePerPiece: number;
+}
+
+export interface CalculateProcessingPriceRequest {
+  productId: number;
+  processingId: number;
+  quantity: number;
+}
+
+
+
+
 
 
 

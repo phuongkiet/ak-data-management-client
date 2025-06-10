@@ -40,6 +40,7 @@ import ForgotPassword from '../../pages/AuthPages/ForgotPassword.tsx'
 import ResetPassword from '../../pages/AuthPages/ResetPassword.tsx'
 import VerifyEmail from '../../pages/AuthPages/VerifyEmail.tsx'
 import StrategyProductDetail from '../../pages/StrategyProducts/StrategyProductDetail.tsx'
+import SupplierDetail from '../../pages/Suppliers/SupplierDetail.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -144,7 +145,21 @@ export const routes: RouteObject[] = [
             ),
           }
         ]
-      }
+      },
+
+      {
+        path: "/",
+        element: <ProtectedRoute allowedRoles={["Admin", "Strategist"]} />,
+        children: [
+          {
+            index: true,
+            path: 'suppliers/detail/:id',
+            element: (
+              <SupplierDetail/>
+            ),
+          }
+        ]
+      },
     ]
   },
 

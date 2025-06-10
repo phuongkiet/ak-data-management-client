@@ -28,8 +28,8 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
 
   // Ensure processingId is always an array
   const selectedProcessings = processingOptions.filter(option =>
-    Array.isArray(isCreateMode ? productForm.processingId : product?.processingId)
-      ? (isCreateMode ? productForm.processingId : product?.processingId)?.includes(option.value)
+    Array.isArray(isCreateMode ? productForm.productProcessingId : product?.productProcessingId)
+      ? (isCreateMode ? productForm.productProcessingId : product?.productProcessingId)?.includes(option.value)
       : false
   )
 
@@ -44,9 +44,9 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
           onChange={(selected) => {
             const ids = selected ? selected.map((s: Option) => s.value) : [];
             if (onChange) {
-              onChange("processingId", ids);
+              onChange("productProcessingId", ids);
             } else if (isCreateMode) {
-              productStore.updateProductForm("processingId", ids);
+              productStore.updateProductForm("productProcessingId", ids);
             }
           }}
           placeholder={'Chọn gia công...'}
