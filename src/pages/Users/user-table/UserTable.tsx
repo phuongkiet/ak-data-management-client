@@ -276,6 +276,7 @@ function UserTable() {
           onSearch={(term) => {
             userStore.setTerm(term);
           }}
+          isOnline={isOnline}
         >
           <UserTableComponent
             data={Array.isArray(userList) ? [...userList] : []}

@@ -228,6 +228,10 @@ const UserAdmin = {
   },
   addUser: (user: AddUserDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/users/add-user", user),
+  banUser: (userEmail: string): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/users/ban-user?userEmail=${userEmail}`, {}),
+  unBanUser: (userEmail: string): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/users/unban-user?userEmail=${userEmail}`, {}),
 };
 
 const Product = {

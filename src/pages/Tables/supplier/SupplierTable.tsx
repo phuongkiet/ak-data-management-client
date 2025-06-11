@@ -123,7 +123,7 @@ function SupplierTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo nhà cung cấp</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo nhà cung cấp</h1>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>

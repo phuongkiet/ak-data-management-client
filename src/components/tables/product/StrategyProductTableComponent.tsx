@@ -65,6 +65,11 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
       sortable: true,
     },
     {
+      name: 'Chính sách chuẩn',
+      selector: row => row.policyStandard?.toLocaleString() ? row.policyStandard?.toLocaleString() + "%" : 'Chưa có',
+      sortable: true,
+    },
+    {
       name: 'Kích thước thực tế',
       selector: row => row.size,
     },

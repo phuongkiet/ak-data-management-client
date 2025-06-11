@@ -73,7 +73,7 @@ function WaterAbsorptionTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo mức độ hút nước</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo mức độ hút nước</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
                   <ProductLabel>Mức độ hút nước</ProductLabel>

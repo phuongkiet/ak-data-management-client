@@ -123,13 +123,13 @@ function SignInForm() {
               <div className="flex items-center justify-between">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  className="text-sm text-[#334357] hover:text-[#334357]/80 dark:text-brand-400"
                 >
                   Quên mật khẩu?
                 </Link>
               </div>
               <div>
-                <Button disabled={formik.isSubmitting} type="submit" className="w-full" size="sm">
+                <Button disabled={formik.isSubmitting} type="submit" className="w-full bg-[#334357] text-white font-semibold hover:bg-[#334357]/80" size="sm">
                   {formik.isSubmitting ? 'Đang xử lý...' : 'Đăng nhập'}
                 </Button>
               </div>

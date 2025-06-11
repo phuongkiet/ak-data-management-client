@@ -58,7 +58,7 @@ function SizeTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo kích thước</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo kích thước</h1>
               <div className="space-y-4">
                 {/* Row: Wide and Length */}
                 <div className="grid grid-cols-2 gap-4">

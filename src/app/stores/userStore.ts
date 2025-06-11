@@ -170,4 +170,30 @@ export default class UserStore {
       return false;
     }
   }
+
+  banUser = async (userEmail: string) => {
+    try {
+      const result = await agent.UserAdmin.banUser(userEmail);
+      if(result.success) {
+        toast.success(result.data);
+        this.listAllUser();
+      }
+    } catch (error) {
+      console.error("banUser error", error);
+      toast.error("Lỗi khi khóa người dùng");
+    }
+  }
+
+  unBanUser = async (userEmail: string) => {
+    try {
+      const result = await agent.UserAdmin.unBanUser(userEmail);
+      if(result.success) {
+        toast.success(result.data);
+        this.listAllUser();
+      }
+    } catch (error) {
+      console.error("unBanUser error", error);
+      toast.error("Lỗi khi mở khóa người dùng");
+    }
+  }
 }

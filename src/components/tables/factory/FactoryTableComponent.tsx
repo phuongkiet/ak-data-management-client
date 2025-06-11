@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import DataTable, { TableColumn } from 'react-data-table-component';
-import { ProductFactoryDto } from '../../../app/models/product/productFactory.model.ts';
-import { useStore } from '../../../app/stores/store.ts';
-import { observer } from 'mobx-react-lite';
-import Button from '../../ui/button/Button.tsx';
-import Modal from '../../ui/modal/index.tsx';
-import ProductLabel from '../../form/product-form/ProductLabel.tsx';
-import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
+import { useState } from "react";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { ProductFactoryDto } from "../../../app/models/product/productFactory.model.ts";
+import { useStore } from "../../../app/stores/store.ts";
+import { observer } from "mobx-react-lite";
+import Button from "../../ui/button/Button.tsx";
+import Modal from "../../ui/modal/index.tsx";
+import ProductLabel from "../../form/product-form/ProductLabel.tsx";
+import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
+import ReactSelect from "react-select";
+
 interface FactoryTableComponentProps {
   data: ProductFactoryDto[];
   loading: boolean;
@@ -19,14 +21,43 @@ interface FactoryTableComponentProps {
 }
 
 const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
-  const { factoryStore } = useStore();
+  const { factoryStore, supplierStore } = useStore();
   const { loading } = factoryStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductFactoryDto[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ProductFactoryDto[]>(
+    []
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ProductFactoryDto | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ProductFactoryDto | null>(
+    null
+  );
+  const [selectedSupplier, setSelectedSupplier] = useState<{
+    value: string;
+    label: string;
+  } | null>(null);
+  const [factoryName, setFactoryName] = useState("");
+
+  const filteredSuppliers = supplierStore.productSupplierList.filter((sup) => {
+    const code = sup.supplierShortCode || "";
+    const codeNoNumber = code.replace(/\d+$/, "");
+    return codeNoNumber.endsWith("F");
+  });
+  const supplierOptions = filteredSuppliers.map((sup) => ({
+    value: sup.supplierName,
+    label: sup.supplierName,
+  }));
 
   const handleView = (factory: ProductFactoryDto) => {
     setSelectedItem(factory);
+    const [sup, ...rest] = (factory.name || "").split("/");
+    if (rest.length > 0) {
+      setSelectedSupplier({ value: sup, label: sup });
+      setFactoryName(rest.join("/"));
+      factoryStore.updateFactoryFormUpdate("name", factory.name);
+    } else {
+      setSelectedSupplier(null);
+      setFactoryName(sup);
+      factoryStore.updateFactoryFormUpdate("name", factory.name);
+    }
     setIsModalOpen(true);
   };
 
@@ -36,25 +67,25 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
     selectedRows: ProductFactoryDto[];
   }) => {
     setSelectedProducts(state.selectedRows);
-    console.log('Selected Materials:', state.selectedRows);
-    console.log(selectedProducts)
+    console.log("Selected Factories:", state.selectedRows);
+    console.log(selectedProducts);
   };
 
   const columns: TableColumn<ProductFactoryDto>[] = [
     {
-      name: 'STT',
-      selector: row => row.id,
+      name: "STT",
+      selector: (row) => row.id,
       sortable: true,
-      maxWidth: '5px'
+      maxWidth: "5px",
     },
     {
-      name: 'Tên',
-      selector: row => row.name,
+      name: "Tên",
+      selector: (row) => row.name,
       sortable: true,
     },
     {
-      name: 'Hành động',
-      cell: row => (
+      name: "Hành động",
+      cell: (row) => (
         <button
           onClick={() => handleView(row)}
           className="text-blue-600 hover:underline font-medium"
@@ -65,7 +96,7 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-    }
+    },
   ];
 
   const handleSave = async () => {
@@ -74,42 +105,107 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
       if (success) {
         setIsModalOpen(false);
         setSelectedItem(null);
-      }else{
+      } else {
         setIsModalOpen(false);
         setSelectedItem(null);
       }
     }
-  }
+  };
 
   return (
     <>
-    <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination
-        responsive
-        highlightOnHover
-        striped
-        selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
-        progressPending={loading}
-        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
-        noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}
-      />
-    </div>
+      <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          responsive
+          highlightOnHover
+          striped
+          selectableRows
+          onSelectedRowsChange={handleSelectedRowsChange}
+          progressPending={loading}
+          progressComponent={
+            <div className="py-8 text-center font-semibold font-roboto w-full">
+              Đang chờ...
+            </div>
+          }
+          noDataComponent={
+            <div className="py-8 text-center font-semibold font-roboto w-full">
+              Không có dữ liệu để hiển thị.
+            </div>
+          }
+        />
+      </div>
 
-    <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-2xl">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        className="max-w-2xl"
+      >
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
             Chi tiết nhà máy
           </h2>
           <div className="space-y-4">
             <div>
-              <ProductLabel className="block text-sm font-medium mb-1">Tên nhà máy</ProductLabel>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Nhà cung cấp
+              </ProductLabel>
+              <ReactSelect
+                options={supplierOptions}
+                value={selectedSupplier}
+                onChange={(opt) => {
+                  setSelectedSupplier(opt);
+                  const newName = opt
+                    ? `${opt.value}/${factoryName}`
+                    : factoryName;
+                  factoryStore.updateFactoryFormUpdate("name", newName);
+                }}
+                isClearable
+                placeholder="Chọn nhà cung cấp"
+                className="react-select-container"
+                classNamePrefix="react-select"
+                isLoading={loading}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: "44px",
+                    height: "44px",
+                    fontFamily: "Roboto, sans-serif",
+                    fontSize: "14px",
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    height: "44px",
+                    padding: "0 8px",
+                  }),
+                  indicatorsContainer: (base) => ({
+                    ...base,
+                    height: "44px",
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    fontFamily: "Roboto, sans-serif",
+                    backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                    color: "black",
+                  }),
+                }}
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Tên nhà máy
+              </ProductLabel>
               <ProductInputField
-                value={factoryStore.factoryFormUpdate.name}
-                onChange={(e) => factoryStore.updateFactoryFormUpdate('name', e.target.value)}
+                value={factoryName}
+                onChange={(e) => {
+                  setFactoryName(e.target.value);
+                  const newName = selectedSupplier
+                    ? `${selectedSupplier.value}/${e.target.value}`
+                    : e.target.value;
+                  factoryStore.updateFactoryFormUpdate("name", newName);
+                }}
               />
             </div>
             <div className="flex justify-end space-x-3 mt-6">
@@ -128,7 +224,7 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
             </div>
           </div>
         </div>
-      </Modal>  
+      </Modal>
     </>
   );
 };

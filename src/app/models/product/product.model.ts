@@ -79,7 +79,8 @@ export interface StrategyProductDto {
   webSecondDiscountedPrice?: number;
 
   listPrice?: number;
-  retailPrice?: number; // Giá lẻ chưa khuyến mãi
+  retailPrice?: number; 
+  policyStandard?: number;
 }
 
 export interface StrategyProductDetailDto {

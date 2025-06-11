@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import DataTable, { TableColumn } from 'react-data-table-component';
-// import { useNavigate } from 'react-router'
 import { useStore } from '../../../app/stores/store.ts';
 import { UserDto } from '../../../app/models/user/user.model.ts';
 import Badge from '../../ui/badge/Badge.tsx';
+import { observer } from 'mobx-react-lite';
 interface UserTableComponentProps {
   data: UserDto[];
   loading: boolean;
@@ -15,15 +15,18 @@ interface UserTableComponentProps {
   searchTerm: string;
 }
 
-export default function UserTableComponent({ data }: UserTableComponentProps) {
+const UserTableComponent = ({ data }: UserTableComponentProps) => {
   const { userStore } = useStore();
   const { loading } = userStore;
   const [selectedUsers, setSelectedUsers] = useState<UserDto[]>([]);
-  // const navigate = useNavigate();
 
-  // const handleView = (user: UserDto) => {
-  //   navigate("/users/detail/" + user.id);
-  // };
+  const handleBanUser = (user: UserDto) => {
+    userStore.banUser(user.email);
+  };
+
+  const handleUnBanUser = (user: UserDto) => {
+    userStore.unBanUser(user.email);
+  };
 
   const handleSelectedRowsChange = (state: {
     allSelected: boolean;
@@ -85,20 +88,20 @@ export default function UserTableComponent({ data }: UserTableComponentProps) {
         );
       }
     },
-    // {
-    //   name: 'Hành động',
-    //   cell: row => (
-    //     <button
-    //       onClick={() => handleView(row)}
-    //       className="text-blue-600 hover:underline font-medium"
-    //     >
-    //       Xem
-    //     </button>
-    //   ),
-    //   ignoreRowClick: true,
-    //   allowOverflow: true,
-    //   button: true,
-    // }
+    {
+      name: 'Hành động',
+      cell: row => (
+        <button
+          onClick={() => row.status === 1 ? handleBanUser(row) : handleUnBanUser(row)}
+          className="text-blue-600 hover:underline font-medium"
+        >
+          {row.status === 1 ? "Khóa" : "Mở khóa"}
+        </button>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    }
   ];
 
   return (
@@ -119,3 +122,4 @@ export default function UserTableComponent({ data }: UserTableComponentProps) {
     </div>
   );
 }
+export default observer(UserTableComponent);

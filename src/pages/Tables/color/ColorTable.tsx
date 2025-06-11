@@ -51,7 +51,7 @@ function ColorTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo màu sắc</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo màu sắc</h1>
               <div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-4">

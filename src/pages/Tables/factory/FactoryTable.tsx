@@ -8,22 +8,24 @@ import FactoryTableComponent from "../../../components/tables/factory/FactoryTab
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
-import SupplierSelect from "../../../components/form/product-form/supplier/SupplierSelect.tsx";
+import ReactSelect from "react-select";
 import { useApi } from "../../../hooks/useApi.ts";
 
-function FactoryTable() {
+const FactoryTable = () => {
   const { factoryStore, supplierStore } = useStore();
   const { loadFactories, productFactoryList, loading } = factoryStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rawFactoryName, setRawFactoryName] = useState("");
+  const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   const handleFactoryNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setRawFactoryName(inputValue);
-    const supplierName = supplierStore.supplierForm.supplierName;
+    const supplierName = selectedSupplier?.label || "";
     const name = supplierName ? `${supplierName}/${inputValue}` : inputValue;
     factoryStore.updateFactoryForm("name", name);
   };
@@ -40,6 +42,19 @@ function FactoryTable() {
       handleModalClose();
     }
   };
+
+  // Lọc supplierList: chỉ lấy supplierShortCode kết thúc bằng 'F' (không tính số cuối)
+  const filteredSuppliers = supplierStore.productSupplierList.filter((sup) => {
+    // Lấy supplierShortCode, loại số cuối nếu có
+    const code = sup.supplierShortCode || "";
+    // Loại số cuối nếu có
+    const codeNoNumber = code.replace(/\d+$/, "");
+    return codeNoNumber.endsWith("F");
+  });
+  const supplierOptions = filteredSuppliers.map((sup) => ({
+    value: sup.id,
+    label: sup.supplierName,
+  }));
 
   return (
     <>
@@ -61,11 +76,48 @@ function FactoryTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo nhà máy</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo nhà máy</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
                   <ProductLabel>Mã nhà máy</ProductLabel>
-                  <SupplierSelect isCreateMode={true} />
+                  <ReactSelect
+                    options={supplierOptions}
+                    placeholder="Chọn nhà cung cấp"
+                    onChange={opt => {
+                      setSelectedSupplier(opt);
+                      const supplierName = opt?.label || "";
+                      const name = supplierName && rawFactoryName ? `${supplierName}/${rawFactoryName}` : rawFactoryName;
+                      factoryStore.updateFactoryForm("name", name);
+                    }}
+                    isClearable
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    isLoading={loading}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: "44px",
+                        height: "44px",
+                        fontFamily: "Roboto, sans-serif",
+                        fontSize: "14px",
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: "44px",
+                        padding: "0 8px",
+                      }),
+                      indicatorsContainer: (base) => ({
+                        ...base,
+                        height: "44px",
+                      }),
+                      option: (base, state) => ({
+                        ...base,
+                        fontFamily: "Roboto, sans-serif",
+                        backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                        color: "black",
+                      }),
+                    }}
+                  />
                 </div>
                 <div className="col-span-2">
                   <ProductLabel>Tên nhà máy</ProductLabel>
