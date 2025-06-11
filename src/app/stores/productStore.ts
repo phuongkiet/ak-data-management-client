@@ -724,7 +724,7 @@ export default class ProductStore {
       const response = await agent.Product.updateBatchProduct(file);
       if(response.success) {
         toast.success(response.data);
-        this.loadProducts();
+        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
       } else {
         toast.error(response.errors?.[0] || "Lỗi khi cập nhật sản phẩm");
       }
