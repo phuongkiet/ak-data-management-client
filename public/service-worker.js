@@ -1,14 +1,26 @@
-const CACHE_NAME = "ankhanh-cache-v1";
+const CACHE_NAME = "ankhanh-cache-v2";
 const urlsToCache = [
   "/",
   "/index.html"
-  // Thêm các file tĩnh khác nếu muốn cache thêm
+  // Có thể thêm các file tĩnh không đổi tên ở đây
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      )
+    )
+  );
+  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
