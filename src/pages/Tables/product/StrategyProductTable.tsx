@@ -2,7 +2,7 @@ import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
 import StrategyProductTableComponent from "../../../components/tables/product/StrategyProductTableComponent.tsx";
 import { useStore } from "../../../app/stores/store.ts";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import TableComponentCard from "../../../components/common/product/TableComponentCard.tsx";
 import Modal from "../../../components/ui/modal/index.tsx";
@@ -46,6 +46,25 @@ const StrategyProductTable = () => {
     weightPerUnit: null as number | null,
   });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      await productStore.updateBatchProduct(file);
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   useEffect(() => {
     loadStrategyProducts(pageSize, pageNumber, term ?? undefined);
   }, [pageSize, pageNumber, term]);
@@ -72,13 +91,28 @@ const StrategyProductTable = () => {
           title="Bảng tính giá"
           className="text-white"
           additionalButtons={
-            <Button
-              className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
-              disabled={selectedIds.length === 0}
-              onClick={() => setIsBulkModalOpen(true)}
-            >
-              Cập nhật giá
-            </Button>
+            <>
+              <Button
+                className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
+                disabled={selectedIds.length === 0}
+                onClick={() => setIsBulkModalOpen(true)}
+              >
+                Cập nhật giá
+              </Button>
+              <Button
+                className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
+                onClick={handleImportClick}
+              >
+                Cập nhật sản phẩm
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept=".xlsx,.xls"
+                className="hidden"
+              />
+            </>
           }
           isOnline={isOnline}
           onSearch={(term) => {
@@ -170,7 +204,7 @@ const StrategyProductTable = () => {
                     p-4 md:py-3 px-6 flex-grow overflow-y-auto min-h-0"
               >
                 <div className="flex flex-col gap-4">
-                <div>
+                  <div>
                     <ProductLabel htmlFor="quantityPerBox">
                       Số lượng/thùng
                     </ProductLabel>
@@ -255,7 +289,9 @@ const StrategyProductTable = () => {
                     />
                   </div>
                   <div>
-                    <ProductLabel htmlFor="quantityPerBox">Số lượng</ProductLabel>
+                    <ProductLabel htmlFor="quantityPerBox">
+                      Số lượng
+                    </ProductLabel>
                     <ProductInputField
                       type="number"
                       id="quantityPerBox"
@@ -351,7 +387,7 @@ const StrategyProductTable = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-4">
-                <div>
+                  <div>
                     <ProductLabel htmlFor="weightPerUnit">
                       Khối lượng/viên
                     </ProductLabel>

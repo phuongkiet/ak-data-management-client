@@ -116,6 +116,12 @@ function ProductTable() {
     loadProducts();
   }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive, isOnline]);
 
+  useEffect(() => {
+    if (isOnline && productStore.existingSupplierSizeCombinations.length === 0 && !productStore.loadingCombinations) {
+      productStore.loadExistingSupplierSizeCombinations();
+    }
+  }, [isOnline]);
+
   const handlePageChange = (page: number) => {
     setPageNumber(page);
   };
@@ -240,18 +246,17 @@ function ProductTable() {
     const otherFilterSelected = tempSelectedSupplier !== null;
 
     if (isSelected) {
-      return "bg-green-600 text-white"; // Màu đậm khi được chọn
+      return "bg-green-600 text-white";
     } else if (otherFilterSelected) {
-      // Nếu Supplier đã được chọn, kiểm tra xem size này có combination với supplier đó không
       const isAvailableCombination = combinationExists(
-        tempSelectedSupplier,
-        size.id
+        Number(tempSelectedSupplier),
+        Number(size.id)
       );
       return isAvailableCombination
         ? "bg-green-400 text-white hover:bg-green-500"
-        : "bg-gray-400 text-white hover:bg-gray-500"; // Màu nhạt hoặc xám nếu không có combination
+        : "bg-gray-400 text-white hover:bg-gray-500";
     } else {
-      return "bg-green-400 text-white hover:bg-green-500"; // Màu mặc định khi chưa chọn filter nào khác
+      return "bg-green-400 text-white hover:bg-green-500";
     }
   };
 
@@ -373,7 +378,7 @@ function ProductTable() {
           {/* Supplier Column */}
           <div>
             <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Nhà Cung Cấp</h2>
-            {supplierStore.loading ? ( // Hiển thị loading state
+            {supplierStore.loading ? ( 
               <p>Đang tải nhà cung cấp...</p>
             ) : (
               <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">

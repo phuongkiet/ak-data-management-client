@@ -554,8 +554,6 @@ export default class ProductStore {
 
   // Tách riêng logic tính toán
   calculateStrategyProductFields(product: StrategyProductDetailDto) {
-    console.log('Starting calculation with product:', product);
-
     // 1. ConfirmListPrice
     const listPrice = Number(product.listPrice) || 0;
     const supplierRisingPrice = Number(product.supplierRisingPrice) || 0;
@@ -584,9 +582,7 @@ export default class ProductStore {
 
     // 3. RetailPrice
     const policyStandard = Number(product.policyStandard) || 0;
-    console.log(policyStandard);
     const policyStandardNumber = 1 + policyStandard / 100;
-    console.log(policyStandardNumber);
     let rawRetailPrice = supplierEstimatedPayableAmount * policyStandardNumber;
     product.retailPrice = listPrice > 0 ? Math.round(rawRetailPrice / 1000) * 1000 : 0;
 
@@ -663,8 +659,6 @@ export default class ProductStore {
     );
     // Gán lại object để các component observer tự động nhận giá trị mới
     this.strategyProductDetail = { ...product };
-
-    console.log('Final calculated product:', product);
   };
 
   editStrategyProduct = async (productId: number, product: EditStrategyProductDto) => {
@@ -724,5 +718,20 @@ export default class ProductStore {
       return null;
     }
   };
+
+  updateBatchProduct = async (file: File) => {
+    try {
+      const response = await agent.Product.updateBatchProduct(file);
+      if(response.success) {
+        toast.success(response.data);
+        this.loadProducts();
+      } else {
+        toast.error(response.errors?.[0] || "Lỗi khi cập nhật sản phẩm");
+      }
+    } catch (error) {
+      console.error("Error updating batch product:", error);
+      toast.error("Lỗi khi cập nhật sản phẩm");
+    }
+  }
 }
 

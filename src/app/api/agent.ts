@@ -22,7 +22,11 @@ import {
   CalculateProcessingPriceRequest,
   CalculateProcessingPriceResponse,
 } from "../models/product/product.model.ts";
-import { ProductSupplierDto, SupplierDetailDto, UpdateSupplierForStrategyDto } from "../models/product/productSupplier.model.ts";
+import {
+  ProductSupplierDto,
+  SupplierDetailDto,
+  UpdateSupplierForStrategyDto,
+} from "../models/product/productSupplier.model.ts";
 import {
   AddMaterialDto,
   ProductMaterialDto,
@@ -100,7 +104,12 @@ import {
   ProductAreaDto,
   UpdateAreaDto,
 } from "../models/product/productArea.model.ts";
-import { ForgotPasswordModel, ResendEmailConfirmModel, ResetPasswordModel, VerifyEmailModel } from "../models/auth/authentication.model.ts";
+import {
+  ForgotPasswordModel,
+  ResendEmailConfirmModel,
+  ResetPasswordModel,
+  VerifyEmailModel,
+} from "../models/auth/authentication.model.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -205,15 +214,17 @@ const Account = {
   current: (): Promise<ApiResponseModel<User>> => requests.get<User>("/auth"),
   login: (user: UserLoginFormValues): Promise<ApiResponseModel<User>> =>
     requests.post<User>("/auth/login", user),
-  verifyEmail: (
-    dto: VerifyEmailModel
-  ): Promise<ApiResponseModel<string>> =>
+  verifyEmail: (dto: VerifyEmailModel): Promise<ApiResponseModel<string>> =>
     requests.post<string>(`/auth/verify-otp`, dto),
-  forgotPassword: (dto: ForgotPasswordModel): Promise<ApiResponseModel<string>> =>
+  forgotPassword: (
+    dto: ForgotPasswordModel
+  ): Promise<ApiResponseModel<string>> =>
     requests.post<string>(`/auth/forgotPassword`, dto),
   resetPassword: (dto: ResetPasswordModel): Promise<ApiResponseModel<string>> =>
     requests.post<string>(`/auth/resetPassword`, dto),
-  resendEmailConfirm: (dto: ResendEmailConfirmModel): Promise<ApiResponseModel<string>> =>
+  resendEmailConfirm: (
+    dto: ResendEmailConfirmModel
+  ): Promise<ApiResponseModel<string>> =>
     requests.post<string>(`/auth/resend-verification-otp`, dto),
   // changePassword: (values: any): Promise<ApiResponseModel<string>> =>
   //   requests.post<string>(`/auth/changeUserPassword`, values),
@@ -344,6 +355,12 @@ const Product = {
       "products/calculate-processing-product",
       calculateProcessingPriceRequest
     ),
+
+  updateBatchProduct: (file: File): Promise<ApiResponseModel<string>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return requests.put<string>("/products/update-batch-product", formData);
+  },
 };
 
 const ProductSupplier = {
@@ -363,9 +380,18 @@ const ProductSupplier = {
     term: string
   ): Promise<ApiResponseModel<number>> =>
     requests.get<number>(`/suppliers/get-order?term=${term}`),
-  updateSupplier: (id: number, supplier: UpdateSupplierForStrategyDto): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/suppliers/strategist-update-supplier?supplierId=${id}`, supplier),
-  loadDetail: (id: number): Promise<ApiResponseModel<SupplierDetailDto>> => requests.get<SupplierDetailDto>(`/suppliers/supplier-detail?supplierId=` + id),
+  updateSupplier: (
+    id: number,
+    supplier: UpdateSupplierForStrategyDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(
+      `/suppliers/strategist-update-supplier?supplierId=${id}`,
+      supplier
+    ),
+  loadDetail: (id: number): Promise<ApiResponseModel<SupplierDetailDto>> =>
+    requests.get<SupplierDetailDto>(
+      `/suppliers/supplier-detail?supplierId=` + id
+    ),
 };
 
 const ProductMaterial = {
@@ -385,7 +411,10 @@ const ProductMaterial = {
     materialId: number,
     material: UpdateMaterialDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/materials/update-material?materialId=${materialId}`, material),
+    requests.put<string>(
+      `/materials/update-material?materialId=${materialId}`,
+      material
+    ),
 };
 
 const ProductSurface = {
@@ -403,7 +432,10 @@ const ProductSurface = {
     surfaceId: number,
     surface: UpdateSurfaceDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/surfaces/update-surface?surfaceId=${surfaceId}`, surface),
+    requests.put<string>(
+      `/surfaces/update-surface?surfaceId=${surfaceId}`,
+      surface
+    ),
 };
 
 const ProductStorage = {
@@ -421,7 +453,10 @@ const ProductStorage = {
     storageId: number,
     storage: UpdateStorageDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/storages/update-storage?storageId=${storageId}`, storage),
+    requests.put<string>(
+      `/storages/update-storage?storageId=${storageId}`,
+      storage
+    ),
 };
 
 const CompanyCode = {
@@ -443,7 +478,10 @@ const CompanyCode = {
     companyCodeId: number,
     companyCode: UpdateCompanyCodeDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/company-codes/update-company-code?companyCodeId=${companyCodeId}`, companyCode),
+    requests.put<string>(
+      `/company-codes/update-company-code?companyCodeId=${companyCodeId}`,
+      companyCode
+    ),
 };
 
 const CalculatedUnit = {
@@ -467,7 +505,10 @@ const CalculatedUnit = {
   updateCalculatedUnit: (
     calculatedUnit: UpdateCalculatedUnitDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>("/calculated-units/update-calculated-unit", calculatedUnit),
+    requests.put<string>(
+      "/calculated-units/update-calculated-unit",
+      calculatedUnit
+    ),
 };
 
 const AntiSlippery = {
@@ -489,7 +530,10 @@ const AntiSlippery = {
     antiSlipperyId: number,
     antiSlippery: UpdateAntiSlipperyDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/anti-slipperys/update-anti-slippery?antiSlipperyId=${antiSlipperyId}`, antiSlippery),
+    requests.put<string>(
+      `/anti-slipperys/update-anti-slippery?antiSlipperyId=${antiSlipperyId}`,
+      antiSlippery
+    ),
 };
 
 const ProductBodyColor = {
@@ -511,7 +555,10 @@ const ProductBodyColor = {
     bodyColorId: number,
     bodyColor: UpdateBodyColorDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/body-colors/update-body-color?bodyColorId=${bodyColorId}`, bodyColor),
+    requests.put<string>(
+      `/body-colors/update-body-color?bodyColorId=${bodyColorId}`,
+      bodyColor
+    ),
 };
 
 const ProductColor = {
@@ -563,7 +610,10 @@ const ProductPattern = {
     patternId: number,
     pattern: UpdatePatternDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/patterns/update-pattern?patternId=${patternId}`, pattern),
+    requests.put<string>(
+      `/patterns/update-pattern?patternId=${patternId}`,
+      pattern
+    ),
 };
 
 const ProductProcessing = {
@@ -585,7 +635,10 @@ const ProductProcessing = {
     processingId: number,
     processing: UpdateProcessingDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/processings/update-processing?processingId=${processingId}`, processing),
+    requests.put<string>(
+      `/processings/update-processing?processingId=${processingId}`,
+      processing
+    ),
 };
 
 const ProductSize = {
@@ -627,7 +680,10 @@ const ProductWaterAbsorption = {
     waterAbsorptionId: number,
     waterAbsorption: UpdateWaterAbsorptionDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/water-absorptions/update-water-absorption?waterAbsorptionId=${waterAbsorptionId}`, waterAbsorption),
+    requests.put<string>(
+      `/water-absorptions/update-water-absorption?waterAbsorptionId=${waterAbsorptionId}`,
+      waterAbsorption
+    ),
 };
 
 const ProductFactory = {
@@ -651,7 +707,10 @@ const ProductFactory = {
     factoryId: number,
     factory: UpdateFactoryDto
   ): Promise<ApiResponseModel<string>> =>
-    requests.put<string>(`/factories/update-factory?factoryId=${factoryId}`, factory),
+    requests.put<string>(
+      `/factories/update-factory?factoryId=${factoryId}`,
+      factory
+    ),
 };
 
 const ProductArea = {
@@ -663,9 +722,7 @@ const ProductArea = {
   },
   addArea: (area: AddAreaDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/areas/add-area", area),
-  updateArea: (
-    area: UpdateAreaDto
-  ): Promise<ApiResponseModel<string>> =>
+  updateArea: (area: UpdateAreaDto): Promise<ApiResponseModel<string>> =>
     requests.put<string>("/areas/update-area", area),
 };
 
