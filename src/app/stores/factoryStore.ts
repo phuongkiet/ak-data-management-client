@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddFactoryDto, ProductFactoryDto } from '../models/product/productFactory.model.ts';
+import { AddFactoryDto, ProductFactoryDto, UpdateFactoryDto } from '../models/product/productFactory.model.ts';
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class FactoryStore {
+export default class FactoryStore extends BaseStore {
   productFactoryList: ProductFactoryDto[] = [];
   productFactoryRegistry = new Map<number, ProductFactoryDto>();
   loading = false;
@@ -13,12 +15,43 @@ export default class FactoryStore {
     name: '',
   };
 
+  factoryFormUpdate: UpdateFactoryDto = {
+    name: '',
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productFactoryList: observable,
+      productFactoryRegistry: observable,
+      loading: observable,
+      term: observable,
+      factoryForm: observable,
+      factoryFormUpdate: observable,
+      setProductFactoryList: action,
+      setTerm: action,
+      loadFactories: action,
+      resetFactoryForm: action,
+      updateFactoryForm: action,
+      addFactory: action,
+      updateFactory: action,
+      updateFactoryFormUpdate: action,
+    });
   }
 
   setProductFactoryList = (list: ProductFactoryDto[]) => {
     this.productFactoryList = list;
+    this.productFactoryRegistry.clear();
+    list.forEach((factory) => {
+      if (factory.id != null)
+        this.productFactoryRegistry.set(factory.id, factory);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productFactoryDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -107,5 +140,32 @@ export default class FactoryStore {
       console.error("Failed to add factory", error);
       toast.error("Lỗi khi tạo nhà máy.")
     }
+  }
+
+  updateFactory = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductFactory.updateFactory(id, this.factoryFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật nhà máy thành công.");
+        this.loadFactories();
+        this.resetFactoryForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateFactoryFormUpdate = <K extends keyof UpdateFactoryDto>(field: K, value: UpdateFactoryDto[K]) => {
+    runInAction(() => {
+      this.factoryFormUpdate = {
+        ...this.factoryFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

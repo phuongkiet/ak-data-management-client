@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddOriginDto, ProductOriginDto } from '../models/product/productOrigin.model.ts'
+import { AddOriginDto, ProductOriginDto, UpdateOriginDto } from '../models/product/productOrigin.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class OriginStore {
+export default class OriginStore extends BaseStore {
   productOriginList: ProductOriginDto[] = [];
   productOriginRegistry = new Map<number, ProductOriginDto>();
   loading = false;
@@ -14,12 +16,44 @@ export default class OriginStore {
     upperName: ""
   };
 
+  originFormUpdate: UpdateOriginDto = {
+    name: "",
+    upperName: ""
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productOriginList: observable,
+      productOriginRegistry: observable,
+      loading: observable,
+      term: observable,
+      originForm: observable,
+      originFormUpdate: observable,
+      setProductOriginList: action,
+      setTerm: action,
+      loadOrigins: action,
+      resetOriginForm: action,
+      updateOriginForm: action,
+      addOrigin: action,
+      updateOrigin: action,
+      updateOriginFormUpdate: action,
+    });
   }
 
   setProductOriginList = (list: ProductOriginDto[]) => {
     this.productOriginList = list;
+    this.productOriginRegistry.clear();
+    list.forEach((origin) => {
+      if (origin.id != null)
+        this.productOriginRegistry.set(origin.id, origin);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productOriginDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -84,5 +118,32 @@ export default class OriginStore {
     }finally{
       this.loading = false;
     }
+  }
+
+  updateOrigin = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductOrigin.updateOrigin(id, this.originFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật xuất xứ thành công.");
+        this.loadOrigins();
+        this.resetOriginForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateOriginFormUpdate = <K extends keyof UpdateOriginDto>(field: K, value: UpdateOriginDto[K]) => {
+    runInAction(() => {
+      this.originFormUpdate = {
+        ...this.originFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

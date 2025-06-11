@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddSurfaceDto, ProductSurfaceDto } from '../models/product/productSurface.model.ts'
+import { AddSurfaceDto, ProductSurfaceDto, UpdateSurfaceDto } from '../models/product/productSurface.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class SurfaceStore {
+export default class SurfaceStore extends BaseStore {
   productSurfaceList: ProductSurfaceDto[] = [];
   productSurfaceRegistry = new Map<number, ProductSurfaceDto>();
   loading = false;
@@ -14,12 +16,44 @@ export default class SurfaceStore {
     description: null,
   };
 
+  surfaceFormUpdate: UpdateSurfaceDto = {
+    name: "",
+    description: null,
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productSurfaceList: observable,
+      productSurfaceRegistry: observable,
+      loading: observable,
+      term: observable,
+      surfaceForm: observable,
+      surfaceFormUpdate: observable,
+      setProductSurfaceList: action,
+      setTerm: action,
+      loadSurfaces: action,
+      resetSurfaceForm: action,
+      updateSurfaceForm: action,
+      addSurface: action,
+      updateSurface: action,
+      updateSurfaceFormUpdate: action,
+    });
   }
 
   setProductSurfaceList = (list: ProductSurfaceDto[]) => {
     this.productSurfaceList = list;
+    this.productSurfaceRegistry.clear();
+    list.forEach((surface) => {
+      if (surface.id != null)
+        this.productSurfaceRegistry.set(surface.id, surface);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSurfaceDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   resetSurfaceForm = () => {
@@ -84,5 +118,32 @@ export default class SurfaceStore {
       console.error("Failed to add surface", error);
       toast.error("Lỗi khi tạo bề mặt.");
     }
+  }
+
+  updateSurface = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductSurface.updateSurface(id, this.surfaceFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật bề mặt thành công.");
+        this.loadSurfaces();
+        this.resetSurfaceForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateSurfaceFormUpdate = <K extends keyof UpdateSurfaceDto>(field: K, value: UpdateSurfaceDto[K]) => {
+    runInAction(() => {
+      this.surfaceFormUpdate = {
+        ...this.surfaceFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

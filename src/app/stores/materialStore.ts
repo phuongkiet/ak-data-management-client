@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { makeObservable, observable, action, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddMaterialDto, ProductMaterialDto } from '../models/product/productMaterial.model.ts'
+import { AddMaterialDto, ProductMaterialDto, UpdateMaterialDto } from '../models/product/productMaterial.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class MaterialStore {
+export default class MaterialStore extends BaseStore {
   productMaterialList: ProductMaterialDto[] = [];
   productMaterialRegistry = new Map<number, ProductMaterialDto>();
   loading = false;
@@ -14,13 +16,44 @@ export default class MaterialStore {
     description: null
   };
 
+  materialFormUpdate: UpdateMaterialDto = {
+    name: "",
+    description: null
+  };
+
   constructor() {
-    makeAutoObservable(this);
-    console.log(this.productMaterialList)
+    super();
+    makeObservable(this, {
+      productMaterialList: observable,
+      productMaterialRegistry: observable,
+      loading: observable,
+      term: observable,
+      materialForm: observable,
+      materialFormUpdate: observable,
+      setProductMaterialList: action,
+      setTerm: action,
+      loadMaterials: action,
+      resetMaterialForm: action,
+      updateMaterialForm: action,
+      addMaterial: action,
+      updateMaterial: action,
+      updateMaterialFormUpdate: action,
+    });
   }
 
   setProductMaterialList = (list: ProductMaterialDto[]) => {
     this.productMaterialList = list;
+    this.productMaterialRegistry.clear();
+    list.forEach((material) => {
+      if (material.id != null)
+        this.productMaterialRegistry.set(material.id, material);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productMaterialDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -81,5 +114,32 @@ export default class MaterialStore {
     } finally {
       this.loading = false;
     }
+  }
+
+  updateMaterial = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductMaterial.updateMaterial(id, this.materialFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật chất liệu thành công.");
+        this.loadMaterials();
+        this.resetMaterialForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateMaterialFormUpdate = <K extends keyof UpdateMaterialDto>(field: K, value: UpdateMaterialDto[K]) => {
+    runInAction(() => {
+      this.materialFormUpdate = {
+        ...this.materialFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

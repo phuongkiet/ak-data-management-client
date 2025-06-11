@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddSizeDto, ProductSizeDto } from '../models/product/productSize.model.ts'
+import { AddSizeDto, ProductSizeDto, UpdateSizeDto } from '../models/product/productSize.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class SizeStore {
+export default class SizeStore extends BaseStore {
   productSizeList: ProductSizeDto[] = [];
   productSizeRegistry = new Map<number, ProductSizeDto>();
   loading = false;
@@ -15,12 +17,46 @@ export default class SizeStore {
     autoSized: ""
   };
 
+  sizeFormUpdate: UpdateSizeDto = {
+    wide: 0,
+    length: 0,
+    autoSized: ""
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productSizeList: observable,
+      productSizeRegistry: observable,
+      loading: observable,
+      term: observable,
+      sizeForm: observable,
+      sizeFormUpdate: observable,
+      setProductSizeList: action,
+      setTerm: action,
+      loadSizes: action,
+      resetSizeForm: action,
+      updateSizeForm: action,
+      addSize: action,
+      updateSize: action,
+      updateSizeFormUpdate: action,
+    });
   }
 
   setProductSizeList = (list: ProductSizeDto[]) => {
     this.productSizeList = list;
+    this.productSizeRegistry.clear();
+    list.forEach((size) => {
+      if (size.id != null)
+        this.productSizeRegistry.set(size.id, size);
+    });
+
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSizeDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   } 
 
   setTerm = (term: string) => {
@@ -84,5 +120,32 @@ export default class SizeStore {
     }finally{
       this.loading = false;
     }
+  }
+
+  updateSize = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductSize.updateSize(id, this.sizeFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật kích thước thành công.");
+        this.loadSizes();
+        this.resetSizeForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateSizeFormUpdate = <K extends keyof UpdateSizeDto>(field: K, value: UpdateSizeDto[K]) => {
+    runInAction(() => {
+      this.sizeFormUpdate = {
+        ...this.sizeFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

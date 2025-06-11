@@ -1,12 +1,15 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { action, makeObservable, observable, runInAction } from "mobx";
 import agent from "../api/agent.ts";
 import { toast } from "react-toastify";
 import {
   AddStorageDto,
   ProductStorageDto,
+  UpdateStorageDto,
 } from "../models/product/productStorage.model.ts";
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class StorageStore {
+export default class StorageStore extends BaseStore {
   productStorageList: ProductStorageDto[] = [];
   productStorageRegistry = new Map<number, ProductStorageDto>();
   loading = false;
@@ -16,12 +19,43 @@ export default class StorageStore {
     name: "",
   };
 
+  storageFormUpdate: UpdateStorageDto = {
+    name: "",
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productStorageList: observable,
+      productStorageRegistry: observable,
+      loading: observable,
+      term: observable,
+      storageForm: observable,
+      storageFormUpdate: observable,
+      setProductStorageList: action,
+      setTerm: action,
+      loadStorages: action,
+      resetStorageForm: action,
+      updateStorageForm: action,
+      addStorage: action,
+      updateStorage: action,
+      updateStorageFormUpdate: action,
+    });
   }
 
   setProductStorageList = (list: ProductStorageDto[]) => {
     this.productStorageList = list;
+    this.productStorageRegistry.clear();
+    list.forEach((storage) => {
+      if (storage.id != null)
+        this.productStorageRegistry.set(storage.id, storage);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productStorageDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -92,4 +126,31 @@ export default class StorageStore {
       toast.error("Lỗi khi thêm kho.");
     }
   };
+
+  updateStorage = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductStorage.updateStorage(id, this.storageFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật kho thành công.");
+        this.loadStorages();
+        this.resetStorageForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateStorageFormUpdate = <K extends keyof UpdateStorageDto>(field: K, value: UpdateStorageDto[K]) => {
+    runInAction(() => {
+      this.storageFormUpdate = {
+        ...this.storageFormUpdate,
+        [field]: value
+      };
+    });
+  }
 }

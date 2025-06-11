@@ -1,8 +1,12 @@
-import { useState } from 'react';
-import DataTable, { TableColumn } from 'react-data-table-component';
-import { ProductSizeDto } from '../../../app/models/product/productSize.model.ts'
-import { useNavigate } from 'react-router'
-import { useStore } from '../../../app/stores/store.ts';
+import { useState, useEffect } from "react";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
+import { useStore } from "../../../app/stores/store.ts";
+import { observer } from "mobx-react-lite";
+import Button from "../../ui/button/Button.tsx";
+import Modal from "../../ui/modal/index.tsx";
+import ProductLabel from "../../form/product-form/ProductLabel.tsx";
+import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 interface SizeTableComponentProps {
   data: ProductSizeDto[];
   loading: boolean;
@@ -14,14 +18,31 @@ interface SizeTableComponentProps {
   searchTerm: string;
 }
 
-export default function SizeTableComponent({ data }: SizeTableComponentProps) {
+const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
   const { sizeStore } = useStore();
   const { loading } = sizeStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductSizeDto[]>([]);
-  const navigate = useNavigate();
+  const [selectedProducts, setSelectedProducts] = useState<ProductSizeDto[]>(
+    []
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ProductSizeDto | null>(null);
+
+  // Update autoSized in store when length or wide changes
+  useEffect(() => {
+    if (sizeStore.sizeFormUpdate.length && sizeStore.sizeFormUpdate.wide) {
+      const autoSizedValue = sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length;
+      sizeStore.updateSizeFormUpdate("autoSized", autoSizedValue);
+    } else {
+      sizeStore.updateSizeFormUpdate("autoSized", "");
+    }
+  }, [sizeStore.sizeFormUpdate.length, sizeStore.sizeFormUpdate.wide]);
 
   const handleView = (size: ProductSizeDto) => {
-    navigate("/sizes/detail/" + size.id);
+    setSelectedItem(size);
+    sizeStore.updateSizeFormUpdate("length", size.length);
+    sizeStore.updateSizeFormUpdate("wide", size.wide);
+    sizeStore.updateSizeFormUpdate("autoSized", size.autoSized);
+    setIsModalOpen(true);
   };
 
   const handleSelectedRowsChange = (state: {
@@ -30,35 +51,35 @@ export default function SizeTableComponent({ data }: SizeTableComponentProps) {
     selectedRows: ProductSizeDto[];
   }) => {
     setSelectedProducts(state.selectedRows);
-    console.log('Selected Sizes:', state.selectedRows);
-    console.log(selectedProducts)
+    console.log("Selected Sizes:", state.selectedRows);
+    console.log(selectedProducts);
   };
 
   const columns: TableColumn<ProductSizeDto>[] = [
     {
-      name: 'STT',
-      selector: row => row.id,
+      name: "STT",
+      selector: (row) => row.id,
       sortable: true,
-      maxWidth: '5px'
+      maxWidth: "5px",
     },
     {
-      name: 'Dài',
-      selector: row => row.length,
-      sortable: true,
-    },
-    {
-      name: 'Rộng',
-      selector: row => row.wide,
+      name: "Dài",
+      selector: (row) => row.length,
       sortable: true,
     },
     {
-      name: 'Kích cỡ tự động',
-      selector: row => row.autoSized,
+      name: "Rộng",
+      selector: (row) => row.wide,
       sortable: true,
     },
     {
-      name: 'Hành động',
-      cell: row => (
+      name: "Kích cỡ tự động",
+      selector: (row) => row.autoSized,
+      sortable: true,
+    },
+    {
+      name: "Hành động",
+      cell: (row) => (
         <button
           onClick={() => handleView(row)}
           className="text-blue-600 hover:underline font-medium"
@@ -69,24 +90,120 @@ export default function SizeTableComponent({ data }: SizeTableComponentProps) {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
-    }
+    },
   ];
 
+  const autoSized = () => {
+    if (sizeStore.sizeFormUpdate.length && sizeStore.sizeFormUpdate.wide) {
+      return sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length;
+    }
+    return "";
+  }
+
+  const handleSave = async () => {
+    if (selectedItem) {
+      const success = await sizeStore.updateSize(selectedItem.id);
+      if (success) {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+      }else{
+        setIsModalOpen(false);
+        setSelectedItem(null);
+      }
+    }
+  };
+
   return (
-    <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination
-        responsive
-        highlightOnHover
-        striped
-        selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
-        progressPending={loading}
-        progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
-        noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}
-      />
-    </div>
+    <>
+      <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          responsive
+          highlightOnHover
+          striped
+          selectableRows
+          onSelectedRowsChange={handleSelectedRowsChange}
+          progressPending={loading}
+          progressComponent={
+            <div className="py-8 text-center font-semibold font-roboto w-full">
+              Đang chờ...
+            </div>
+          }
+          noDataComponent={
+            <div className="py-8 text-center font-semibold font-roboto w-full">
+              Không có dữ liệu để hiển thị.
+            </div>
+          }
+        />
+      </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        className="max-w-2xl"
+      >
+        <div className="p-6">
+          <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">
+            Chi tiết kích cỡ
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Dài
+              </ProductLabel>
+              <ProductInputField
+                type="number"
+                step={0.1}
+                min="0"
+                value={sizeStore.sizeFormUpdate.length !== undefined && sizeStore.sizeFormUpdate.length !== null ? sizeStore.sizeFormUpdate.length : ""}
+                onChange={(e) =>
+                  sizeStore.updateSizeFormUpdate("length", Number(e.target.value))
+                }
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Rộng
+              </ProductLabel>
+              <ProductInputField
+                type="number"
+                step={0.1}
+                min="0"
+                value={sizeStore.sizeFormUpdate.wide !== undefined && sizeStore.sizeFormUpdate.wide !== null ? sizeStore.sizeFormUpdate.wide : ""}
+                onChange={(e) =>
+                  sizeStore.updateSizeFormUpdate("wide", Number(e.target.value))
+                }
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Kích cỡ tự động
+              </ProductLabel>
+              <ProductInputField
+                disabled
+                value={autoSized()}
+              />
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 border rounded-lg bg-[#334357] text-white hover:bg-[#334357]/80 h-[44px] text-md font-semibold"
+              >
+                Hủy
+              </Button>
+              <Button
+                onClick={handleSave}
+                className="px-4 py-2 bg-[#334357] text-white rounded-lg hover:bg-[#334357]/80 h-[44px] text-md font-semibold"
+              >
+                Lưu
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+    </>
   );
-}
+};
+export default observer(SizeTableComponent);

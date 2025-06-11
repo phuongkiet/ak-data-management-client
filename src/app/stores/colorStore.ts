@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddColorDto, ProductColorDto } from '../models/product/productColor.model.ts'
+import { AddColorDto, ProductColorDto, UpdateColorDto } from '../models/product/productColor.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class ColorStore {
+export default class ColorStore extends BaseStore {
   productColorList: ProductColorDto[] = [];
   productColorRegistry = new Map<number, ProductColorDto>();
   loading = false;
@@ -14,12 +16,44 @@ export default class ColorStore {
     colorHexCode: null
   };
 
+  colorFormUpdate: UpdateColorDto = {
+    name: "",
+    colorHexCode: null
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productColorList: observable,
+      productColorRegistry: observable,
+      loading: observable,
+      term: observable,
+      colorForm: observable,
+      colorFormUpdate: observable,
+      setProductColorList: action,
+      setTerm: action,
+      loadColors: action,
+      resetColorForm: action,
+      updateColorForm: action,
+      addColor: action,
+      updateColor: action,
+      updateColorFormUpdate: action,
+    });
   }
 
   setProductColorList = (list: ProductColorDto[]) => {
     this.productColorList = list;
+    this.productColorRegistry.clear();
+    list.forEach((color) => {
+      if (color.id != null)
+        this.productColorRegistry.set(color.id, color);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productColorDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -84,5 +118,32 @@ export default class ColorStore {
     } finally {
       this.loading = false;
     }
+  }
+
+  updateColor = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductColor.updateColor(id, this.colorFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật màu sắc thành công.");
+        this.loadColors();
+        this.resetColorForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateColorFormUpdate = <K extends keyof UpdateColorDto>(field: K, value: UpdateColorDto[K]) => {
+    runInAction(() => {
+      this.colorFormUpdate = {
+        ...this.colorFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

@@ -26,64 +26,79 @@ import { ProductSupplierDto, SupplierDetailDto, UpdateSupplierForStrategyDto } f
 import {
   AddMaterialDto,
   ProductMaterialDto,
+  UpdateMaterialDto,
 } from "../models/product/productMaterial.model.ts";
 import {
   AddSurfaceDto,
   ProductSurfaceDto,
+  UpdateSurfaceDto,
 } from "../models/product/productSurface.model.ts";
 import {
   AddStorageDto,
   ProductStorageDto,
+  UpdateStorageDto,
 } from "../models/product/productStorage.model.ts";
 import {
   AddCompanyCodeDto,
   CompanyCodeDto,
+  UpdateCompanyCodeDto,
 } from "../models/product/companyCode.model.ts";
 import {
   AddAntiSlipperyDto,
   ProductAntiSlipperyDto,
+  UpdateAntiSlipperyDto,
 } from "../models/product/productAntiSlippery.model.ts";
 import {
   AddBodyColorDto,
   ProductBodyColorDto,
+  UpdateBodyColorDto,
 } from "../models/product/productBodyColor.model.ts";
 import {
   AddColorDto,
   ProductColorDto,
+  UpdateColorDto,
 } from "../models/product/productColor.model.ts";
 import {
   AddOriginDto,
   ProductOriginDto,
+  UpdateOriginDto,
 } from "../models/product/productOrigin.model.ts";
 import {
   AddPatternDto,
   ProductPatternDto,
+  UpdatePatternDto,
 } from "../models/product/productPattern.model.ts";
 import {
   AddProcessingDto,
   ProductProcessingDto,
+  UpdateProcessingDto,
 } from "../models/product/productProcessing.model.ts";
 import {
   AddSizeDto,
   ProductSizeDto,
+  UpdateSizeDto,
 } from "../models/product/productSize.model.ts";
 import {
   AddWaterAbsorptionDto,
   ProductWaterAbsorptionDto,
+  UpdateWaterAbsorptionDto,
 } from "../models/product/productWaterAbsorption.model.ts";
 import {
   AddCalculatedUnitDto,
   CalculatedUnitDto,
+  UpdateCalculatedUnitDto,
 } from "../models/product/calculatedUnit.model.ts";
 import {
   AddFactoryDto,
   ProductFactoryDto,
+  UpdateFactoryDto,
 } from "../models/product/productFactory.model.ts";
 import { AddProductDto } from "../models/product/product.model.ts";
 import { AddSupplierDto } from "../models/product/productSupplier.model.ts";
 import {
   AddAreaDto,
   ProductAreaDto,
+  UpdateAreaDto,
 } from "../models/product/productArea.model.ts";
 import { ForgotPasswordModel, ResendEmailConfirmModel, ResetPasswordModel, VerifyEmailModel } from "../models/auth/authentication.model.ts";
 
@@ -362,6 +377,11 @@ const ProductMaterial = {
   },
   addMaterial: (material: AddMaterialDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/materials/add-material", material),
+  updateMaterial: (
+    materialId: number,
+    material: UpdateMaterialDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/materials/update-material?materialId=${materialId}`, material),
 };
 
 const ProductSurface = {
@@ -375,6 +395,11 @@ const ProductSurface = {
   },
   addSurface: (surface: AddSurfaceDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/surfaces/add-surface", surface),
+  updateSurface: (
+    surfaceId: number,
+    surface: UpdateSurfaceDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/surfaces/update-surface?surfaceId=${surfaceId}`, surface),
 };
 
 const ProductStorage = {
@@ -388,6 +413,11 @@ const ProductStorage = {
   },
   addStorage: (storage: AddStorageDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/storages/add-storage", storage),
+  updateStorage: (
+    storageId: number,
+    storage: UpdateStorageDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/storages/update-storage?storageId=${storageId}`, storage),
 };
 
 const CompanyCode = {
@@ -405,6 +435,11 @@ const CompanyCode = {
     companyCode: AddCompanyCodeDto
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/company-codes/add-company-code", companyCode),
+  updateCompanyCode: (
+    companyCodeId: number,
+    companyCode: UpdateCompanyCodeDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/company-codes/update-company-code?companyCodeId=${companyCodeId}`, companyCode),
 };
 
 const CalculatedUnit = {
@@ -425,6 +460,10 @@ const CalculatedUnit = {
       "/calculated-units/add-calculated-unit",
       calculatedUnit
     ),
+  updateCalculatedUnit: (
+    calculatedUnit: UpdateCalculatedUnitDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>("/calculated-units/update-calculated-unit", calculatedUnit),
 };
 
 const AntiSlippery = {
@@ -442,6 +481,11 @@ const AntiSlippery = {
     antiSlippery: AddAntiSlipperyDto
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/anti-slipperys/add-anti-slippery", antiSlippery),
+  updateAntiSlippery: (
+    antiSlipperyId: number,
+    antiSlippery: UpdateAntiSlipperyDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/anti-slipperys/update-anti-slippery?antiSlipperyId=${antiSlipperyId}`, antiSlippery),
 };
 
 const ProductBodyColor = {
@@ -459,6 +503,11 @@ const ProductBodyColor = {
     bodyColor: AddBodyColorDto
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/body-colors/add-body-color", bodyColor),
+  updateBodyColor: (
+    bodyColorId: number,
+    bodyColor: UpdateBodyColorDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/body-colors/update-body-color?bodyColorId=${bodyColorId}`, bodyColor),
 };
 
 const ProductColor = {
@@ -470,6 +519,11 @@ const ProductColor = {
   },
   addColor: (color: AddColorDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/colors/add-color", color),
+  updateColor: (
+    colorId: number,
+    color: UpdateColorDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/colors/update-color?colorId=${colorId}`, color),
 };
 
 const ProductOrigin = {
@@ -483,6 +537,11 @@ const ProductOrigin = {
   },
   addOrigin: (origin: AddOriginDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/origins/add-origin", origin),
+  updateOrigin: (
+    originId: number,
+    origin: UpdateOriginDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/origins/update-origin?originId=${originId}`, origin),
 };
 
 const ProductPattern = {
@@ -496,6 +555,11 @@ const ProductPattern = {
   },
   addPattern: (pattern: AddPatternDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/patterns/add-pattern", pattern),
+  updatePattern: (
+    patternId: number,
+    pattern: UpdatePatternDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/patterns/update-pattern?patternId=${patternId}`, pattern),
 };
 
 const ProductProcessing = {
@@ -513,6 +577,11 @@ const ProductProcessing = {
     processing: AddProcessingDto
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/processings/add-processing", processing),
+  updateProcessing: (
+    processingId: number,
+    processing: UpdateProcessingDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/processings/update-processing?processingId=${processingId}`, processing),
 };
 
 const ProductSize = {
@@ -525,6 +594,11 @@ const ProductSize = {
 
   addSize: (size: AddSizeDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/sizes/add-size", size),
+  updateSize: (
+    sizeId: number,
+    size: UpdateSizeDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/sizes/update-size?sizeId=${sizeId}`, size),
 };
 
 const ProductWaterAbsorption = {
@@ -545,6 +619,11 @@ const ProductWaterAbsorption = {
       "/water-absorptions/add-water-absorption",
       waterAbsorption
     ),
+  updateWaterAbsorption: (
+    waterAbsorptionId: number,
+    waterAbsorption: UpdateWaterAbsorptionDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/water-absorptions/update-water-absorption?waterAbsorptionId=${waterAbsorptionId}`, waterAbsorption),
 };
 
 const ProductFactory = {
@@ -564,6 +643,11 @@ const ProductFactory = {
     ),
   addFactory: (factory: AddFactoryDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/factories/add-factory", factory),
+  updateFactory: (
+    factoryId: number,
+    factory: UpdateFactoryDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/factories/update-factory?factoryId=${factoryId}`, factory),
 };
 
 const ProductArea = {
@@ -575,6 +659,10 @@ const ProductArea = {
   },
   addArea: (area: AddAreaDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/areas/add-area", area),
+  updateArea: (
+    area: UpdateAreaDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>("/areas/update-area", area),
 };
 
 const agent = {

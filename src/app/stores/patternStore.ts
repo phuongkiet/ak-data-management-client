@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddPatternDto, ProductPatternDto } from '../models/product/productPattern.model.ts'
+import { AddPatternDto, ProductPatternDto, UpdatePatternDto } from '../models/product/productPattern.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class PatternStore {
+export default class PatternStore extends BaseStore {
   productPatternList: ProductPatternDto[] = [];
   productPatternRegistry = new Map<number, ProductPatternDto>();
   loading = false;
@@ -15,12 +17,45 @@ export default class PatternStore {
     description: ''
   };
 
+  patternFormUpdate: UpdatePatternDto = {
+    name: '',
+    shortCode: '',
+    description: ''
+  };
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productPatternList: observable,
+      productPatternRegistry: observable,
+      loading: observable,
+      term: observable,
+      patternForm: observable,
+      patternFormUpdate: observable,
+      setProductPatternList: action,
+      setTerm: action,
+      loadPatterns: action,
+      resetPatternForm: action,
+      updatePatternForm: action,
+      addPattern: action,
+      updatePattern: action,
+      updatePatternFormUpdate: action,
+    });
   }
 
   setProductPatternList = (list: ProductPatternDto[]) => {
     this.productPatternList = list;
+    this.productPatternRegistry.clear();
+    list.forEach((pattern) => {
+      if (pattern.id != null)
+        this.productPatternRegistry.set(pattern.id, pattern);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productPatternDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -86,5 +121,32 @@ export default class PatternStore {
       console.error("Failed to add pattern", error);
       toast.error("Lỗi khi thêm hệ vân.")
     }
+  }
+
+  updatePattern = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductPattern.updatePattern(id, this.patternFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật hệ vân thành công.");
+        this.loadPatterns();
+        this.resetPatternForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updatePatternFormUpdate = <K extends keyof UpdatePatternDto>(field: K, value: UpdatePatternDto[K]) => {
+    runInAction(() => {
+      this.patternFormUpdate = {
+        ...this.patternFormUpdate,
+        [field]: value
+      };
+    });
   }
 }

@@ -1,9 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
-import { AddWaterAbsorptionDto, ProductWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
+import { AddWaterAbsorptionDto, ProductWaterAbsorptionDto, UpdateWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
+import BaseStore from './baseStore.ts'
+import { OfflineStorage } from '../services/offlineStorage.ts'
 
-export default class WaterAbsorptionStore {
+export default class WaterAbsorptionStore extends BaseStore {
   productWaterAbsorptionList: ProductWaterAbsorptionDto[] = [];
   productWaterAbsorptionRegistry = new Map<number, ProductWaterAbsorptionDto>();
   loading = false;
@@ -13,12 +15,43 @@ export default class WaterAbsorptionStore {
     waterAbsoprtionLevel: ""
   }
 
+  waterAbsorptionFormUpdate: UpdateWaterAbsorptionDto = {
+    waterAbsoprtionLevel: ""
+  }
+
   constructor() {
-    makeAutoObservable(this);
+    super();
+    makeObservable(this, {
+      productWaterAbsorptionList: observable,
+      productWaterAbsorptionRegistry: observable,
+      loading: observable,
+      term: observable,
+      waterAbsorptionForm: observable,
+      waterAbsorptionFormUpdate: observable,
+      setProductWaterAbsorptionList: action,
+      setTerm: action,
+      loadWaterAbsorption: action,
+      resetWaterAbsorptionForm: action,
+      updateWaterAbsorptionForm: action,
+      addWaterAbsorption: action,
+      updateWaterAbsorption: action,
+      updateWaterAbsorptionFormUpdate: action,
+    });
   }
 
   setProductWaterAbsorptionList = (list: ProductWaterAbsorptionDto[]) => {
     this.productWaterAbsorptionList = list;
+    this.productWaterAbsorptionRegistry.clear();
+    list.forEach((waterAbsorption) => {
+      if (waterAbsorption.id != null)
+        this.productWaterAbsorptionRegistry.set(waterAbsorption.id, waterAbsorption);
+    });
+    // Update metadata in localStorage
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.waterAbsoroptionDtos = list;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
   }
 
   setTerm = (term: string) => {
@@ -82,5 +115,32 @@ export default class WaterAbsorptionStore {
         this.loading = false;
       });
     }
+  }
+
+  updateWaterAbsorption = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.updateWaterAbsorption(id, this.waterAbsorptionFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật độ hút nước thành công.");
+        this.loadWaterAbsorption();
+        this.resetWaterAbsorptionForm();
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateWaterAbsorptionFormUpdate = <K extends keyof UpdateWaterAbsorptionDto>(field: K, value: UpdateWaterAbsorptionDto[K]) => {
+    runInAction(() => {
+      this.waterAbsorptionFormUpdate = {
+        ...this.waterAbsorptionFormUpdate,
+        [field]: value
+      };
+    });
   }
 }
