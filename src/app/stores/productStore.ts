@@ -733,5 +733,31 @@ export default class ProductStore {
       toast.error("Lỗi khi cập nhật sản phẩm");
     }
   }
+
+  bulkEditDto = {
+    listPrice: null as number | null,
+    supplierRisingPrice: null as number | null,
+    otherPriceByCompany: null as number | null,
+    shippingFee: null as number | null,
+    discount: null as number | null,
+    policyStandard: null as number | null,
+    supplierDiscountCash: null as number | null,
+    supplierDiscountPercentage: null as number | null,
+    firstPolicyStandardAfterDiscount: null as number | null,
+    secondPolicyStandardAfterDiscount: null as number | null,
+    taxId: null as number | null,
+    quantityPerBox: null as number | null,
+    weightPerUnit: null as number | null,
+  };
+
+  setBulkEditField = (field: keyof typeof this.bulkEditDto, value: any) => {
+    this.bulkEditDto[field] = value;
+  };
+
+  resetBulkEditDto = () => {
+    Object.keys(this.bulkEditDto).forEach((key) => {
+      this.bulkEditDto[key as keyof typeof this.bulkEditDto] = null;
+    });
+  };
 }
 

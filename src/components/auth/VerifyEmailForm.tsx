@@ -115,7 +115,7 @@ function VerifyEmailForm() {
               <Button
                 onClick={handleVerifyOTP}
                 disabled={isVerifying}
-                className="w-full"
+                className="w-full text-white bg-[#334355] hover:bg-[#334355]/80"
                 size="sm"
               >
                 {isVerifying ? "Đang xác thực..." : "Xác nhận"}

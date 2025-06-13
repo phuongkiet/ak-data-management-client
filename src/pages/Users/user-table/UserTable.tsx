@@ -12,6 +12,8 @@ import { useApi } from "../../../hooks/useApi.ts";
 import { toast } from "react-toastify";
 import { AddUserDto } from "../../../app/models/user/user.model.ts";
 import ReactSelect from "react-select";
+import ProductDatePicker from "../../../components/form/product-form/product-date-picker.tsx";
+import { formatDateLocal } from "../../../app/common/common.ts";
 
 
 function UserTable() {
@@ -78,7 +80,7 @@ function UserTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2">Tạo tài khoản người dùng</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo tài khoản người dùng</h1>
               <div className="space-y-4">
                 <form
                   onSubmit={async (e) => {
@@ -160,15 +162,13 @@ function UserTable() {
                     <div>
                       <ProductLabel htmlFor="birthday" tooltipId="unique-tooltip-id"
                         tooltip="Đây là ngày sinh, nhập theo cú pháp tháng/ngày/năm">Ngày sinh</ProductLabel>
-                      <ProductInputField
-                        type="date"
+                      <ProductDatePicker
                         id="birthday"
-                        name="birthday"
-                        value={formData.birthday ?? ""}
-                        onChange={(e) =>
+                        defaultDate={formData.birthday ?? undefined}
+                        onChange={(dates: Date[] | null) =>
                           setFormData((data) => ({
                             ...data,
-                            birthday: e.target.value || null,
+                            birthday: dates && dates[0] ? formatDateLocal(dates[0]) : "",
                           }))
                         }
                       />

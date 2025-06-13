@@ -17,7 +17,6 @@ const UserMetaCard = () => {
   const { isOpen, openModal, closeModal } = useModal();
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | undefined>(user);
-
   const handleSave = async () => {
     if (editUser) {
       const result = await userStore.updateUser(editUser.email, {
@@ -74,7 +73,7 @@ const UserMetaCard = () => {
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.role.map(convertRoleToVietnamese).join(" ")}
+                  {(Array.isArray(user?.role) ? user?.role : user?.role ? [user.role] : []).map(convertRoleToVietnamese).join(" ")}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -168,7 +167,7 @@ const UserMetaCard = () => {
                 <ProductLabel>Vai trò</ProductLabel>
                 <Input 
                   type="text" 
-                  value={editUser?.role.map(convertRoleToVietnamese).join(" ")} 
+                  value={(Array.isArray(editUser?.role) ? editUser?.role : editUser?.role ? [editUser.role] : []).map(convertRoleToVietnamese).join(" ")} 
                   disabled 
                   className="bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                 />
