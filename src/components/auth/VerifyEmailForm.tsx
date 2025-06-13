@@ -18,7 +18,7 @@ function VerifyEmailForm() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let timer: number;
+    let timer: ReturnType<typeof setInterval>;
     if (countdown > 0) {
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1);

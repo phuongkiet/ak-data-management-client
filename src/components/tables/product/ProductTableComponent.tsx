@@ -226,7 +226,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           row.uploadWebsiteStatus === "Uploaded";
         return (
           isUploaded ? (
-            <a href={`https://ankhanhhouse.com/san-pham/${row.confirmAutoBarCode}`}>
+            <a href={`https://ankhanhhouse.com/san-pham/${row.confirmAutoBarCode}`} target="_blank" rel="noopener noreferrer" >
               <span className="underline">{row.confirmAutoBarCode}</span>
             </a>
           ) : (

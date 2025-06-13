@@ -7,7 +7,6 @@ import { useStore } from "../../../app/stores/store.ts";
 import TableComponentCard from "../../../components/common/product/TableComponentCard.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import Modal from "../../../components/ui/modal/index.tsx";
-import { runInAction } from "mobx";
 import { ProductSupplierDto } from "../../../app/models/product/productSupplier.model.ts";
 import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
 import { useApi } from "../../../hooks/useApi";
@@ -50,58 +49,29 @@ function ProductTable() {
   }, [pageSize, pageNumber, term, isOnline]);
 
   useEffect(() => {
-    if (!commonStore.token) return;
+    if (!commonStore.token || !isOnline) return;
 
-    const initializeData = async () => {
-      if (!isOnline) return;
-      
-      // Load initial data
-      await Promise.all([
-        loadProducts(),
-        productStore.initialize()
-      ]);
+    // Lấy filter từ localStorage
+    const savedSupplier = localStorage.getItem("selectedSupplier");
+    const savedSize = localStorage.getItem("selectedSize");
+    const savedPageNumber = localStorage.getItem("pageNumber");
+    const savedPageSize = localStorage.getItem("pageSize");
+    const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
+    const initialSizeId = savedSize ? parseInt(savedSize) : null;
 
-      const savedSupplier = localStorage.getItem("selectedSupplier");
-      const savedSize = localStorage.getItem("selectedSize");
-      const savedPageNumber = localStorage.getItem("pageNumber");
-      const savedPageSize = localStorage.getItem("pageSize");
-      const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
-      const initialSizeId = savedSize ? parseInt(savedSize) : null;
+    setSelectedSupplier(initialSupplierId);
+    setTempSelectedSupplier(initialSupplierId);
+    setSelectedSize(initialSizeId);
+    setTempSelectedSize(initialSizeId);
+    setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
+    setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
+    setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
 
-      runInAction(() => {
-        productStore.setFilters({
-          pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
-          pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
-          supplierId: initialSupplierId,
-          sizeId: initialSizeId,
-          term: productStore.term,
-        });
+    // Chỉ cần initialize productStore (nếu cần)
+    productStore.initialize();
+  }, [commonStore.token, isOnline]);
 
-        setSelectedSupplier(initialSupplierId);
-        setTempSelectedSupplier(initialSupplierId);
-        setSelectedSize(initialSizeId);
-        setTempSelectedSize(initialSizeId);
-        setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
-        setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
-        setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
-      });
-
-      // Load products after initialization
-      if (!supplierStore.loading && !sizeStore.loading && !productStore.loadingCombinations) {
-        productStore.setFilters({
-          pageNumber: savedPageNumber ? parseInt(savedPageNumber) : 1,
-          pageSize: savedPageSize ? parseInt(savedPageSize) : 10,
-          term: productStore.term,
-          supplierId: initialSupplierId,
-          sizeId: initialSizeId,
-        });
-      }
-    };
-
-    initializeData();
-  }, [commonStore.token, isOnline]); // Add isOnline dependency
-
-  // Separate effect for handling filter changes
+  // Chỉ gọi loadProducts khi filter thực sự thay đổi
   useEffect(() => {
     if (!isOnline || supplierStore.loading || sizeStore.loading || productStore.loadingCombinations) return;
 
@@ -113,8 +83,8 @@ function ProductTable() {
       sizeId: isAdvancedActive ? selectedSize : null,
     });
 
-    loadProducts();
-  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive, isOnline]);
+    productStore.loadProducts();
+  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive, isOnline, supplierStore.loading, sizeStore.loading, productStore.loadingCombinations]);
 
   useEffect(() => {
     if (isOnline && productStore.existingSupplierSizeCombinations.length === 0 && !productStore.loadingCombinations) {
@@ -287,7 +257,7 @@ function ProductTable() {
                 className="hidden"
               />
               {/* Desktop: Button text */}
-              <div className="hidden md:inline-flex gap-2">
+              <div className="hidden md:inline-flex">
                 <Button
                   onClick={handleImportClick}
                   className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"

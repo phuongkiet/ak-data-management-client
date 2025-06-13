@@ -13,6 +13,8 @@ const PageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle, isUploaded }) =>
         href={`https://ankhanhhouse.com/san-pham/${pageTitle.toLowerCase()}`}
         className="text-xl font-semibold text-gray-800 dark:text-white/90 underline"
         x-text="pageName"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         {pageTitle}
       </a>

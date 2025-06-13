@@ -39,6 +39,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = observer(
             setShowBirthdayModal(true);
             localStorage.setItem(shownKey, "true");
           }
+
+          Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith("birthday-modal-shown-") && key !== shownKey) {
+              localStorage.removeItem(key);
+            }
+          });
         }
       }
     }, [user?.birthday]);
@@ -60,6 +66,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = observer(
         } else {
           document.documentElement.classList.remove("dark");
         }
+        
       }
     }, [theme, isInitialized]);
 

@@ -166,6 +166,13 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     }
   }, [isOnline, metadata.lastUpdated]);
 
+  // Đảm bảo luôn đồng bộ metadata vào các store MobX khi metadata thay đổi
+  useEffect(() => {
+    if (metadata.ProductMetadataDto) {
+      updateStores(metadata.ProductMetadataDto);
+    }
+  }, [metadata.ProductMetadataDto]);
+
   return (
     <ProductMetadataContext.Provider
       value={{

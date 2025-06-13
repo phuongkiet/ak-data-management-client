@@ -47,6 +47,7 @@ const StrategyProductTable = () => {
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImporting, setIsImporting] = useState(false);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -57,7 +58,9 @@ const StrategyProductTable = () => {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
+      setIsImporting(true);
       await productStore.updateBatchProduct(file);
+      setIsImporting(false);
       // Reset the file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -102,8 +105,9 @@ const StrategyProductTable = () => {
               <Button
                 className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
                 onClick={handleImportClick}
+                disabled={isImporting}
               >
-                Cập nhật sản phẩm
+                {isImporting ? "Đang xử lý..." : "Cập nhật sản phẩm"}
               </Button>
               <input
                 type="file"
