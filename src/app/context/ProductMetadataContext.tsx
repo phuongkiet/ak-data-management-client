@@ -194,4 +194,5 @@ export const useProductMetadata = () => {
     );
   }
   return context;
+  
 };
