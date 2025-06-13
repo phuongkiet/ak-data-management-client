@@ -1,10 +1,20 @@
-import {AddUserDto, User, UserDto, UserLoginFormValues} from "../models/user/user.model.ts";
-import {makeAutoObservable, runInAction} from "mobx";
+import {
+  AddUserDto,
+  User,
+  UserDto,
+  UserLoginFormValues,
+  UserUpdateDto,
+} from "../models/user/user.model.ts";
+import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent.ts";
-import {store} from "./store.ts";
+import { store } from "./store.ts";
 import { router } from "../router/route.tsx";
 import { toast } from "react-toastify";
-import { ForgotPasswordModel, ResendEmailConfirmModel, VerifyEmailModel } from "../models/auth/authentication.model.ts";
+import {
+  ForgotPasswordModel,
+  ResendEmailConfirmModel,
+  VerifyEmailModel,
+} from "../models/auth/authentication.model.ts";
 
 export default class UserStore {
   user: User | undefined = undefined;
@@ -15,18 +25,20 @@ export default class UserStore {
 
   userForm: AddUserDto = {
     birthday: null,
-    fullName: '',
-    userName: '',
-    phoneNumber: '',
-    email: '',
+    fullName: "",
+    userName: "",
+    phoneNumber: "",
+    email: "",
     roleId: 0,
-  }
+  };
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  login = async (creds: UserLoginFormValues): Promise<{ success: boolean; errors?: string[] }> => {
+  login = async (
+    creds: UserLoginFormValues
+  ): Promise<{ success: boolean; errors?: string[] }> => {
     try {
       const user = await agent.Account.login(creds);
       runInAction(() => {
@@ -38,11 +50,10 @@ export default class UserStore {
       });
       return { success: true };
     } catch (error: any) {
-      const err = error.response?.data?.errors || ['Đăng nhập thất bại'];
+      const err = error.response?.data?.errors || ["Đăng nhập thất bại"];
       return { success: false, errors: err };
     }
   };
-
 
   logout = () => {
     store.commonStore.setToken(null);
@@ -69,36 +80,36 @@ export default class UserStore {
   setTerm = (term: string) => {
     this.term = term;
     this.listAllUser(this.term);
-  }
+  };
 
   listAllUser = async (term?: string) => {
     this.loading = true;
-    try{
+    try {
       const users = await agent.UserAdmin.adminList(term ?? undefined);
-      if(users.data){
+      if (users.data) {
         runInAction(() => {
           this.userList = users.data || [];
           this.loading = false;
-          
-          this.userList.forEach(user => {
+
+          this.userList.forEach((user) => {
             this.userRegistry.set(user.id, user);
-          })
-        })
+          });
+        });
       }
-    }catch(error){
+    } catch (error) {
       runInAction(() => {
         this.loading = false;
-      })
+      });
       console.log(error);
       toast.error("Lỗi khi tải danh sách người dùng");
     }
-  }
+  };
 
   forgotPassword = async (dto: ForgotPasswordModel) => {
     this.loading = true;
     try {
       const result = await agent.Account.forgotPassword(dto);
-      if(result.success) {
+      if (result.success) {
         this.loading = false;
         return true;
       }
@@ -107,13 +118,13 @@ export default class UserStore {
       this.loading = false;
       return false;
     }
-  }
+  };
 
   resetPassword = async (values: any) => {
     this.loading = true;
     try {
       const result = await agent.Account.resetPassword(values);
-      if(result.success) {
+      if (result.success) {
         this.loading = false;
         return true;
       }
@@ -122,13 +133,13 @@ export default class UserStore {
       this.loading = false;
       return false;
     }
-  }
+  };
 
   verifyEmail = async (dto: VerifyEmailModel) => {
     this.loading = true;
     try {
       const result = await agent.Account.verifyEmail(dto);
-      if(result.success) {
+      if (result.success) {
         this.loading = false;
         return true;
       }
@@ -137,15 +148,15 @@ export default class UserStore {
       this.loading = false;
       return false;
     }
-  }
+  };
 
   resendEmailConfirm = async (dto: ResendEmailConfirmModel) => {
     try {
       await agent.Account.resendEmailConfirm(dto);
     } catch (error) {
-      console.error("resendEmailConfirm error", error); 
+      console.error("resendEmailConfirm error", error);
     }
-  }
+  };
 
   addUser = async (dto: AddUserDto) => {
     this.loading = true;
@@ -169,12 +180,12 @@ export default class UserStore {
       toast.error("Lỗi khi thêm người dùng");
       return false;
     }
-  }
+  };
 
   banUser = async (userEmail: string) => {
     try {
       const result = await agent.UserAdmin.banUser(userEmail);
-      if(result.success) {
+      if (result.success) {
         toast.success(result.data);
         this.listAllUser();
       }
@@ -182,12 +193,12 @@ export default class UserStore {
       console.error("banUser error", error);
       toast.error("Lỗi khi khóa người dùng");
     }
-  }
+  };
 
   unBanUser = async (userEmail: string) => {
     try {
       const result = await agent.UserAdmin.unBanUser(userEmail);
-      if(result.success) {
+      if (result.success) {
         toast.success(result.data);
         this.listAllUser();
       }
@@ -195,5 +206,53 @@ export default class UserStore {
       console.error("unBanUser error", error);
       toast.error("Lỗi khi mở khóa người dùng");
     }
-  }
+  };
+
+  updateUser = async (userEmail: string, dto: UserUpdateDto) => {
+    this.loading = true;
+    try {
+      const result = await agent.UserAdmin.updateUser(userEmail, dto);
+      if (result.success) {
+        toast.success(result.data || "Cập nhật người dùng thành công");
+        this.loading = false;
+        this.listAllUser();
+        await this.getUser();
+        return true;
+      } else {
+        toast.error(result.errors || "Lỗi khi cập nhật người dùng");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      console.error("updateUser error", error);
+      toast.error("Lỗi khi cập nhật người dùng");
+      this.loading = false;
+      return false;
+    }
+  };
+
+  updateAvatar = async (userEmail: string, image: File) => {
+    this.loading = true;
+    try {
+      const result = await agent.Account.updateAvatar({
+        userEmail: userEmail,
+        file: image,
+      });
+      if (result.success) {
+        toast.success(result.data || "Cập nhật ảnh đại diện thành công");
+        this.loading = false;
+        await this.getUser();
+        return true;
+      } else {
+        toast.error(result.errors || "Lỗi khi cập nhật ảnh đại diện");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      console.error("updateAvatar error", error);
+      toast.error("Lỗi khi cập nhật ảnh đại diện");
+      this.loading = false;
+      return false;
+    }
+  };
 }

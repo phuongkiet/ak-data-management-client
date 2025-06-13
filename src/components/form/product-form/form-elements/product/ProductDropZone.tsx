@@ -1,33 +1,50 @@
-import ComponentCard from "../../../../common/ComponentCard.tsx";
 import { useDropzone } from "react-dropzone";
+import ComponentCard from "../../../../common/ComponentCard.tsx";
 // import Dropzone from "react-dropzone";
+import React from "react";
 
-const DropzoneComponent: React.FC = () => {
-  const onDrop = (acceptedFiles: File[]) => {
-    console.log("Files dropped:", acceptedFiles);
-    // Handle file uploads here
+interface ProductDropZoneProps {
+  onDrop?: (files: File[]) => void;
+  isLoading?: boolean;
+}
+
+const ProductDropZone: React.FC<ProductDropZoneProps> = ({ onDrop, isLoading = false }) => {
+  const handleDrop = (acceptedFiles: File[]) => {
+    console.log("Accepted files:", acceptedFiles);
+    if (onDrop) {
+      onDrop(acceptedFiles);
+    } else {
+      console.log("Files dropped:", acceptedFiles);
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
+    onDrop: handleDrop,
     accept: {
       "image/png": [],
       "image/jpeg": [],
       "image/webp": [],
       "image/svg+xml": [],
+      "image/jpg": [],
     },
+    disabled: isLoading
   });
   return (
-    <ComponentCard title="Dropzone">
-      <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
+    <ComponentCard
+      title="Upload ảnh đại diện"
+      className="text-center"
+      titleClassName="text-2xl font-bold"
+    >
+      <div className="w-full max-w-xl mx-auto transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
         <form
           {...getRootProps()}
-          className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
+          className={`dropzone rounded-xl border-dashed border-gray-300 p-7 lg:p-10 w-full relative
         ${
           isDragActive
             ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
             : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
         }
+        ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
       `}
           id="demo-upload"
         >
@@ -37,7 +54,7 @@ const DropzoneComponent: React.FC = () => {
           <div className="dz-message flex flex-col items-center m-0!">
             {/* Icon Container */}
             <div className="mb-[22px] flex justify-center">
-              <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+              <div className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <svg
                   className="fill-current"
                   width="29"
@@ -56,16 +73,24 @@ const DropzoneComponent: React.FC = () => {
 
             {/* Text Content */}
             <h4 className="mb-3 font-semibold text-gray-800 text-theme-xl dark:text-white/90">
-              {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
+              {isLoading 
+                ? "Đang xử lý..."
+                : isDragActive
+                ? "Thả file ảnh vào đây"
+                : "Kéo thả file ảnh vào đây"}
             </h4>
 
-            <span className=" text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
-              Drag and drop your PNG, JPG, WebP, SVG images here or browse
+            <span className="text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
+              {isLoading 
+                ? "Vui lòng đợi trong giây lát"
+                : "Kéo thả các file ảnh PNG, JPG, WebP, SVG vào đây hoặc chọn file"}
             </span>
 
-            <span className="font-medium underline text-theme-sm text-brand-500">
-              Browse File
-            </span>
+            {!isLoading && (
+              <span className="font-medium underline text-theme-sm text-brand-500">
+                Chọn file
+              </span>
+            )}
           </div>
         </form>
       </div>
@@ -73,4 +98,4 @@ const DropzoneComponent: React.FC = () => {
   );
 };
 
-export default DropzoneComponent;
+export default ProductDropZone;

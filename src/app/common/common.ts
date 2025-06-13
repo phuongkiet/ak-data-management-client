@@ -47,12 +47,38 @@ export function buildQueryString(params: Record<string, any>): string {
     .join('&');
 }
 
-export function formatDate(dateString?: string | null) {
+// export function formatDate(dateString?: string | null) {
+//   if (!dateString) return "";
+//   const date = new Date(dateString);
+//   if (isNaN(date.getTime())) return "";
+//   const day = String(date.getDate()).padStart(2, "0");
+//   const month = String(date.getMonth() + 1).padStart(2, "0");
+//   const year = date.getFullYear();
+//   return `${day}/${month}/${year}`;
+// }
+
+export function formatDateLocal(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+export function formatDateLocalString(dateString?: string | null) {
   if (!dateString) return "";
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "";
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   return `${day}/${month}/${year}`;
+}
+
+export function convertRoleToVietnamese(role: string): string {
+  const roleMap: Record<string, string> = {
+    Admin: "Quản trị viên",
+    Strategist: "Chiến lược gia",
+    Client: "Người dùng",
+  };
+  return roleMap[role] || role;
 }

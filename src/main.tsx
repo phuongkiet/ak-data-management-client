@@ -10,13 +10,13 @@ import { ToastContainer } from 'react-toastify'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <AppWrapper>
-        <StoreContext.Provider value={store}>
+    <StoreContext.Provider value={store}>
+      <ThemeProvider>
+        <AppWrapper>
           <RouterProvider router={router} />
-        </StoreContext.Provider>
-      </AppWrapper>
-    </ThemeProvider>
+        </AppWrapper>
+      </ThemeProvider>
+    </StoreContext.Provider>
     <ToastContainer position="bottom-right" />
   </StrictMode>
 )

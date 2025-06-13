@@ -18,6 +18,10 @@ const StrategyProductInputGroupRight = ({
   const update = productStore.updateStrategyProductForm;
   const { productSupplierTaxList } = supplierTaxStore;
 
+  const isOutOfPriceOne = product?.estimatedPurchasePriceAfterSupplierDiscount && product?.firstActualReceivedPriceAfterPolicyDiscount && product?.estimatedPurchasePriceAfterSupplierDiscount > product?.firstActualReceivedPriceAfterPolicyDiscount;
+  const isOutOfPriceTwo = product?.estimatedPurchasePriceAfterSupplierDiscount && product?.secondActualReceivedPriceAfterPolicyDiscount && product?.estimatedPurchasePriceAfterSupplierDiscount > product?.secondActualReceivedPriceAfterPolicyDiscount;
+
+
   if (!productSupplierTaxList.length) return <div>Đang tải thuế...</div>;
 
   return (
@@ -147,7 +151,11 @@ const StrategyProductInputGroupRight = ({
             displayType="input"
             disabled
             placeholder="Ô tự động điền"
-            className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+            className={`h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800 ${
+              isOutOfPriceOne
+                ? "bg-red-500 text-white font-semibold"
+                : "bg-transparent text-gray-800 dark:text-white/90 dark:bg-gray-900"
+            }`}
           />
         </div>
         <div>
@@ -158,7 +166,11 @@ const StrategyProductInputGroupRight = ({
             displayType="input"
             disabled
             placeholder="Ô tự động điền"
-            className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
+            className={`h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800 ${
+              isOutOfPriceTwo
+                ? "bg-red-500 text-white font-semibold"
+                : "bg-transparent text-gray-800 dark:text-white/90 dark:bg-gray-900"
+            }`}
           />
         </div>
       </div>

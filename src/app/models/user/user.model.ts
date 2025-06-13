@@ -8,6 +8,8 @@ export interface User {
   phoneNumber: string;
   status: string;
   role: string[];
+  roleId: number;
+  avatarUrl: string;
 }
 
 export interface UserLoginFormValues {
@@ -23,6 +25,9 @@ export interface UserDto {
   status: UserStatus;
   role: string;
   birthday: string;
+  userName: string;
+  roleId: number;
+  avatarUrl: string;
 }
 
 export interface AddUserDto{
@@ -31,6 +36,14 @@ export interface AddUserDto{
   userName: string;
   phoneNumber: string;
   email: string;
+  roleId: number;
+}
+
+export interface UserUpdateDto{
+  birthday: string | null;
+  name: string;
+  userName: string;
+  phoneNumber: string | null;
   roleId: number;
 }
 

@@ -7,6 +7,7 @@ import {
   User,
   UserDto,
   UserLoginFormValues,
+  UserUpdateDto,
 } from "../models/user/user.model.ts";
 import { PagedModel } from "../models/common/pagedModel.model.ts";
 import {
@@ -228,6 +229,17 @@ const Account = {
     requests.post<string>(`/auth/resend-verification-otp`, dto),
   // changePassword: (values: any): Promise<ApiResponseModel<string>> =>
   //   requests.post<string>(`/auth/changeUserPassword`, values),
+  updateAvatar: (request: {
+    userEmail: string;
+    file: File;
+  }): Promise<ApiResponseModel<string>> => {
+    const formData = new FormData();
+
+    formData.append("UserEmail", request.userEmail);
+    formData.append("File", request.file);
+
+    return requests.put<string>("/users/update-avatar", formData);
+  },
 };
 
 const UserAdmin = {
@@ -243,6 +255,11 @@ const UserAdmin = {
     requests.put<string>(`/users/ban-user?userEmail=${userEmail}`, {}),
   unBanUser: (userEmail: string): Promise<ApiResponseModel<string>> =>
     requests.put<string>(`/users/unban-user?userEmail=${userEmail}`, {}),
+  updateUser: (
+    userEmail: string,
+    dto: UserUpdateDto
+  ): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/users/update-user?userEmail=${userEmail}`, dto),
 };
 
 const Product = {
