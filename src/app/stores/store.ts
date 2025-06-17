@@ -20,6 +20,7 @@ import FactoryStore from "./factoryStore.ts";
 import AreaStore from "./areaStore.ts";
 import SupplierTaxStore from "./supplierTaxStore.ts";
 import RoleStore from "./roleStore.ts";
+import LinkStorageStore from "./linkStorageStore.ts";
 interface Store {
   userStore: UserStore;
   commonStore: CommonStore;
@@ -42,6 +43,7 @@ interface Store {
   areaStore: AreaStore;
   supplierTaxStore: SupplierTaxStore;
   roleStore: RoleStore;
+  linkStorageStore: LinkStorageStore;
 }
 
 export const store: Store = {
@@ -65,7 +67,8 @@ export const store: Store = {
   factoryStore: new FactoryStore(),
   areaStore: new AreaStore(),
   supplierTaxStore: new SupplierTaxStore(),
-  roleStore: new RoleStore()
+  roleStore: new RoleStore(),
+  linkStorageStore: new LinkStorageStore()
 }
 
 export const StoreContext = createContext(store);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -12,17 +12,17 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function BodyColorTable() {
   const { bodyColorStore } = useStore();
-  const { loadBodyColors, productBodyColorList, loading } = bodyColorStore;
+  const { productBodyColorList, loading } = bodyColorStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
-  useEffect(() => {
-    if (isOnline) {
-      loadBodyColors();
-    }
-  }, [isOnline]);
+  // useEffect(() => {
+  //   if (isOnline) {
+  //     loadBodyColors();
+  //   }
+  // }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await bodyColorStore.addBodyColor();
@@ -47,7 +47,7 @@ function BodyColorTable() {
           isModalOpen={isModalOpen}
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
-          modalStyle="w-full max-w-4xl rounded-3xl space-y-4 p-6"
+          modalStyle="w-full max-w-lg rounded-3xl space-y-4 p-6"
           className="text-white"
           modalContent={
             <div>
@@ -69,7 +69,7 @@ function BodyColorTable() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-[#334355] focus:outline-none focus:ring-2 focus:ring-[#334355]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>

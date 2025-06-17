@@ -23,8 +23,10 @@ const AntiSlipperyGroup = ({product, isCreateMode, onChange}: ProductProps) => {
     label: antiSlippery.antiSlipLevel
   }))
 
+  const antiSlipperyId = typeof product?.antiSlipId === 'number' ? product.antiSlipId : productStore.productForm.antiSlipId
+
   const selectedAntiSlippery = antiSlipperyOptions.find(
-    (option) => option.value === product?.antiSlipId
+    (option) => option.value === antiSlipperyId
   )
 
   return (

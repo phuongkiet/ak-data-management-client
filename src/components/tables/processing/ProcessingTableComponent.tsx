@@ -28,6 +28,10 @@ const ProcessingTableComponent = ({ data }: ProcessingTableComponentProps) => {
 
   const handleView = (processing: ProductProcessingDto) => {
     setSelectedItem(processing);
+    processingStore.processingFormUpdate = {
+      processingCode: processing.processingCode,
+      processingDescription: processing.processingDescription || '',
+    };
     setIsModalOpen(true);
   };
 

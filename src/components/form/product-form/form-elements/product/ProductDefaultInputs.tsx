@@ -53,11 +53,12 @@ const ProductDefaultInputs = ({
   const [websiteProductName, setWebsiteProductName] = useState<string>("");
   const [otherNote, setOtherNote] = useState<string>(product?.otherNote || "");
   const [deliveryEstimatedDate, setDeliveryEstimatedDate] = useState<string>(
-    product?.deliveryEstimatedDate || ""
+    product?.deliveryEstimatedDate || "1-2 ngày"
   );
   const [manualOrderNumber, setManualOrderNumber] = useState<string>("");
   const [isChecking, setIsChecking] = useState(false);
-  const [isProcessingPriceModalOpen, setIsProcessingPriceModalOpen] = useState(false);
+  const [isProcessingPriceModalOpen, setIsProcessingPriceModalOpen] =
+    useState(false);
 
   // Add effect to update product code when supplier changes
   useEffect(() => {
@@ -65,11 +66,6 @@ const ProductDefaultInputs = ({
       handleProductCodeChange();
     }
   }, [productStore.productForm.supplierId]);
-
-  // Add effect to load sizes
-  useEffect(() => {
-    sizeStore.loadSizes();
-  }, []);
 
   const handleConfirmAutoBarCodeChange = () => {
     if (
@@ -210,8 +206,13 @@ const ProductDefaultInputs = ({
   const handleDeliveryEstimatedDateChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setDeliveryEstimatedDate(e.target.value);
-    productStore.updateProductForm("deliveryEstimatedDate", e.target.value);
+    const value = e.target.value;
+    setDeliveryEstimatedDate(value);
+    if (isCreateMode) {
+      productStore.updateProductForm("deliveryEstimatedDate", value);
+    } else {
+      onChange && onChange("deliveryEstimatedDate", value);
+    }
   };
 
   const updateConfirmSupplierItemCode = (
@@ -715,13 +716,26 @@ const ProductDefaultInputs = ({
                 </div>
               </div>
 
-              <div>
-                <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
-                <StorageGroup
-                  product={product}
-                  isCreateMode={isCreateMode}
-                  onChange={onChange}
-                />
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
+                  <StorageGroup
+                    product={product}
+                    isCreateMode={isCreateMode}
+                    onChange={onChange}
+                  />
+                </div>
+
+                <div>
+                  <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
+                  <Input
+                    type="text"
+                    id="input"
+                    placeholder="Số ngày giao hàng"
+                    value={deliveryEstimatedDate}
+                    onChange={handleDeliveryEstimatedDateChange}
+                  />
+                </div>  
               </div>
             </div>
 
@@ -988,7 +1002,7 @@ const ProductDefaultInputs = ({
               />
             </div>
             <div className="col-span-2 flex items-end">
-              <Button 
+              <Button
                 className="w-full max-h-[44px] text-md font-semibold bg-[#334355] hover:bg-[#283849] text-white"
                 onClick={() => setIsProcessingPriceModalOpen(true)}
               >

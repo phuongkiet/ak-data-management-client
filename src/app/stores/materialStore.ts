@@ -63,25 +63,39 @@ export default class MaterialStore extends BaseStore {
 
   loadMaterials = async (term?: string) => {
     this.loading = true;
-    try {
-      const result = await agent.ProductMaterial.materialList(term);
-      runInAction(() => {
-        this.productMaterialList = result.data || [];
-        this.loading = false;
+    let retryCount = 0;
+    const maxRetries = 3;
+    
+    const tryLoadMaterials = async () => {
+      try {
+        const result = await agent.ProductMaterial.materialList(term);
+        runInAction(() => {
+          this.productMaterialList = result.data || [];
+          this.loading = false;
 
-        // Optionally: store suppliers in a Map
-        this.productMaterialRegistry.clear();
-        this.productMaterialList.forEach(supplier => {
-          if (supplier.id != null) this.productMaterialRegistry.set(supplier.id, supplier);
+          // Optionally: store suppliers in a Map
+          this.productMaterialRegistry.clear();
+          this.productMaterialList.forEach(supplier => {
+            if (supplier.id != null) this.productMaterialRegistry.set(supplier.id, supplier);
+          });
         });
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
-      console.error("Failed to load material", error);
-      toast.error("Lỗi khi tải dữ liệu chất liệu.")
-    }
+      } catch (error: any) {
+        if (error.response?.status === 503 && retryCount < maxRetries) {
+          retryCount++;
+          // Wait for 2 seconds before retrying
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          return tryLoadMaterials();
+        }
+        
+        runInAction(() => {
+          this.loading = false;
+        });
+        console.error("Failed to load material", error);
+        toast.error("Lỗi khi tải dữ liệu chất liệu.")
+      }
+    };
+
+    await tryLoadMaterials();
   };
 
   resetMaterialForm = () => {

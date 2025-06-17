@@ -58,19 +58,7 @@ const ProductTableComponent = ({
     surfaceStore,
     materialStore,
     colorStore,
-    antiSlipperyStore,
   } = useStore();
-
-  useEffect(() => {
-    storageStore.loadStorages();
-    waterAbsorptionStore.loadWaterAbsorption();
-    patternStore.loadPatterns();
-    sizeStore.loadSizes();
-    surfaceStore.loadSurfaces();
-    materialStore.loadMaterials();
-    colorStore.loadColors();
-    antiSlipperyStore.loadAntiSlipperys();
-  }, []);
 
   useEffect(() => {
     if (!selectedProduct) {
@@ -348,7 +336,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           customStyles={{
             table: {
               style: {
-                minWidth: '1200px',
+                minWidth: "1200px",
               },
             },
           }}

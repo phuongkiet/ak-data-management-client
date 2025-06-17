@@ -28,6 +28,11 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
 
   const handleView = (pattern: ProductPatternDto) => {
     setSelectedItem(pattern);
+    patternStore.patternFormUpdate = {
+      name: pattern.name,
+      description: pattern.description || '',
+      shortCode: pattern.shortCode,
+    };
     setIsModalOpen(true);
   };
 
@@ -121,6 +126,13 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
               <ProductInputField
                 value={patternStore.patternFormUpdate.name}
                 onChange={(e) => patternStore.updatePatternFormUpdate('name', e.target.value)}
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">Mã ngắn</ProductLabel>
+              <ProductInputField
+                value={patternStore.patternFormUpdate.shortCode}
+                onChange={(e) => patternStore.updatePatternFormUpdate('shortCode', e.target.value)}
               />
             </div>
             <div>

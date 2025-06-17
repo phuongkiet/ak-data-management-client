@@ -27,6 +27,10 @@ const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
 
   const handleView = (origin: ProductOriginDto) => {
     setSelectedItem(origin);
+    originStore.originFormUpdate = {
+      name: origin.name,
+      upperName: origin.upperName,
+    };
     setIsModalOpen(true);
   };
 

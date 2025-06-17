@@ -28,6 +28,10 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
 
   const handleView = (companyCode: CompanyCodeDto) => {
     setSelectedItem(companyCode);
+    companyCodeStore.companyCodeFormUpdate = {
+      codeName: companyCode.codeName,
+      // ... các field khác nếu có
+    };
     setIsModalOpen(true);
   };
 

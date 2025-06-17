@@ -52,7 +52,8 @@ const navItems: NavItem[] = [
       { icon: <ChevronRightIcon />, name: 'Gia công', path: '/processings', pro: false },
       { icon: <ChevronRightIcon />, name: 'Kho hàng', path: '/storages', pro: false },
       { icon: <ChevronRightIcon />, name: 'Mức độ chống trượt', path: '/anti-slipperys', pro: false },
-      { icon: <ChevronRightIcon />, name: 'Mức độ hút nước', path: '/water-absorptions', pro: false }]
+      { icon: <ChevronRightIcon />, name: 'Mức độ hút nước', path: '/water-absorptions', pro: false },
+      { icon: <ChevronRightIcon />, name: 'Đơn vị tính', path: '/calculated-units', pro: false }]
   },
   {
     icon: <UserCircleIcon />,

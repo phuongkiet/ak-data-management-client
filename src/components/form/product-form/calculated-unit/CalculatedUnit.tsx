@@ -2,6 +2,7 @@ import { useStore } from "../../../../app/stores/store.ts";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
+import { useEffect } from "react";
 
 interface Option {
   value: number;
@@ -26,9 +27,30 @@ const CalculatedUnitGroup = ({ product, isCreateMode, onChange }: ProductProps) 
     })
   );
 
+  const calculatedUnitId =
+    typeof product?.calculatedUnitId === 'number'
+      ? product.calculatedUnitId
+      : productStore.productForm.calculatedUnitId;
+
   const selectedCalculatedUnit = calculatedUnitOptions.find(
-    (option) => option.value === product?.calculatedUnitId
+    (option) => option.value === calculatedUnitId
   );
+
+  useEffect(() => {
+    if (calculatedUnitId) {
+      const selectedUnit = productCalculatedUnitList.find(
+        (u) => u.id === calculatedUnitId
+      );
+      if (selectedUnit) {
+        if (onChange) {
+          onChange("autoCalculatedUnit", selectedUnit.autoCalculatedUnitName || "");
+        } else if (isCreateMode) {
+          productStore.updateProductForm("autoCalculatedUnit", selectedUnit.autoCalculatedUnitName || "");
+        }
+      }
+    }
+  }, [calculatedUnitId, productCalculatedUnitList]);
+
   return (
     <div>
       <div className="relative">

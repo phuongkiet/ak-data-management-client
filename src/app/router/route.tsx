@@ -41,6 +41,7 @@ import ResetPassword from '../../pages/AuthPages/ResetPassword.tsx'
 import VerifyEmail from '../../pages/AuthPages/VerifyEmail.tsx'
 import StrategyProductDetail from '../../pages/StrategyProducts/StrategyProductDetail.tsx'
 import SupplierDetail from '../../pages/Suppliers/SupplierDetail.tsx'
+import CalculatedUnitTable from '../../pages/Tables/calculated-unit/CalculatedUnitTable.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -106,6 +107,10 @@ export const routes: RouteObject[] = [
 
       // Tables - Factory
       { path: 'factories', element: <FactoryTable /> },
+
+      // Tables - Calculated Unit
+      { path: 'calculated-units', element: <CalculatedUnitTable /> },
+      
       // UI Elements
       { path: 'alerts', element: <Alerts /> },
       { path: 'avatars', element: <Avatars /> },

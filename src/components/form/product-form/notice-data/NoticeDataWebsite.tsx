@@ -28,8 +28,12 @@ const NoticeDataWebsiteGroup = ({
   onChange,
 }: ProductProps) => {
   const { productStore } = useStore();
+  const noticeValue = typeof product?.noticeDataWebsite === 'number'
+    ? product.noticeDataWebsite
+    : productStore.productForm.noticeDataWebsite;
+
   const selectedNotice = noticeOptions.find(
-    (option) => option.value === product?.noticeDataWebsite
+    (option) => option.value === noticeValue
   );
 
   return (

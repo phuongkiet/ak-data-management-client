@@ -28,6 +28,10 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
 
   const handleView = (surface: ProductSurfaceDto) => {
     setSelectedItem(surface);
+    surfaceStore.surfaceFormUpdate = {
+      name: surface.name,
+      description: surface.description || '',
+    };
     setIsModalOpen(true);
   };
 

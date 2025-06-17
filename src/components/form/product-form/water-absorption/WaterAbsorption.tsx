@@ -30,8 +30,10 @@ const WaterAbsorptionGroup = ({
     })
   );
 
+  const waterAbsorptionId = typeof product?.waterAbsorptionId === 'number' ? product.waterAbsorptionId : productStore.productForm.waterAbsorptionId
+
   const selectedWaterAbsorption = waterAbsorptionOptions.find(
-    (option) => option.value === product?.waterAbsorptionId
+    (option) => option.value === waterAbsorptionId
   );
 
   return (

@@ -28,6 +28,10 @@ const MaterialTableComponent = ({ data }: MaterialTableComponentProps) => {
 
   const handleView = (material: ProductMaterialDto) => {
     setSelectedItem(material);
+    materialStore.materialFormUpdate = {
+      name: material.name,
+      description: material.description || '',
+    };
     setIsModalOpen(true);
   };
 

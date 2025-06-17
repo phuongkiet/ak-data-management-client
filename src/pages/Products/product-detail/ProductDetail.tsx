@@ -25,7 +25,7 @@ const ProductDetail = () => {
     if (id) {
       loadProductDetail(+id);
     }
-  }, [id, loadProductDetail]);
+  }, [id]);
 
   // 2. Sync local state when productDetail changes
   useEffect(() => {

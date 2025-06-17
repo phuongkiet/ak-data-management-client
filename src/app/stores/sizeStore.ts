@@ -14,13 +14,15 @@ export default class SizeStore extends BaseStore {
   sizeForm: AddSizeDto = {
     wide: 0,
     length: 0,
-    autoSized: ""
+    autoSized: "",
+    companyCodeId: null
   };
 
   sizeFormUpdate: UpdateSizeDto = {
     wide: 0,
     length: 0,
-    autoSized: ""
+    autoSized: "",
+    companyCodeId: null
   };
 
   constructor() {
@@ -44,17 +46,22 @@ export default class SizeStore extends BaseStore {
   }
 
   setProductSizeList = (list: ProductSizeDto[]) => {
-    this.productSizeList = list;
+    this.productSizeList = list.map(size => ({
+      id: size.id,
+      wide: size.wide,
+      length: size.length,
+      autoSized: size.autoSized,
+      companyCodeId: size.companyCodeId
+    }));
     this.productSizeRegistry.clear();
-    list.forEach((size) => {
+    this.productSizeList.forEach((size) => {
       if (size.id != null)
         this.productSizeRegistry.set(size.id, size);
     });
-
     // Update metadata in localStorage
     const currentMetadata = OfflineStorage.getMetadata();
     if (currentMetadata) {
-      currentMetadata.productSizeDtos = list;
+      currentMetadata.productSizeDtos = this.productSizeList;
       OfflineStorage.saveMetadata(currentMetadata);
     }
   } 
@@ -91,7 +98,8 @@ export default class SizeStore extends BaseStore {
     this.sizeForm = {
       wide: 0,
       length: 0,
-      autoSized: ""
+      autoSized: "",
+      companyCodeId: null
     };
   };
 
@@ -128,15 +136,20 @@ export default class SizeStore extends BaseStore {
       const result = await agent.ProductSize.updateSize(id, this.sizeFormUpdate);
       if (result.success) {
         toast.success("Cập nhật kích thước thành công.");
-        this.loadSizes();
+        await this.loadSizes();
         this.resetSizeForm();
         this.loading = false;
         return true;
+      } else {
+        toast.error("Lỗi khi cập nhật kích thước.");
+        this.loading = false;
+        return false;
       }
     } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
+      console.error("Failed to update size", error);
+      toast.error("Lỗi khi cập nhật kích thước.");
+      this.loading = false;
+      return false;
     }
   }
 

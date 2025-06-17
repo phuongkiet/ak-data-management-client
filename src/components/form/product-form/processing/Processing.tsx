@@ -6,6 +6,7 @@ import { ProductDetail } from '../../../../app/models/product/product.model.ts'
 interface Option {
   value: number;
   label: string;
+  description: string;
 }
 
 interface ProductProps {
@@ -23,7 +24,8 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   // Mapping list
   const processingOptions: Option[] = productProcessingList.map(processing => ({
     value: processing.id,
-    label: processing.processingCode
+    label: processing.processingCode,
+    description: processing.processingDescription || ""
   }))
 
   // Ensure processingId is always an array
@@ -49,6 +51,12 @@ const ProcessingGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
               productStore.updateProductForm("productProcessingId", ids);
             }
           }}
+          formatOptionLabel={(option) => (
+            <div>
+              <div>{option.label}</div>
+              <div style={{ fontSize: 12, color: '#888' }}>{option.description}</div>
+            </div>
+          )}
           placeholder={'Chọn gia công...'}
           isClearable={true}
           closeMenuOnSelect={false}

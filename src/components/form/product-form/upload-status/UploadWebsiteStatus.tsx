@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-import { UploadWebsiteStatus } from "../../../../app/models/product/enum/product.enum.ts";
+import { UploadWebsiteStatus, NoticeDataWebsite } from "../../../../app/models/product/enum/product.enum.ts";
 import { useStore } from "../../../../app/stores/store.ts";
 import { uploadWebsiteStatusToVietnamese } from "../../../../app/common/common";
 interface Option {
@@ -43,21 +43,16 @@ const UploadWebSiteStatusGroup = ({
           defaultValue={statusOptions[5]}
           noOptionsMessage={() => "Không có trạng thái"}
           onChange={(selected) => {
-            if (!selected) {
-              if (onChange) {
-                onChange("uploadWebsiteStatus", 6);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("uploadWebsiteStatus", 6);
-              }
-            }
+            let noticeValue: NoticeDataWebsite = NoticeDataWebsite.No;
+            if (selected?.value === 1) noticeValue = NoticeDataWebsite.Ok;
+            else if (selected?.value === 7) noticeValue = NoticeDataWebsite.Cancel;
 
             if (onChange) {
               onChange("uploadWebsiteStatus", selected?.value || 0);
+              onChange("noticeDataWebsite", noticeValue);
             } else if (isCreateMode) {
-              productStore.updateProductForm(
-                "uploadWebsiteStatus",
-                selected?.value || 0
-              );
+              productStore.updateProductForm("uploadWebsiteStatus", selected?.value || 0);
+              productStore.updateProductForm("noticeDataWebsite", noticeValue);
             }
           }}
           placeholder={"Chọn trạng thái..."}

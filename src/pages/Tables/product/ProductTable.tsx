@@ -42,11 +42,7 @@ function ProductTable() {
 
   const { productSizeList } = sizeStore;
 
-  useEffect(() => {
-    if (isOnline) {
-      loadProducts();
-    }
-  }, [pageSize, pageNumber, term, isOnline]);
+  const didLoad = useRef(false);
 
   useEffect(() => {
     if (!commonStore.token || !isOnline) return;
@@ -67,24 +63,40 @@ function ProductTable() {
     setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
     setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
 
-    // Chỉ cần initialize productStore (nếu cần)
-    productStore.initialize();
   }, [commonStore.token, isOnline]);
 
-  // Chỉ gọi loadProducts khi filter thực sự thay đổi
   useEffect(() => {
-    if (!isOnline || supplierStore.loading || sizeStore.loading || productStore.loadingCombinations) return;
+    if (
+      !isOnline ||
+      supplierStore.loading ||
+      sizeStore.loading ||
+      productStore.loadingCombinations
+    )
+      return;
 
-    productStore.setFilters({
-      pageNumber,
-      pageSize,
-      term,
-      supplierId: isAdvancedActive ? selectedSupplier : null,
-      sizeId: isAdvancedActive ? selectedSize : null,
-    });
-
-    productStore.loadProducts();
-  }, [pageNumber, pageSize, term, selectedSupplier, selectedSize, isAdvancedActive, isOnline, supplierStore.loading, sizeStore.loading, productStore.loadingCombinations]);
+    if (!didLoad.current) {
+      didLoad.current = true;
+      productStore.setFilters({
+        pageNumber,
+        pageSize,
+        term,
+        supplierId: isAdvancedActive ? selectedSupplier : null,
+        sizeId: isAdvancedActive ? selectedSize : null,
+      });
+      loadProducts();
+    }
+  }, [
+    pageNumber,
+    pageSize,
+    term,
+    selectedSupplier,
+    selectedSize,
+    isAdvancedActive,
+    isOnline,
+    supplierStore.loading,
+    sizeStore.loading,
+    productStore.loadingCombinations,
+  ]);
 
   useEffect(() => {
     if (isOnline && productStore.existingSupplierSizeCombinations.length === 0 && !productStore.loadingCombinations) {
@@ -257,16 +269,16 @@ function ProductTable() {
                 className="hidden"
               />
               {/* Desktop: Button text */}
-              <div className="hidden md:inline-flex">
+              <div className="hidden md:inline-flex md:mr-2 py-2">
                 <Button
                   onClick={handleImportClick}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-[#334355] hover:bg-[#334355] text-white"
                 >
                   Nhập file
                 </Button>
                 <Button
                   onClick={handleAdvancedOpen}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-[#334355] hover:bg-[#334355] text-white"
                 >
                   Nâng cao
                 </Button>
@@ -275,7 +287,7 @@ function ProductTable() {
               <div className="flex md:hidden gap-2">
                 <div
                   onClick={handleImportClick}
-                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                  className="bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center"
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Nhập file"
                 >
@@ -297,7 +309,7 @@ function ProductTable() {
                 </div>
                 <div
                   onClick={handleAdvancedOpen}
-                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
+                  className="bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center"
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Nâng cao"
                 >

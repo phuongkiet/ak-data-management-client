@@ -16,7 +16,6 @@ import {
 import { toast } from "react-toastify";
 import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
 import { AdvancedSearchDto } from "../models/common/advancedSearch.model";
-import { store } from "../stores/store";
 import { OfflineStorage } from "../services/offlineStorage";
 import { SyncService } from "../services/syncService";
 
@@ -77,14 +76,14 @@ export default class ProductStore {
         surfaceFeatureId: null,
         materialId: null,
         brickBodyId: null,
-        storageId: null,
-        antiSlipId: null,
+        storageId: 2,
+        antiSlipId: 14, 
         supplierId: null,
         companyCodeId: null,
         productProcessingId: null,
-        waterAbsorptionId: null,
+        waterAbsorptionId: 2,
         taxId: null,
-        calculatedUnitId: null,
+        calculatedUnitId: 2,
         productFactoryId: null,
 
         priceDetermination: 2,
@@ -107,7 +106,7 @@ export default class ProductStore {
         calculatedUnit: "",
         productSpecialNote: "",
         diameterSize: undefined,
-        thicknessSize: 0,
+        thicknessSize: 9,
         weightPerUnit: 0,
         weightPerBox: 0,
         quantityPerBox: 0,
@@ -128,6 +127,8 @@ export default class ProductStore {
       };
     });
   };
+
+  hasLoadedTotalProducts = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -156,17 +157,6 @@ export default class ProductStore {
 
     this.pageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
     this.pageSize = savedPageSize ? parseInt(savedPageSize) : 10;
-  }
-
-  initialize = async () => {
-    if (!store.commonStore.token) return;
-    
-    try {
-      await this.getTotalProducts();
-      // await this.loadExistingSupplierSizeCombinations();
-    } catch (error) {
-      console.error("Failed to initialize product store:", error);
-    }
   }
 
   setSupplierId = (id: number | null) => {
@@ -293,7 +283,7 @@ export default class ProductStore {
     this.loading = true;
     try {
       const response = await agent.Product.getProductById(id);
-      const product = response.data; // Truy xuất `data` từ response
+      const product = response.data; 
 
       if (!product) throw new Error("Không có dữ liệu sản phẩm");
 
@@ -449,11 +439,29 @@ export default class ProductStore {
   };
 
   getTotalProducts = async () => {
+    // Kiểm tra localStorage trước
+    const cached = localStorage.getItem("totalProductsCache");
+    if (cached) {
+      const { value, timestamp } = JSON.parse(cached);
+      // Nếu chưa quá 24 tiếng thì dùng cache
+      if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+        this.absoluteTotalCount = value;
+        this.hasLoadedTotalProducts = true;
+        return;
+      }
+    }
+
+    // Nếu chưa có hoặc đã quá hạn, gọi API
     try {
       const response = await agent.Product.getTotalProducts();
       runInAction(() => {
         if (response.success) {
           this.absoluteTotalCount = response.data || 0;
+          // Lưu vào localStorage kèm timestamp
+          localStorage.setItem(
+            "totalProductsCache",
+            JSON.stringify({ value: this.absoluteTotalCount, timestamp: Date.now() })
+          );
         } else {
           toast.error(
             response.errors?.[0] || "Không lấy được tổng số sản phẩm"

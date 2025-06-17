@@ -25,7 +25,11 @@ const CompanyCodeGroup = ({ product, isCreateMode, onChange }: ProductProps) => 
   }))
 
   const selectedCompanyCode = companyCodeOptions.find(
-    (option) => option.value === product?.companyCodeId
+    (option) =>
+      option.value ===
+      (isCreateMode
+        ? productStore.productForm.companyCodeId
+        : product?.companyCodeId)
   )
 
   const handleCompanyCodeChange = (selected: Option | null) => {

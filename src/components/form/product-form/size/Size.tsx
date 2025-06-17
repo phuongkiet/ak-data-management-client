@@ -36,8 +36,8 @@ const SizeGroup = ({
 }: SizeGroupProps) => {
   const { sizeStore, productStore } = useStore();
   const { productSizeList } = sizeStore;
-  const [thickness, setThickness] = useState<string>(
-    product?.thicknessSize?.toString() || ""
+  const [thickness, setThickness] = useState<number>(
+    product?.thicknessSize || 9
   );
 
   // Mapping list
@@ -59,12 +59,13 @@ const SizeGroup = ({
     
     if (selectedOption) {
       const size = productSizeList.find(s => s.id === selectedOption.value);
-      console.log('Found size:', size);
+      console.log('Selected size:', size);
       
       if (size) {
-        // Update size ID
+        // Update size ID and company code
         if (onChange) {
           onChange("actualSizeId", selectedOption.value);
+          onChange("companyCodeId", size.companyCodeId);
           // Calculate and update areas
           const areaPerUnit = (size.length * size.wide) / 1000000; // Convert mm² to m²
           const areaPerBox = areaPerUnit * (product?.quantityPerBox || 1);
@@ -73,16 +74,19 @@ const SizeGroup = ({
         } else if (isCreateMode) {
           console.log('Updating form with size ID:', selectedOption.value);
           productStore.updateProductForm("actualSizeId", selectedOption.value);
+          productStore.updateProductForm("companyCodeId", size.companyCodeId);
         }
       }
     } else {
       // Handle clearing the size
       if (onChange) {
         onChange("actualSizeId", null);
+        onChange("companyCodeId", null);
         onChange("areaPerUnit", null);
         onChange("areaPerBox", null);
       } else if (isCreateMode) {
         productStore.updateProductForm("actualSizeId", null);
+        productStore.updateProductForm("companyCodeId", null);
       }
     }
   };
@@ -90,12 +94,11 @@ const SizeGroup = ({
   const handleThicknessChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const value = e.target.value;
+    const value = Number(e.target.value);
     setThickness(value);
-    const numericValue = value ? parseFloat(value) : 0;
     
     if (onChange) {
-      onChange("thicknessSize", numericValue);
+      onChange("thicknessSize", value);
       // Recalculate areas when thickness changes
       const selectedSize = productSizeList.find(s => s.id === product?.actualSizeId);
       if (selectedSize) {
@@ -105,12 +108,12 @@ const SizeGroup = ({
         onChange("areaPerBox", areaPerBox);
       }
     } else if (isCreateMode) {
-      productStore.updateProductForm("thicknessSize", numericValue);
+      productStore.updateProductForm("thicknessSize", value);
     }
     
     try {
       await thicknessSchema.validate(
-        (numericValue === undefined ? "" : numericValue) as unknown
+        (value === undefined ? "" : value) as unknown
       );
       setThicknessError("");
     } catch (err: any) {

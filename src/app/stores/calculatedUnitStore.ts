@@ -37,6 +37,8 @@ export default class CalculatedUnitStore extends BaseStore {
       addCalculatedUnit: action,
       updateCalculatedUnit: action,
       updateCalculatedUnitFormUpdate: action,
+      setCalculatedUnitFormUpdate: action,
+      updateCalculatedUnitForm: action,
     });
   }
 
@@ -108,10 +110,10 @@ export default class CalculatedUnitStore extends BaseStore {
     }
   }
 
-  updateCalculatedUnit = async () => {
+  updateCalculatedUnit = async (id: number) => {
     this.loading = true;
     try {
-      const result = await agent.CalculatedUnit.updateCalculatedUnit(this.calculatedUnitFormUpdate);
+      const result = await agent.CalculatedUnit.updateCalculatedUnit(id, this.calculatedUnitFormUpdate);
       if (result.success) {
         toast.success("Cập nhật đơn vị tính thành công.");
         this.loadCalculatedUnits();
@@ -130,6 +132,24 @@ export default class CalculatedUnitStore extends BaseStore {
     runInAction(() => {
       this.calculatedUnitFormUpdate = {
         ...this.calculatedUnitFormUpdate,
+        [field]: value
+      };
+    });
+  }
+
+  setCalculatedUnitFormUpdate = (data: CalculatedUnitDto) => {
+    runInAction(() => {
+      this.calculatedUnitFormUpdate = {
+        calculatedUnitName: data.calculatedUnitName,
+        autoCalculatedUnitName: data.autoCalculatedUnitName,
+      };
+    });
+  }
+
+  updateCalculatedUnitForm = <K extends keyof AddCalculatedUnitDto>(field: K, value: AddCalculatedUnitDto[K]) => {
+    runInAction(() => {
+      this.calculatedUnitForm = {
+        ...this.calculatedUnitForm,
         [field]: value
       };
     });

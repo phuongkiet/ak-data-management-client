@@ -16,7 +16,6 @@ function SupplierTable() {
   const { supplierStore } = useStore();
   const { isOnline } = useApi();
   const {
-    loadSuppliers,
     productSupplierList,
     loading,
     updateSupplierForm,
@@ -32,11 +31,11 @@ function SupplierTable() {
     useState<string>("");
   const [productSupplier, setProductSupplier] = useState<string>("");
 
-  useEffect(() => {
-    if (isOnline) {
-      loadSuppliers();
-    }
-  }, [isOnline]);
+  // useEffect(() => {
+  //   if (isOnline) {
+  //     loadSuppliers();
+  //   }
+  // }, [isOnline]);
 
   useEffect(() => {
     if (customerClassification && areaValue.id) {
@@ -232,7 +231,7 @@ function SupplierTable() {
                     type="button"
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-[#334355] focus:outline-none focus:ring-2 focus:ring-[#334355]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>

@@ -23,8 +23,9 @@ const StorageGroup = ({product, isCreateMode, onChange}: ProductProps) => {
     label: storage.name
   }))
 
+  const storageId = typeof product?.storageId === 'number' ? product.storageId : productStore.productForm.storageId
   const selectedStorage = storageOptions.find(
-    (option) => option.value === product?.storageId
+    (option) => option.value === storageId
   )
 
   return (

@@ -3,16 +3,9 @@ import { ApexOptions } from "apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
-import { useState, useEffect } from "react";
-import { useStore } from "../../app/stores/store";
+import { useState } from "react";
 
 export default function MonthlySalesChart() {
-  const { productStore } = useStore();
-  const { productList, loadProducts } = productStore;
-
-  useEffect(() => {
-    loadProducts(); // Ensure products are loaded
-  }, [loadProducts]);
 
   function getMonthlyCounts(products: any[]) {
     const counts = Array(12).fill(0);
@@ -24,8 +17,12 @@ export default function MonthlySalesChart() {
     return counts;
   }
 
-  const monthlyCounts = getMonthlyCounts(productList);
-
+  const monthlyCounts = getMonthlyCounts([
+    {
+      createdAt: "2025-01-01",
+    },
+  ]);
+  
   const options: ApexOptions = {
     colors: ["#465fff"],
     chart: {

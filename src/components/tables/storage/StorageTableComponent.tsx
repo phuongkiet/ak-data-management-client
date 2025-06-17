@@ -27,6 +27,9 @@ const StorageTableComponent = ({ data }: StorageTableComponentProps) => {
 
   const handleView = (storage: ProductStorageDto) => {
     setSelectedItem(storage);
+    storageStore.storageFormUpdate = {
+      name: storage.name,
+    };
     setIsModalOpen(true);
   };
 

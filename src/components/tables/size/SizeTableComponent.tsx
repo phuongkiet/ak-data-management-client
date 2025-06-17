@@ -7,6 +7,8 @@ import Button from "../../ui/button/Button.tsx";
 import Modal from "../../ui/modal/index.tsx";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
+import ReactSelect from "react-select";
+
 interface SizeTableComponentProps {
   data: ProductSizeDto[];
   loading: boolean;
@@ -19,8 +21,9 @@ interface SizeTableComponentProps {
 }
 
 const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
-  const { sizeStore } = useStore();
+  const { sizeStore, companyCodeStore } = useStore();
   const { loading } = sizeStore;
+  const { productCompanyCodeList } = companyCodeStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductSizeDto[]>(
     []
   );
@@ -39,9 +42,12 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
 
   const handleView = (size: ProductSizeDto) => {
     setSelectedItem(size);
-    sizeStore.updateSizeFormUpdate("length", size.length);
-    sizeStore.updateSizeFormUpdate("wide", size.wide);
-    sizeStore.updateSizeFormUpdate("autoSized", size.autoSized);
+    sizeStore.sizeFormUpdate = {
+      length: size.length,
+      wide: size.wide,
+      autoSized: size.autoSized,
+      companyCodeId: size.companyCodeId,
+    };
     setIsModalOpen(true);
   };
 
@@ -112,6 +118,12 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
       }
     }
   };
+
+  // Format company codes for ReactSelect
+  const companyCodeOptions = productCompanyCodeList.map((code) => ({
+    value: code.id,
+    label: code.codeName,
+  }));
 
   return (
     <>
@@ -184,6 +196,46 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
               <ProductInputField
                 disabled
                 value={autoSized()}
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">
+                Mã công ty
+              </ProductLabel>
+              <ReactSelect
+                placeholder="Chọn mã công ty"
+                value={companyCodeOptions.find(
+                  (option) => option.value === sizeStore.sizeFormUpdate.companyCodeId
+                )}
+                onChange={(e: any) =>
+                  sizeStore.updateSizeFormUpdate("companyCodeId", e.value)
+                }
+                options={companyCodeOptions}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: "44px",
+                    height: "44px",
+                    fontFamily: "Roboto, sans-serif",
+                    fontSize: "14px",
+                    width: "128px",
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    height: "44px",
+                    padding: "0 8px",
+                  }),
+                  indicatorsContainer: (base) => ({
+                    ...base,
+                    height: "44px",
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    fontFamily: "Roboto, sans-serif",
+                    backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                    color: "black",
+                  }),
+                }}
               />
             </div>
             <div className="flex justify-end space-x-3 mt-6">

@@ -9,25 +9,31 @@ import Button from "../../../components/ui/button/Button.tsx";
 import Input from "../../../components/form/input/InputField.tsx";
 import ProductLabel from "../../../components/form/product-form/ProductLabel.tsx";
 import { useApi } from "../../../hooks/useApi.ts";
+import ReactSelect from "react-select";
 
 function SizeTable() {
-  const { sizeStore } = useStore();
-  const { loadSizes, productSizeList, loading } = sizeStore;
+  const { sizeStore, companyCodeStore } = useStore();
+  const { productSizeList, loading } = sizeStore;
+  const { productCompanyCodeList } = companyCodeStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
   const handleChangeAutoSized = () => {
-    if(sizeStore.sizeForm.wide && sizeStore.sizeForm.length){
-      sizeStore.updateSizeForm("autoSized", sizeStore.sizeForm.wide + "x" + sizeStore.sizeForm.length);
+    if (sizeStore.sizeForm.wide && sizeStore.sizeForm.length) {
+      sizeStore.updateSizeForm(
+        "autoSized",
+        sizeStore.sizeForm.wide + "x" + sizeStore.sizeForm.length
+      );
     }
   };
 
   useEffect(() => {
-    if(isOnline){
-      loadSizes();
+    if (isOnline) {
+      // loadSizes();
       handleChangeAutoSized();
+      companyCodeStore.loadCompanyCodes();
     }
   }, [sizeStore.sizeForm.wide, sizeStore.sizeForm.length, isOnline]);
 
@@ -37,6 +43,12 @@ function SizeTable() {
       handleModalClose();
     }
   };
+
+  // Format company codes for ReactSelect
+  const companyCodeOptions = productCompanyCodeList.map((code) => ({
+    value: code.id,
+    label: code.codeName,
+  }));
 
   return (
     <>
@@ -54,11 +66,13 @@ function SizeTable() {
           isModalOpen={isModalOpen}
           modalClose={handleModalClose}
           onModalOpen={handleModalOpen}
-          modalStyle="w-full max-w-4xl rounded-3xl space-y-4 p-6"
+          modalStyle="w-full max-w-2xl rounded-3xl space-y-4 p-6"
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo kích thước</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">
+                Tạo kích thước
+              </h1>
               <div className="space-y-4">
                 {/* Row: Wide and Length */}
                 <div className="grid grid-cols-2 gap-4">
@@ -78,7 +92,10 @@ function SizeTable() {
                       placeholder="Nhập chiều dài"
                       value={sizeStore.sizeForm.length}
                       onChange={(e) =>
-                        sizeStore.updateSizeForm("length", Number(e.target.value))
+                        sizeStore.updateSizeForm(
+                          "length",
+                          Number(e.target.value)
+                        )
                       }
                     />
                   </div>
@@ -93,13 +110,52 @@ function SizeTable() {
                     disabled={true}
                   />
                 </div>
+                <div>
+                  <ProductLabel>Mã công ty</ProductLabel>
+                  <ReactSelect
+                    placeholder="Chọn mã công ty"
+                    value={companyCodeOptions.find(
+                      (option) =>
+                        option.value === sizeStore.sizeForm.companyCodeId
+                    )}
+                    onChange={(e: any) =>
+                      sizeStore.updateSizeForm("companyCodeId", e.value)
+                    }
+                    options={companyCodeOptions}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: "44px",
+                        height: "44px",
+                        fontFamily: "Roboto, sans-serif",
+                        fontSize: "14px",
+                        width: "w-full",
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: "44px",
+                        padding: "0 8px",
+                      }),
+                      indicatorsContainer: (base) => ({
+                        ...base,
+                        height: "44px",
+                      }),
+                      option: (base, state) => ({
+                        ...base,
+                        fontFamily: "Roboto, sans-serif",
+                        backgroundColor: state.isFocused ? "#f3f4f6" : "white",
+                        color: "black",
+                      }),
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex justify-end space-x-4 pt-4">
                 <Button
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-[#334355] focus:outline-none focus:ring-2 focus:ring-[#334355]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>

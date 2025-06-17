@@ -111,6 +111,11 @@ import {
   ResetPasswordModel,
   VerifyEmailModel,
 } from "../models/auth/authentication.model.ts";
+import {
+  AddLinkStorageDto,
+  LinkStorageDto,
+  UpdateLinkStorageDto,
+} from "../models/storage/linkStorage.model.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -181,6 +186,9 @@ axios.interceptors.response.use(
         store.commonStore.setServerError(data);
         router.navigate("/server-error");
         break;
+      case 503:
+        toast.error("Service temporarily unavailable. Please try again later.");
+        break;
     }
     return Promise.reject(error);
   }
@@ -194,7 +202,7 @@ const responseBody = <T>(
 axios.interceptors.request.use((config) => {
   const token = store.commonStore.token;
   if (token && config.headers) config.headers.Authorization = `Bearer ${token}`;
-  config.headers["ngrok-skip-browser-warning"] = "true";
+  // config.headers["ngrok-skip-browser-warning"] = "true";
   return config;
 });
 
@@ -520,10 +528,11 @@ const CalculatedUnit = {
       calculatedUnit
     ),
   updateCalculatedUnit: (
+    calculatedUnitId: number,
     calculatedUnit: UpdateCalculatedUnitDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(
-      "/calculated-units/update-calculated-unit",
+      `/calculated-units/update-calculated-unit?calculatedUnitId=${calculatedUnitId}`,
       calculatedUnit
     ),
 };
@@ -743,6 +752,18 @@ const ProductArea = {
     requests.put<string>("/areas/update-area", area),
 };
 
+const LinkStorage = {
+  linkStorageList: (): Promise<ApiResponseModel<LinkStorageDto[]>> =>
+    requests.get<LinkStorageDto[]>("/links"),
+  addLinkStorage: (linkStorage: AddLinkStorageDto): Promise<ApiResponseModel<string>> =>
+    requests.post<string>("/links/add-link", linkStorage),
+  updateLinkStorage: (linkId: number, linkStorage: UpdateLinkStorageDto): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(
+      `/links/update-link?linkId=${linkId}`,
+      linkStorage
+    ),
+};
+
 const agent = {
   Account,
   UserAdmin,
@@ -763,6 +784,7 @@ const agent = {
   CalculatedUnit,
   ProductFactory,
   ProductArea,
+  LinkStorage,
 };
 
 export default agent;

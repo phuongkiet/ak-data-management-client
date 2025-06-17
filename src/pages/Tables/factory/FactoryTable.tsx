@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -13,7 +13,7 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 const FactoryTable = () => {
   const { factoryStore, supplierStore } = useStore();
-  const { loadFactories, productFactoryList, loading } = factoryStore;
+  const { productFactoryList, loading } = factoryStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rawFactoryName, setRawFactoryName] = useState("");
@@ -30,11 +30,11 @@ const FactoryTable = () => {
     factoryStore.updateFactoryForm("name", name);
   };
 
-  useEffect(() => {
-    if (isOnline) {
-      loadFactories();
-    }
-  }, [isOnline]);
+  // useEffect(() => {
+  //   if (isOnline) {
+  //     loadFactories();
+  //   }
+  // }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await factoryStore.addFactory();
@@ -133,7 +133,7 @@ const FactoryTable = () => {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="inline-flex items-center justify-center rounded-lg bg-brand-500 px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#334355] px-6 py-2.5 text-center text-sm font-bold text-white hover:bg-[#334355] focus:outline-none focus:ring-2 focus:ring-[#334355]/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>

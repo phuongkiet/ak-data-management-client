@@ -1,5 +1,5 @@
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
@@ -22,6 +22,7 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { getFactoriesBySupplier, productFactoryList, loading } = factoryStore;
   const [selectedFactory, setSelectedFactory] = useState<Option | null>(null);
   const { isOnline } = useApi();
+  const prevSupplierId = useRef<number | null>(null);
 
   // Mapping list
   const factoryOptions: Option[] = productFactoryList.map((factory) => ({
@@ -30,26 +31,23 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   }));
 
   useEffect(() => {
-    const loadFactoriesAndSetInitial = async () => {
-      // Clear factory selection whenever supplier changes
-      productStore.updateProductForm("productFactoryId", null);
-      setSelectedFactory(null); 
-      
-      if (productForm.supplierId) {
-        if (isOnline) {
-          await getFactoriesBySupplier(productForm.supplierId);
-        }
-        
-        // Set initial selected factory if in edit mode
-        if (!isCreateMode && product?.productFactoryId) {
-          const factory = factoryOptions.find(option => option.value === product.productFactoryId);
-          setSelectedFactory(factory || null);
-        }
+    if (
+      productForm.supplierId &&
+      productForm.supplierId !== prevSupplierId.current &&
+      isOnline
+    ) {
+      if (productStore.productForm.productFactoryId !== null) {
+        productStore.updateProductForm("productFactoryId", null);
       }
-    };
-
-    loadFactoriesAndSetInitial();
-  }, [productForm.supplierId, isCreateMode, product?.productFactoryId]);
+      setSelectedFactory(null);
+      getFactoriesBySupplier(productForm.supplierId);
+      prevSupplierId.current = productForm.supplierId;
+    }
+    if (!isCreateMode && product?.productFactoryId) {
+      const factory = factoryOptions.find(option => option.value === product.productFactoryId);
+      setSelectedFactory(factory || null);
+    }
+  }, [productForm.supplierId, isOnline, isCreateMode, product?.productFactoryId, factoryOptions]);
 
   return (
     <div>
