@@ -12,6 +12,7 @@ import ProductInputField from "../../form/product-form/input/product/ProductInpu
 import ReactSelect from "react-select";
 import ProductDatePicker from "../../form/product-form/product-date-picker.tsx";
 import { formatDateLocal } from "../../../app/common/common.ts";
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 interface UserTableComponentProps {
   data: UserDto[];
@@ -30,7 +31,7 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
   const [selectedUsers, setSelectedUsers] = useState<UserDto[]>([]);
   const [isOpenModalUpdateUser, setIsOpenModalUpdateUser] = useState(false);
   const [editUser, setEditUser] = useState<UserDto | null>(null);
-
+  const { theme } = useTheme();
   const handleBanUser = (user: UserDto) => {
     userStore.banUser(user.email);
   };
@@ -152,6 +153,7 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
   return (
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

@@ -5,7 +5,7 @@ import { useStore } from "../stores/store";
 import { observer } from "mobx-react-lite";
 import Modal from "../../components/ui/modal";
 
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "customDark";
 
 type ThemeContextType = {
   theme: Theme;

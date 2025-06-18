@@ -3,6 +3,8 @@ import DataTable, { TableColumn } from 'react-data-table-component';
 import { ProductSupplierDto } from '../../../app/models/product/productSupplier.model.ts'
 import { useNavigate } from 'react-router'
 import { useStore } from '../../../app/stores/store.ts';
+import { useTheme } from "../../../app/context/ThemeContext";
+
 interface SupplierTableComponentProps {
   data: ProductSupplierDto[];
   loading: boolean;
@@ -19,6 +21,7 @@ export default function SupplierTableComponent({ data }: SupplierTableComponentP
   const { loading } = supplierStore;
   const [selectedProducts, setSelectedProducts] = useState<ProductSupplierDto[]>([]);
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const handleView = (supplier: ProductSupplierDto) => {
     navigate("/suppliers/detail/" + supplier.id);
@@ -73,8 +76,9 @@ export default function SupplierTableComponent({ data }: SupplierTableComponentP
   ];
 
   return (
-    <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
+    <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-[#1a1f2e]/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

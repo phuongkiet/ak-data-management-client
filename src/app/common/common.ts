@@ -1,3 +1,5 @@
+import { createTheme } from 'react-data-table-component';
+
 export const appCurrency: string = '₫';
 
 export function uploadWebsiteStatusToVietnamese(status: string | number): string {
@@ -82,3 +84,17 @@ export function convertRoleToVietnamese(role: string): string {
   };
   return roleMap[role] || role;
 }
+
+export const customDarkTheme = createTheme(
+  'customDark',
+  {
+    background: { default: '#1c1f2d' },
+    text: { primary: '#ffffff', secondary: '#bdbdbd' },
+    rows: { default: '#1c1f2d', highlightOnHover: '#6bc1ff', striped: '#1f2536' },
+    cells: {},
+    header: { default: '#1c1f2d' },
+    footer: { default: '#1c1f2d' },
+    striped: { default: '#131827' },
+  },
+  'dark'
+);

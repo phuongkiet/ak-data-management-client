@@ -4,6 +4,9 @@ export interface ProductSupplierDto {
   supplierName: string;
   supplierCodeName: string;
   supplierShortCode: string;
+  shippingFee: number | null;
+  discount: number | null;
+  taxId: number | null;
 }
 
 export interface SupplierDetailDto{

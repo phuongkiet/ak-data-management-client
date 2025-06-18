@@ -164,7 +164,7 @@ function SupplierTable() {
                       <ProductLabel
                         htmlFor="customerClassification"
                         tooltipId="unique-tooltip-id"
-                        tooltip="Nhập mã phân loại khách hàng (ví dụ: D, F, C, P)"
+                        tooltip={`D: DISTRIBUTORS ( NHÀ PHÂN PHỐI )\nF: FACTORY ( NHÀ MÁY SẢN XUẤT )\nC: COMPANY ( CÔNG TY AN KHÁNH )\nP: PUBLIC ( MÃ HÀNG - NHIỀU NCC )`}
                       >
                         Phân loại khách hàng
                       </ProductLabel>
@@ -174,9 +174,12 @@ function SupplierTable() {
                         type="text"
                         placeholder="Nhập phân loại khách hàng"
                         value={customerClassification}
-                        onChange={(e) =>
-                          setCustomerClassification(e.target.value.toUpperCase())
-                        }
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase();
+                          if (val === '' || /^[DFCP]$/.test(val)) {
+                            setCustomerClassification(val);
+                          }
+                        }}
                         disabled={!areaValue.id}
                       />
                     </div>

@@ -42,8 +42,6 @@ function ProductTable() {
 
   const { productSizeList } = sizeStore;
 
-  const didLoad = useRef(false);
-
   useEffect(() => {
     if (!commonStore.token || !isOnline) return;
 
@@ -74,17 +72,14 @@ function ProductTable() {
     )
       return;
 
-    if (!didLoad.current) {
-      didLoad.current = true;
-      productStore.setFilters({
-        pageNumber,
-        pageSize,
-        term,
-        supplierId: isAdvancedActive ? selectedSupplier : null,
-        sizeId: isAdvancedActive ? selectedSize : null,
-      });
-      loadProducts();
-    }
+    productStore.setFilters({
+      pageNumber,
+      pageSize,
+      term,
+      supplierId: isAdvancedActive ? selectedSupplier : null,
+      sizeId: isAdvancedActive ? selectedSize : null,
+    });
+    loadProducts();
   }, [
     pageNumber,
     pageSize,

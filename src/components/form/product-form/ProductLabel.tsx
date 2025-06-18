@@ -18,6 +18,8 @@ const ProductLabel: FC<LabelProps> = ({
   tooltip,
   tooltipId = "default-tooltip",
 }) => {
+  const tooltipHtml = tooltip ? tooltip.replace(/\n/g, '<br />') : undefined;
+
   return (
     <div className="flex items-center gap-1">
       <label
@@ -29,7 +31,7 @@ const ProductLabel: FC<LabelProps> = ({
           )
         )}
         data-tooltip-id={tooltip ? tooltipId : undefined}
-        data-tooltip-content={tooltip}
+        data-tooltip-html={tooltipHtml}
       >
         {children} {tooltip && (
           <svg

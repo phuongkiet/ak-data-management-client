@@ -7,6 +7,7 @@ import Button from '../../ui/button/Button.tsx';
 import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
 import { CalculatedUnitDto } from '../../../app/models/product/calculatedUnit.model.ts';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 
 interface CalculatedUnitTableComponentProps {
   data: CalculatedUnitDto[];
@@ -25,7 +26,7 @@ const CalculatedUnitTableComponent = ({ data }: CalculatedUnitTableComponentProp
   const [selectedProducts, setSelectedProducts] = useState<CalculatedUnitDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CalculatedUnitDto | null>(null);
-
+  const { theme } = useTheme();
   const handleView = (calculatedUnit: CalculatedUnitDto) => {
     setSelectedItem(calculatedUnit);
     calculatedUnitStore.setCalculatedUnitFormUpdate(calculatedUnit);
@@ -92,6 +93,7 @@ const CalculatedUnitTableComponent = ({ data }: CalculatedUnitTableComponentProp
     <>
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

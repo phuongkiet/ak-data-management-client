@@ -5,6 +5,7 @@ import { StrategyProductDetailDto } from "../../../../../app/models/product/prod
 import ReactSelect from "react-select";
 import { NumericFormat } from "react-number-format";
 import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
 
 interface ProductProps {
   product?: StrategyProductDetailDto;
@@ -13,16 +14,33 @@ interface ProductProps {
 const StrategyProductInputGroupRight = ({
   product,
 }: ProductProps) => {
-  const { productStore, supplierTaxStore } = useStore();
+  const { productStore, supplierTaxStore, supplierStore } = useStore();
   const form = productStore.strategyProductForm;
   const update = productStore.updateStrategyProductForm;
   const { productSupplierTaxList } = supplierTaxStore;
 
+  // Tìm taxId ưu tiên: form > product > supplier
+  const supplier = supplierStore.productSupplierList.find(s => s.id === product?.supplierId);
+  const fallbackTaxId = supplier?.taxId ?? null;
+  const taxIdToShow = form.taxId ?? product?.taxId ?? fallbackTaxId;
+  const tax = productSupplierTaxList.find(t => t.id === taxIdToShow);
+  // Chỉ set taxId vào form nếu form chưa có (và có taxId hợp lệ)
+  useEffect(() => {
+    if (form.taxId == null && fallbackTaxId != null) {
+      update("taxId", fallbackTaxId);
+      update("taxRate", tax?.taxRate ?? 0);
+    }
+    // eslint-disable-next-line
+  }, [form.taxId, fallbackTaxId, update]);
+
   const isOutOfPriceOne = product?.estimatedPurchasePriceAfterSupplierDiscount && product?.firstActualReceivedPriceAfterPolicyDiscount && product?.estimatedPurchasePriceAfterSupplierDiscount > product?.firstActualReceivedPriceAfterPolicyDiscount;
   const isOutOfPriceTwo = product?.estimatedPurchasePriceAfterSupplierDiscount && product?.secondActualReceivedPriceAfterPolicyDiscount && product?.estimatedPurchasePriceAfterSupplierDiscount > product?.secondActualReceivedPriceAfterPolicyDiscount;
 
-
   if (!productSupplierTaxList.length) return <div>Đang tải thuế...</div>;
+
+  const selectValue = tax
+    ? { value: tax.id, label: tax.name }
+    : null;
 
   return (
     <ComponentCard title="Thuế và Chính sách">
@@ -183,18 +201,7 @@ const StrategyProductInputGroupRight = ({
             value: tax.id,
             label: tax.name,
           }))}
-          value={
-            (form.taxId != null
-              ? productSupplierTaxList.find((tax) => tax.id === form.taxId)
-                ? { value: form.taxId, label: productSupplierTaxList.find((tax) => tax.id === form.taxId)!.name }
-                : null
-              : product?.taxId != null
-                ? productSupplierTaxList.find((tax) => tax.id === product.taxId)
-                  ? { value: product.taxId, label: productSupplierTaxList.find((tax) => tax.id === product.taxId)!.name }
-                  : null
-                : null
-            )
-          }
+          value={selectValue}
           styles={{
             control: (base) => ({
               ...base,

@@ -7,6 +7,7 @@ import Button from '../../ui/button/Button.tsx';
 import Modal from '../../ui/modal/index.tsx';
 import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 interface OriginTableComponentProps {
   data: ProductOriginDto[];
   loading: boolean;
@@ -24,7 +25,7 @@ const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ProductOriginDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductOriginDto | null>(null);
-
+  const { theme } = useTheme();
   const handleView = (origin: ProductOriginDto) => {
     setSelectedItem(origin);
     originStore.originFormUpdate = {
@@ -94,6 +95,7 @@ const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
     <>
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

@@ -7,6 +7,7 @@ import { AppWrapper } from './components/common/PageMeta'
 import './index.css'
 import { store, StoreContext } from './app/stores/store.ts'
 import { ToastContainer } from 'react-toastify'
+import './app/common/common.ts'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

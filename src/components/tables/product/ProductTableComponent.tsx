@@ -17,6 +17,7 @@ import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 import ProductTextArea from "../../form/product-form/input/product/ProductTextArea.tsx";
 import { NumericFormat } from "react-number-format";
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 interface ProductTableComponentProps {
   data: ProductDto[];
@@ -59,7 +60,7 @@ const ProductTableComponent = ({
     materialStore,
     colorStore,
   } = useStore();
-
+  const { theme } = useTheme();
   useEffect(() => {
     if (!selectedProduct) {
       setTechnicalInfo("");
@@ -307,6 +308,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     <>
       <div className="w-full overflow-x-auto rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-2 md:p-4">
         <DataTable
+          theme={theme === 'dark' ? 'customDark' : 'default'}
           columns={columns}
           data={data}
           pagination

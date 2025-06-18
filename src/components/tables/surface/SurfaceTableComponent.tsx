@@ -8,6 +8,7 @@ import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
 import ProductTextArea from '../../form/product-form/input/product/ProductTextArea.tsx';
 import Button from '../../ui/button/Button.tsx';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 interface SurfaceTableComponentProps {
   data: ProductSurfaceDto[];
   loading: boolean;
@@ -25,7 +26,8 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ProductSurfaceDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductSurfaceDto | null>(null);
-
+  const { theme } = useTheme();
+  
   const handleView = (surface: ProductSurfaceDto) => {
     setSelectedItem(surface);
     surfaceStore.surfaceFormUpdate = {
@@ -95,6 +97,7 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
     <>
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

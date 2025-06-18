@@ -8,6 +8,7 @@ import Button from '../../ui/button/Button.tsx';
 import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
 import ProductTextArea from '../../form/product-form/input/product/ProductTextArea.tsx';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 interface MaterialTableComponentProps {
   data: ProductMaterialDto[];
   loading: boolean;
@@ -25,7 +26,7 @@ const MaterialTableComponent = ({ data }: MaterialTableComponentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<ProductMaterialDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductMaterialDto | null>(null);
-
+  const { theme } = useTheme();
   const handleView = (material: ProductMaterialDto) => {
     setSelectedItem(material);
     materialStore.materialFormUpdate = {
@@ -95,6 +96,7 @@ const MaterialTableComponent = ({ data }: MaterialTableComponentProps) => {
     <>
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

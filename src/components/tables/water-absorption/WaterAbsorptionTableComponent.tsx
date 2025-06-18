@@ -8,6 +8,7 @@ import Button from '../../ui/button/Button.tsx';
 import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
 import ReactSelect from 'react-select';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 
 interface WaterAbsorptionTableComponentProps {
   data: ProductWaterAbsorptionDto[];
@@ -45,7 +46,7 @@ const WaterAbsorptionTableComponent = ({ data }: WaterAbsorptionTableComponentPr
   const [selectedItem, setSelectedItem] = useState<ProductWaterAbsorptionDto | null>(null);
   const [operator, setOperator] = useState<string>('');
   const [level, setLevel] = useState<string>('');
-
+  const { theme } = useTheme();
   const handleView = (waterAbsorption: ProductWaterAbsorptionDto) => {
     setSelectedItem(waterAbsorption);
     const { op, val } = parseLevel(waterAbsorption.waterAbsoprtionLevel);
@@ -111,6 +112,7 @@ const WaterAbsorptionTableComponent = ({ data }: WaterAbsorptionTableComponentPr
     <>
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

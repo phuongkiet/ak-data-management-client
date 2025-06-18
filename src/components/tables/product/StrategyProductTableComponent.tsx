@@ -4,6 +4,7 @@ import { StrategyProductDto } from '../../../app/models/product/product.model.ts
 import { appCurrency } from '../../../app/common/common.ts';
 import { observer } from 'mobx-react-lite';
 import {  useNavigate } from 'react-router';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 
 interface StrategyProductTableComponentProps {
   data: StrategyProductDto[];
@@ -18,7 +19,7 @@ interface StrategyProductTableComponentProps {
 
 const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChange, onPageSizeChange, totalCount, onSelectedIdsChange }: StrategyProductTableComponentProps) => {
   const navigate = useNavigate();
-
+  const { theme } = useTheme();
   const handleView = (product: StrategyProductDto) => {
     navigate("/strategy-products/detail/" + product.id);
   };
@@ -92,6 +93,7 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
   return (
     <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
       <DataTable
+        theme={theme === 'dark' ? 'customDark' : 'default'}
         columns={columns}
         data={data}
         pagination

@@ -8,6 +8,7 @@ import ProductInputField from '../../form/product-form/input/product/ProductInpu
 import ProductTextArea from '../../form/product-form/input/product/ProductTextArea.tsx';
 import Button from '../../ui/button/Button.tsx';
 import { observer } from 'mobx-react-lite';
+import { useTheme } from '../../../app/context/ThemeContext.tsx';
 
 interface AntiSlipperyTableComponentProps {
   data: ProductAntiSlipperyDto[];
@@ -26,7 +27,7 @@ const AntiSlipperyTableComponent = ({ data }: AntiSlipperyTableComponentProps) =
   const [selectedProducts, setSelectedProducts] = useState<ProductAntiSlipperyDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductAntiSlipperyDto | null>(null);
-
+  const { theme } = useTheme();
   const handleView = (antiSlip: ProductAntiSlipperyDto) => {
     setSelectedItem(antiSlip);
     antiSlipperyStore.updateAntiSlipperyFormUpdate('antiSlipLevel', antiSlip.antiSlipLevel);
@@ -94,6 +95,7 @@ const AntiSlipperyTableComponent = ({ data }: AntiSlipperyTableComponentProps) =
     <>
       <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
         <DataTable
+          theme={theme === 'dark' ? 'customDark' : 'default'}
           columns={columns}
           data={data}
           pagination

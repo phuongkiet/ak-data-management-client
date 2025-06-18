@@ -8,6 +8,7 @@ import Modal from "../../ui/modal/index.tsx";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 import ReactSelect from "react-select";
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 interface FactoryTableComponentProps {
   data: ProductFactoryDto[];
@@ -35,7 +36,7 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
     label: string;
   } | null>(null);
   const [factoryName, setFactoryName] = useState("");
-
+  const { theme } = useTheme();
   const filteredSuppliers = supplierStore.productSupplierList.filter((sup) => {
     const code = sup.supplierShortCode || "";
     const codeNoNumber = code.replace(/\d+$/, "");
@@ -116,6 +117,7 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
     <>
       <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
         <DataTable
+          theme={theme === 'dark' ? 'customDark' : 'default'}
           columns={columns}
           data={data}
           pagination

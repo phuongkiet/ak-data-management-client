@@ -8,6 +8,7 @@ import Button from "../ui/button/Button.tsx";
 import ProductInputField from "../form/product-form/input/product/ProductInputField.tsx";
 import { observer } from "mobx-react-lite";
 import { LinkStorageDto } from "../../app/models/storage/linkStorage.model";
+import { useTheme } from "../../app/context/ThemeContext.tsx";
 
 const Storage = () => {
   const { userStore, linkStorageStore } = useStore();
@@ -20,6 +21,7 @@ const Storage = () => {
   const [selectedId, setSelectedId] = useState(0);
   const [addName, setAddName] = useState("");
   const [addUrl, setAddUrl] = useState("");
+  const { theme } = useTheme();
 
   useEffect(() => {
     linkStorageStore.loadLinkStorages();
@@ -63,7 +65,7 @@ const Storage = () => {
           href={row.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:underline font-medium"
+          className="text-blue-600 hover:underline font-medium dark:text-white dark:hover:underline"
         >
           {row.name}
         </a>
@@ -77,7 +79,7 @@ const Storage = () => {
           href={row.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-600 hover:underline font-medium"
+          className="text-blue-600 hover:underline font-medium dark:text-white dark:hover:underline"
         >
           {row.url.slice(0, 45)}...
         </a>
@@ -86,11 +88,11 @@ const Storage = () => {
     {
       name: "Hành động",
       cell: (row) => {
-        const isAdmin = user?.role.includes("Admin");
+        const isAdmin = user?.role.includes("Admin") || user?.role.includes("Strategist");
         return isAdmin ? (
           <button
             onClick={() => handleEdit(row)}
-            className="text-blue-600 hover:underline font-medium"
+            className="text-blue-600 hover:underline font-medium dark:text-white"
           >
             Chỉnh sửa
           </button>
@@ -132,6 +134,7 @@ const Storage = () => {
               striped
               selectableRows
               onSelectedRowsChange={() => {}}
+              theme={theme === 'dark' ? 'customDark' : 'default'}
             />
           </div>
         </div>
@@ -151,6 +154,7 @@ const Storage = () => {
               </ProductLabel>
               <ProductInputField
                 value={editName}
+                placeholder="Nhập tên kho đồ"
                 onChange={(e) => {
                   setEditName(e.target.value);
                   linkStorageStore.updateLinkStorageFormUpdate("name", e.target.value);
@@ -163,6 +167,7 @@ const Storage = () => {
               </ProductLabel>
               <ProductInputField
                 value={editUrl}
+                placeholder="Nhập URL kho đồ"
                 onChange={(e) => {
                   setEditUrl(e.target.value);
                   linkStorageStore.updateLinkStorageFormUpdate("url", e.target.value);
@@ -204,6 +209,7 @@ const Storage = () => {
               <ProductInputField
                 value={addName}
                 onChange={(e) => setAddName(e.target.value)}
+                placeholder="Nhập tên kho đồ"
               />
             </div>
             <div className="mb-3">
@@ -213,6 +219,7 @@ const Storage = () => {
               <ProductInputField
                 value={addUrl}
                 onChange={(e) => setAddUrl(e.target.value)}
+                placeholder="Nhập URL kho đồ"
               />
             </div>
             <div className="flex justify-end gap-2">

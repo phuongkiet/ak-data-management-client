@@ -147,6 +147,7 @@ export default class ProductStore {
         firstPolicyStandardAfterDiscount: 5,
         secondPolicyStandardAfterDiscount: 5,
         taxId: null,
+        taxRate: null,
         quantityPerBox: null,
         weightPerUnit: null,
       };
@@ -340,6 +341,7 @@ export default class ProductStore {
             firstPolicyStandardAfterDiscount: product.firstPolicyStandardAfterDiscount,
             secondPolicyStandardAfterDiscount: product.secondPolicyStandardAfterDiscount,
             taxId: product.taxId ?? null,
+            taxRate: product.taxRate ?? null,
             quantityPerBox: product.quantityPerBox ?? null,
             weightPerUnit: product.weightPerUnit ?? null,
           };
@@ -347,7 +349,6 @@ export default class ProductStore {
 
         // Chỉ tính lại giá nếu đã có đủ thông tin thuế
         if (product.taxId && product.taxRateNumber) {
-          console.log(product.taxRateNumber + " " + product.taxId);
           this.calculateStrategyProductFields(product);
         }
 
@@ -554,9 +555,10 @@ export default class ProductStore {
       if (field in updatedProduct) {
         (updatedProduct as any)[field] = value;
       }
-      
+      console.log(updatedProduct);
       // Tính toán lại tất cả các giá trị
       this.calculateStrategyProductFields(updatedProduct);
+
     });
   };
 
@@ -576,16 +578,17 @@ export default class ProductStore {
     const taxRateNumber = 1 + Number(product.taxRate) / 100 || 1;
     
     // Tính giá sau chiết khấu
-    const priceAfterDiscount = confirmListPrice * (1 - discountPercentage);
-    
-    // Áp dụng thuế cho giá sau chiết khấu
+    const priceAfterDiscount = confirmListPrice * (1 - discountPercentage) + shippingFee;
+
     let priceAfterTax = priceAfterDiscount;
+
+    // Áp dụng thuế cho giá sau chiết khấu
     if (product.taxId === 1 || product.taxId === 2) {
       priceAfterTax = priceAfterDiscount * taxRateNumber;
     }
-    
+
+    product.supplierEstimatedPayableAmount = priceAfterTax;    
     // Cộng phí vận chuyển vào sau khi đã tính thuế
-    product.supplierEstimatedPayableAmount = priceAfterTax + shippingFee;
     const supplierEstimatedPayableAmount = product.supplierEstimatedPayableAmount;
 
     // 3. RetailPrice

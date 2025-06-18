@@ -134,6 +134,8 @@ export interface StrategyProductDetailDto {
   secondPolicyStandardAfterDiscount?: number;
   secondFixedPolicyPrice?: number;
   secondActualReceivedPriceAfterPolicyDiscount?: number;
+
+  supplierId: number;
 }
 
 export interface ProductDetail {
@@ -399,6 +401,7 @@ export interface EditStrategyProductDto {
   firstPolicyStandardAfterDiscount: number | null;
   secondPolicyStandardAfterDiscount: number | null;
   taxId: number | null;
+  taxRate: number | null;
   quantityPerBox: number | null;
   weightPerUnit: number | null;
 }

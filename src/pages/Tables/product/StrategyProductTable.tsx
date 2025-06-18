@@ -213,6 +213,7 @@ const StrategyProductTable = () => {
                       secondPolicyStandardAfterDiscount:
                         productStore.bulkEditDto
                           .secondPolicyStandardAfterDiscount ?? 5,
+                      taxRate: null,
                     },
                   });
                   setIsBulkModalOpen(false);

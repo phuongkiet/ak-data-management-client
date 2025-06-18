@@ -120,7 +120,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
               value={searchTerm}
               onChange={handleSearchInputChange}
               placeholder={searchPlaceholder}
-              className="border rounded px-3 py-2 mr-2 focus:outline-blue-950 w-full md:w-auto text-black"
+              className="border rounded px-3 py-2 mr-2 dark:border-gray-700 focus:outline-blue-950 w-full md:w-auto text-black dark:text-white"
               disabled={!isOnline}
             />
             <Button

@@ -5,6 +5,7 @@ import { ProductMetadataProvider } from "../context/ProductMetadataContext";
 import { observer } from "mobx-react-lite";
 import { SyncService } from "../services/syncService";
 import { NetworkStatus } from "../components/common/NetworkStatus";
+import "../common/common.ts";
 
 const App = observer(() => {
   const { commonStore, userStore } = useStore();

@@ -8,6 +8,7 @@ import Modal from "../../ui/modal/index.tsx";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 import ReactSelect from "react-select";
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 interface SizeTableComponentProps {
   data: ProductSizeDto[];
@@ -29,7 +30,7 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductSizeDto | null>(null);
-
+  const { theme } = useTheme();
   // Update autoSized in store when length or wide changes
   useEffect(() => {
     if (sizeStore.sizeFormUpdate.length && sizeStore.sizeFormUpdate.wide) {
@@ -129,6 +130,7 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
     <>
       <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
         <DataTable
+          theme={theme === 'dark' ? 'customDark' : 'default'}
           columns={columns}
           data={data}
           pagination

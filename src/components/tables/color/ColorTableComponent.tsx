@@ -8,6 +8,7 @@ import Button from "../../ui/button/Button.tsx";
 import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 import { ChromePicker } from 'react-color';
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 interface ColorTableComponentProps {
   data: ProductColorDto[];
@@ -31,7 +32,7 @@ const ColorTableComponent = ({ data }: ColorTableComponentProps) => {
   const [selectedItem, setSelectedItem] = useState<ProductColorDto | null>(
     null
   );
-
+  const { theme } = useTheme();
   const handleView = (color: ProductColorDto) => {
     setSelectedItem(color);
     colorStore.updateColorFormUpdate("name", color.name);
@@ -97,6 +98,7 @@ const ColorTableComponent = ({ data }: ColorTableComponentProps) => {
     <>
       <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
         <DataTable
+          theme={theme === 'dark' ? 'customDark' : 'default'}
           columns={columns}
           data={data}
           pagination
