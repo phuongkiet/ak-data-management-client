@@ -19,7 +19,7 @@ const App = observer(() => {
     } else if (!commonStore.token) {
       commonStore.setAppLoaded();
     }
-  }, [commonStore.token, userStore.user]);
+  }, []); 
 
   // Initialize sync service
   useEffect(() => {

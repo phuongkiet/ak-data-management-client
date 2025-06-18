@@ -1,25 +1,29 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
-import agent from '../api/agent.ts'
-import { toast } from 'react-toastify'
-import { AddAntiSlipperyDto, ProductAntiSlipperyDto, UpdateAntiSlipperyDto } from '../models/product/productAntiSlippery.model.ts'
-import BaseStore from './baseStore.ts'
-import { OfflineStorage } from '../services/offlineStorage.ts'
+import { action, makeObservable, observable, runInAction } from "mobx";
+import agent from "../api/agent.ts";
+import { toast } from "react-toastify";
+import {
+  AddAntiSlipperyDto,
+  ProductAntiSlipperyDto,
+  UpdateAntiSlipperyDto,
+} from "../models/product/productAntiSlippery.model.ts";
+import BaseStore from "./baseStore.ts";
+import { OfflineStorage } from "../services/offlineStorage.ts";
 
 export default class AntiSlipperyStore extends BaseStore {
   productAntiSlipperyList: ProductAntiSlipperyDto[] = [];
   productAntiSlipperyRegistry = new Map<number, ProductAntiSlipperyDto>();
   loading = false;
-  term: string = '';
+  term: string = "";
 
   antiSlipperyForm: AddAntiSlipperyDto = {
     antiSlipLevel: "",
-    description: null
-  }
+    description: null,
+  };
 
   antiSlipperyFormUpdate: UpdateAntiSlipperyDto = {
     antiSlipLevel: "",
-    description: null
-  }
+    description: null,
+  };
 
   constructor() {
     super();
@@ -55,16 +59,16 @@ export default class AntiSlipperyStore extends BaseStore {
       currentMetadata.productAntiSlipperyDtos = list;
       OfflineStorage.saveMetadata(currentMetadata);
     }
-
-  }
+  };
 
   setTerm = (term: string) => {
     this.term = term;
     this.loadAntiSlipperys(this.term);
-  }
+  };
 
   loadAntiSlipperys = async (term?: string) => {
     this.loading = true;
+    console.log("loadAntiSlipperys called");
     try {
       const result = await agent.AntiSlippery.antiSlipperyList(term);
       runInAction(() => {
@@ -73,8 +77,9 @@ export default class AntiSlipperyStore extends BaseStore {
 
         // Optionally: store suppliers in a Map
         this.productAntiSlipperyRegistry.clear();
-        this.productAntiSlipperyList.forEach(antiSlippery => {
-          if (antiSlippery.id != null) this.productAntiSlipperyRegistry.set(antiSlippery.id, antiSlippery);
+        this.productAntiSlipperyList.forEach((antiSlippery) => {
+          if (antiSlippery.id != null)
+            this.productAntiSlipperyRegistry.set(antiSlippery.id, antiSlippery);
         });
       });
     } catch (error) {
@@ -82,27 +87,32 @@ export default class AntiSlipperyStore extends BaseStore {
         this.loading = false;
       });
       console.error("Failed to load anti slippery", error);
-      toast.error("Lỗi khi tải dữ liệu độ chống trươt.")
+      toast.error("Lỗi khi tải dữ liệu độ chống trươt.");
     }
   };
 
-  updateAntiSlipperyForm = <K extends keyof AddAntiSlipperyDto>(field: K, value: AddAntiSlipperyDto[K]) => {
+  updateAntiSlipperyForm = <K extends keyof AddAntiSlipperyDto>(
+    field: K,
+    value: AddAntiSlipperyDto[K]
+  ) => {
     runInAction(() => {
       this.antiSlipperyForm[field] = value;
     });
-  }
+  };
 
   resetAntiSlipperyForm = () => {
     this.antiSlipperyForm = {
       antiSlipLevel: "",
-      description: null
+      description: null,
     };
-  }
+  };
 
   addAntiSlippery = async () => {
     this.loading = true;
     try {
-      const result = await agent.AntiSlippery.addAntiSlippery(this.antiSlipperyForm);
+      const result = await agent.AntiSlippery.addAntiSlippery(
+        this.antiSlipperyForm
+      );
       if (result.success) {
         toast.success("Thêm độ chống trươt thành công.");
         this.loadAntiSlipperys();
@@ -119,12 +129,15 @@ export default class AntiSlipperyStore extends BaseStore {
         this.loading = false;
       });
     }
-  }
+  };
 
   updateAntiSlippery = async (id: number) => {
     this.loading = true;
     try {
-      const result = await agent.AntiSlippery.updateAntiSlippery(id, this.antiSlipperyFormUpdate);
+      const result = await agent.AntiSlippery.updateAntiSlippery(
+        id,
+        this.antiSlipperyFormUpdate
+      );
       if (result.success) {
         toast.success("Cập nhật độ chống trươt thành công.");
         this.loadAntiSlipperys();
@@ -137,14 +150,17 @@ export default class AntiSlipperyStore extends BaseStore {
         this.loading = false;
       });
     }
-  }
+  };
 
-  updateAntiSlipperyFormUpdate = <K extends keyof UpdateAntiSlipperyDto>(field: K, value: UpdateAntiSlipperyDto[K]) => {
+  updateAntiSlipperyFormUpdate = <K extends keyof UpdateAntiSlipperyDto>(
+    field: K,
+    value: UpdateAntiSlipperyDto[K]
+  ) => {
     runInAction(() => {
       this.antiSlipperyFormUpdate = {
         ...this.antiSlipperyFormUpdate,
-        [field]: value
+        [field]: value,
       };
     });
-  }
+  };
 }
