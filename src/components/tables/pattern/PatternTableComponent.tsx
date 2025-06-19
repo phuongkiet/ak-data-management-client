@@ -120,11 +120,11 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
     <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-2xl">
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-            Chi tiết hệ vân
+            Chi tiết danh mục
           </h2>
           <div className="space-y-4">
             <div>
-              <ProductLabel className="block text-sm font-medium mb-1">Tên hệ vân</ProductLabel>
+              <ProductLabel className="block text-sm font-medium mb-1">Tên danh mục</ProductLabel>
               <ProductInputField
                 value={patternStore.patternFormUpdate.name}
                 onChange={(e) => patternStore.updatePatternFormUpdate('name', e.target.value)}

@@ -39,12 +39,12 @@ function PatternTable() {
         title="An Khánh Data Management"
         description="Đây là bảng hệ vân của website An Khánh House"
       />
-      <PageBreadcrumb pageTitle="Hệ vân" />
+      <PageBreadcrumb pageTitle="Danh mục" />
       <div className="space-y-6">
         <TableComponentCard
-          title="Bảng hệ vân"
+          title="Bảng danh mục"
           addButtonLink={"add-pattern"}
-          addButtonText={"Tạo hệ vân"}
+          addButtonText={"Tạo danh mục"}
           useModal={true}
           isModalOpen={isModalOpen}
           modalClose={handleModalClose}
@@ -53,12 +53,12 @@ function PatternTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo hệ vân</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo danh mục</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
-                  <ProductLabel>Tên hệ vân</ProductLabel>
+                  <ProductLabel>Tên danh mục</ProductLabel>
                   <Input
-                    placeholder="Nhập tên hệ vân"
+                    placeholder="Nhập tên danh mục (hệ vân/ thiết bị vệ sinh)"
                     value={patternStore.patternForm.name}
                     onChange={(e) =>
                       patternStore.updatePatternForm("name", e.target.value)
@@ -66,9 +66,9 @@ function PatternTable() {
                   />
                 </div>
                 <div className="col-span-2">
-                  <ProductLabel>Mã hệ vân</ProductLabel>
+                  <ProductLabel>Mã danh mục</ProductLabel>
                   <Input
-                    placeholder="Nhập mã hệ vân"
+                    placeholder="Nhập mã danh mục"
                     value={patternStore.patternForm.shortCode}
                     onChange={(e) =>
                       patternStore.updatePatternForm(
@@ -121,7 +121,7 @@ function PatternTable() {
                       Đang xử lý...
                     </>
                   ) : (
-                    "Tạo hệ vân"
+                    "Tạo danh mục"
                   )}
                 </Button>
               </div>

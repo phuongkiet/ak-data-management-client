@@ -89,7 +89,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = observer(
           onClose={() => setShowBirthdayModal(false)}
           className="max-w-xl py-10 px-14"
         >
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center dark:text-white">
             <h2 className="text-2xl font-bold">🎉 Chúc mừng sinh nhật! 🎂</h2>
             <p className="text-lg">Thân ái từ IT.</p>
           </div>

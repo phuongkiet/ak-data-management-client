@@ -13,7 +13,7 @@ import { useTheme } from "../../app/context/ThemeContext.tsx";
 const Storage = () => {
   const { userStore, linkStorageStore } = useStore();
   const { user } = userStore;
-
+  const isAdmin = user?.role.includes("Admin") || user?.role.includes("Strategist");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editName, setEditName] = useState("");
@@ -85,19 +85,47 @@ const Storage = () => {
         </a>
       ),
     },
+  ];
+
+  const adminColumns: TableColumn<any>[] = [
+    {
+      name: "Tên",
+      selector: (row) => row.name,
+      cell: (row) => (
+        <a
+          href={row.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline font-medium dark:text-white dark:hover:underline"
+        >
+          {row.name}
+        </a>
+      ),
+    },
+    {
+      name: "Địa chỉ",
+      selector: (row) => row.url,
+      cell: (row) => (
+        <a
+          href={row.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline font-medium dark:text-white dark:hover:underline"
+        >
+          {row.url.slice(0, 45)}...
+        </a>
+      ),
+    },
     {
       name: "Hành động",
       cell: (row) => {
-        const isAdmin = user?.role.includes("Admin") || user?.role.includes("Strategist");
-        return isAdmin ? (
+        return (
           <button
             onClick={() => handleEdit(row)}
             className="text-blue-600 hover:underline font-medium dark:text-white"
           >
             Chỉnh sửa
           </button>
-        ) : (
-          <span className="text-gray-400 cursor-not-allowed">Chỉnh sửa</span>
         );
       },
       ignoreRowClick: true,
@@ -112,7 +140,7 @@ const Storage = () => {
         <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
           <BoxIconLine className="text-gray-800 size-6 dark:text-white/90" />
         </div>
-        <span className="text-lg text-[#334355] font-bold">Kho đồ</span>
+        <span className="text-lg text-[#334355] dark:text-white font-bold">Kho đồ</span>
         <div className="ml-auto">
           <Button
             className="px-4 py-2 bg-[#334355] text-white rounded h-[36px] text-md font-semibold"
@@ -127,14 +155,14 @@ const Storage = () => {
         <div>
           <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
             <DataTable
-              columns={columns}
+              columns={isAdmin ? adminColumns : columns}
               data={linkStorageStore.linkStorageList}
               responsive
               highlightOnHover
               striped
               selectableRows
               onSelectedRowsChange={() => {}}
-              theme={theme === 'dark' ? 'customDark' : 'default'}
+              theme={theme === "dark" ? "customDark" : "default"}
             />
           </div>
         </div>
@@ -157,7 +185,10 @@ const Storage = () => {
                 placeholder="Nhập tên kho đồ"
                 onChange={(e) => {
                   setEditName(e.target.value);
-                  linkStorageStore.updateLinkStorageFormUpdate("name", e.target.value);
+                  linkStorageStore.updateLinkStorageFormUpdate(
+                    "name",
+                    e.target.value
+                  );
                 }}
               />
             </div>
@@ -170,7 +201,10 @@ const Storage = () => {
                 placeholder="Nhập URL kho đồ"
                 onChange={(e) => {
                   setEditUrl(e.target.value);
-                  linkStorageStore.updateLinkStorageFormUpdate("url", e.target.value);
+                  linkStorageStore.updateLinkStorageFormUpdate(
+                    "url",
+                    e.target.value
+                  );
                 }}
               />
             </div>

@@ -6,7 +6,6 @@ import { observer } from "mobx-react-lite";
 import { StrategyProductDetailDto } from "../../../../../app/models/product/product.model.ts";
 import { NumericFormat } from "react-number-format";
 import { useStore } from "../../../../../app/stores/store.ts";
-
 interface ProductProps {
   product?: StrategyProductDetailDto;
 }

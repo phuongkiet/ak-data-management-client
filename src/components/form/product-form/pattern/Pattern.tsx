@@ -7,7 +7,7 @@ import ReactSelect from "react-select";
 // import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
 import { observer } from "mobx-react-lite";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
-
+import { useTheme } from "../../../../app/context/ThemeContext.tsx";
 interface Option {
   value: number;
   label: string;
@@ -20,6 +20,7 @@ interface ProductProps {
 }
 
 const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
+  const { theme } = useTheme();
   const { productStore, patternStore } = useStore();
   const { productPatternList } = patternStore
   const [selectedPatternShortCode, setSelectedPatternShortCode] = useState<string>("");
@@ -36,10 +37,10 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   );
 
   return (
-    <ComponentCard title="Hệ vân gạch">
+    <ComponentCard title="Danh mục (hệ vân/ thiết bị vệ sinh)">
       <div className="space-y-6">
         <div>
-          <ProductLabel>Tên hệ vân</ProductLabel>
+          <ProductLabel>Tên danh mục</ProductLabel>
           <div className="relative">
             <ReactSelect
               options={patternOptions}
@@ -63,10 +64,10 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
               }}
               value={selectedPattern}
               isClearable={true}
-              placeholder={"Chọn hệ vân..."}
+              placeholder={"Chọn danh mục..."}
               className="react-select-container"
               classNamePrefix="react-select"
-              noOptionsMessage={() => "Không có hệ vân"}
+              noOptionsMessage={() => "Không có danh mục"}
               styles={{
                 control: (base) => ({
                   ...base,
@@ -74,28 +75,50 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
                   height: "44px",
                   fontFamily: "Roboto, sans-serif",
                   fontSize: "14px",
+                  backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                  color: theme === 'dark' ? '#fff' : base.color,
+                  borderColor: theme === 'dark' ? '#384052' : base.borderColor,
+                  border: theme === 'dark' ? '1px solid #384052' : '1px solid #e5e7eb',
                 }),
                 valueContainer: (base) => ({
                   ...base,
                   height: "44px",
                   padding: "0 8px",
+                  backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                  color: theme === 'dark' ? '#fff' : base.color,
                 }),
                 indicatorsContainer: (base) => ({
                   ...base,
                   height: "44px",
+                  backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
                 }),
                 option: (base, state) => ({
                   ...base,
                   fontFamily: "Roboto, sans-serif",
-                  backgroundColor: state.isFocused ? "#f3f4f6" : "white",
-                  color: "black",
+                  backgroundColor: state.isFocused
+                    ? (theme === 'dark' ? '#23232b' : '#f3f4f6')
+                    : (theme === 'dark' ? '#131827' : 'white'),
+                  color: theme === 'dark' ? '#fff' : 'black',
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                  color: theme === 'dark' ? '#fff' : base.color,
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: theme === 'dark' ? '#fff' : base.color,
+                }),
+                input: (base) => ({
+                  ...base,
+                  color: theme === 'dark' ? '#fff' : base.color,
                 }),
               }}
             />
           </div>
         </div>
         <div>
-          <ProductLabel>Mã ngắn hệ vân</ProductLabel>
+          <ProductLabel>Mã ngắn danh mục</ProductLabel>
           <div className="relative">
             <Input
               placeholder="Tự động điền"

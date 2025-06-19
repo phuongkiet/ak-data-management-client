@@ -10,8 +10,10 @@ import Input from "../../../components/form/input/InputField.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import ReactSelect from "react-select";
 import { useApi } from "../../../hooks/useApi.ts";
+import { useTheme } from "../../../app/context/ThemeContext.tsx";
 
 const FactoryTable = () => {
+  const { theme } = useTheme();
   const { factoryStore, supplierStore } = useStore();
   const { productFactoryList, loading } = factoryStore;
   const { isOnline } = useApi();
@@ -100,21 +102,43 @@ const FactoryTable = () => {
                         height: "44px",
                         fontFamily: "Roboto, sans-serif",
                         fontSize: "14px",
+                        backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                        color: theme === 'dark' ? '#fff' : base.color,
+                        borderColor: theme === 'dark' ? '#384052' : base.borderColor,
+                        border: theme === 'dark' ? '1px solid #384052' : '1px solid #e5e7eb',
                       }),
                       valueContainer: (base) => ({
                         ...base,
                         height: "44px",
                         padding: "0 8px",
+                        backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                        color: theme === 'dark' ? '#fff' : base.color,
                       }),
                       indicatorsContainer: (base) => ({
                         ...base,
                         height: "44px",
+                        backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
                       }),
                       option: (base, state) => ({
                         ...base,
                         fontFamily: "Roboto, sans-serif",
-                        backgroundColor: state.isFocused ? "#f3f4f6" : "white",
-                        color: "black",
+                        backgroundColor: state.isFocused
+                          ? (theme === 'dark' ? '#23232b' : '#f3f4f6')
+                          : (theme === 'dark' ? '#131827' : 'white'),
+                        color: theme === 'dark' ? '#fff' : 'black',
+                      }),
+                      menu: (base) => ({
+                        ...base,
+                        backgroundColor: theme === 'dark' ? '#131827' : base.backgroundColor,
+                        color: theme === 'dark' ? '#fff' : base.color,
+                      }),
+                      singleValue: (base) => ({
+                        ...base,
+                        color: theme === 'dark' ? '#fff' : base.color,
+                      }),
+                      input: (base) => ({
+                        ...base,
+                        color: theme === 'dark' ? '#fff' : base.color,
                       }),
                     }}
                   />

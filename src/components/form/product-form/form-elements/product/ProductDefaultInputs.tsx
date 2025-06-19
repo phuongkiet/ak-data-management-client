@@ -36,12 +36,20 @@ const ProductDefaultInputs = ({
     sizeStore,
     supplierStore,
     patternStore,
+    colorStore,
+    bodyColorStore,
+    materialStore,
+    surfaceStore,
   } = useStore();
 
   const { productSizeList } = sizeStore;
   const { productSupplierList } = supplierStore;
   const { productCompanyCodeList } = companyCodeStore;
   const { productPatternList } = patternStore;
+  const { productColorList } = colorStore;
+  const { productBodyColorList } = bodyColorStore;
+  const { productMaterialList } = materialStore;
+  const { productSurfaceList } = surfaceStore;
 
   const [confirmSupplierItemCode, setConfirmSupplierItemCode] = useState<
     string | undefined
@@ -55,10 +63,25 @@ const ProductDefaultInputs = ({
   const [deliveryEstimatedDate, setDeliveryEstimatedDate] = useState<string>(
     product?.deliveryEstimatedDate || "1-2 ngày"
   );
-  const [manualOrderNumber, setManualOrderNumber] = useState<string>("");
+  const [manualOrderNumber, setManualOrderNumber] = useState<string>(
+    productStore.productForm.productOrderNumber?.toString() || ""
+  );
   const [isChecking, setIsChecking] = useState(false);
   const [isProcessingPriceModalOpen, setIsProcessingPriceModalOpen] =
     useState(false);
+
+  // Add effect to update manualOrderNumber when productOrderNumber changes from store
+  useEffect(() => {
+    productStore.updateProductForm("deliveryEstimatedDate", "1-2 ngày");
+  }, []);
+
+  useEffect(() => {
+    if (isOnline && productStore.productForm.productOrderNumber) {
+      setManualOrderNumber(
+        productStore.productForm.productOrderNumber.toString()
+      );
+    }
+  }, [productStore.productForm.productOrderNumber, isOnline]);
 
   // Add effect to update product code when supplier changes
   useEffect(() => {
@@ -163,7 +186,13 @@ const ProductDefaultInputs = ({
   const handleWebsiteProductNameChange = () => {
     if (
       productStore.productForm.autoBarCode &&
-      productStore.productForm.supplierId
+      productStore.productForm.supplierId &&
+      productStore.productForm.brickPatternId &&
+      productStore.productForm.actualSizeId &&
+      productStore.productForm.colorId &&
+      productStore.productForm.brickBodyId &&
+      productStore.productForm.materialId &&
+      productStore.productForm.surfaceFeatureId
     ) {
       const pattern = productPatternList.find(
         (x) => x.id === productStore.productForm.brickPatternId
@@ -174,12 +203,28 @@ const ProductDefaultInputs = ({
       );
 
       const actualSize = size
-        ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
+        ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
         : "";
+
+      const color = productColorList.find(
+        (x) => x.id === productStore.productForm.colorId
+      );
+
+      const bodyColor = productBodyColorList.find(
+        (x) => x.id === productStore.productForm.brickBodyId
+      );
+
+      const material = productMaterialList.find(
+        (x) => x.id === productStore.productForm.materialId
+      );
+
+      const surfaceFeature = productSurfaceList.find(
+        (x) => x.id === productStore.productForm.surfaceFeatureId
+      );
 
       if (pattern?.name) {
         const newWebsiteProductName =
-          `${productStore.productForm.autoBarCode} ${pattern.name} ${pattern.description} ${actualSize}`.trim();
+          `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
         console.log("New website name:", newWebsiteProductName);
         setWebsiteProductName(newWebsiteProductName);
         productStore.updateProductForm(
@@ -196,6 +241,10 @@ const ProductDefaultInputs = ({
     productStore.productForm.autoBarCode,
     productStore.productForm.brickPatternId,
     productStore.productForm.actualSizeId,
+    productStore.productForm.colorId,
+    productStore.productForm.brickBodyId,
+    productStore.productForm.materialId,
+    productStore.productForm.surfaceFeatureId,
   ]);
 
   const handleOtherNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -411,7 +460,7 @@ const ProductDefaultInputs = ({
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-                  {isOnline || productStore.productForm.productOrderNumber ? (
+                  {isOnline && productStore.productForm.productOrderNumber ? (
                     <Input
                       type="number"
                       id="input"
@@ -503,7 +552,7 @@ const ProductDefaultInputs = ({
 
             <div>
               <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-              {isOnline || productStore.productForm.productOrderNumber ? (
+              {isOnline && productStore.productForm.productOrderNumber ? (
                 <Input
                   type="number"
                   id="input"
@@ -735,7 +784,7 @@ const ProductDefaultInputs = ({
                     value={deliveryEstimatedDate}
                     onChange={handleDeliveryEstimatedDateChange}
                   />
-                </div>  
+                </div>
               </div>
             </div>
 
@@ -762,7 +811,7 @@ const ProductDefaultInputs = ({
                     id="input"
                     placeholder="Số thứ tự tự động"
                     disabled
-                    value={product?.productOrderNumber || undefined}
+                    value={product?.productOrderNumber || ""}
                   />
                 </div>
                 <div>
@@ -889,7 +938,7 @@ const ProductDefaultInputs = ({
                 id="input"
                 placeholder="Số thứ tự tự động"
                 disabled
-                value={product?.productOrderNumber || undefined}
+                value={product?.productOrderNumber || ""}
               />
             </div>
 

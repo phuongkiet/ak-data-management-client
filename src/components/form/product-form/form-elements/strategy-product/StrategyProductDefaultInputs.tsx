@@ -6,7 +6,6 @@ import { observer } from "mobx-react-lite";
 import { StrategyProductDetailDto } from "../../../../../app/models/product/product.model.ts";
 import { NumericFormat } from "react-number-format";
 import { useEffect } from "react";
-
 interface ProductProps {
   product?: StrategyProductDetailDto;
 }
@@ -16,7 +15,6 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
   const form = productStore.strategyProductForm;
   const update = productStore.updateStrategyProductForm;
   const detail = productStore.strategyProductDetail;
-
   useEffect(() => {
     if (product?.taxId && product.taxId !== form.taxId) {
       update("taxId", product.taxId);

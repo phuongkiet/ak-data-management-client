@@ -29,9 +29,6 @@ const SupplierDefaultInput = () => {
   const selectedTax = form.taxId != null
     ? taxOptions.find((tax) => tax.value === form.taxId)
     : null;
-  console.log("taxOptions", taxOptions);
-  console.log("form.taxId", form.taxId, typeof form.taxId);
-  console.log("selectedTax", selectedTax);
 
   // Factory options and selected value
   const factoryOptions: Option[] = toJS(productFactoryList).map(factory => ({
@@ -45,9 +42,6 @@ const SupplierDefaultInput = () => {
       ? form.supplierFactories.includes(option.value)
       : false
   );
-  console.log("factoryOptions", factoryOptions);
-  console.log("form.supplierFactories", form.supplierFactories);
-  console.log("selectedFactories", selectedFactories);
 
   return (
     <ComponentCard title="Thông tin nhà cung cấp">
