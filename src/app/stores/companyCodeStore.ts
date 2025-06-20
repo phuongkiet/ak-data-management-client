@@ -36,6 +36,7 @@ export default class CompanyCodeStore extends BaseStore {
       addCompanyCode: action,
       updateCompanyCode: action,
       updateCompanyCodeFormUpdate: action,
+      deleteCompanyCode: action,
     });
   }
 
@@ -143,5 +144,26 @@ export default class CompanyCodeStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteCompanyCode = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.CompanyCode.deleteCompanyCode(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadCompanyCodes();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

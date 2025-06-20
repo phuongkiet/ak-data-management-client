@@ -39,6 +39,7 @@ export default class CalculatedUnitStore extends BaseStore {
       updateCalculatedUnitFormUpdate: action,
       setCalculatedUnitFormUpdate: action,
       updateCalculatedUnitForm: action,
+      deleteCalculatedUnit: action,
     });
   }
 
@@ -154,4 +155,25 @@ export default class CalculatedUnitStore extends BaseStore {
       };
     });
   }
+
+  deleteCalculatedUnit = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.CalculatedUnit.deleteCalculatedUnit(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadCalculatedUnits();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
 }

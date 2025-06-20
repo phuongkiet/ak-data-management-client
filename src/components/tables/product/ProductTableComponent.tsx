@@ -19,6 +19,10 @@ import ProductTextArea from "../../form/product-form/input/product/ProductTextAr
 import { NumericFormat } from "react-number-format";
 import { useTheme } from "../../../app/context/ThemeContext.tsx";
 import { ProductSupplierDto } from "../../../app/models/product/productSupplier.model.ts";
+import { FaEye } from "react-icons/fa";
+import { CgWebsite } from "react-icons/cg";
+import { TbCircleLetterS } from "react-icons/tb";
+import { Tooltip } from "react-tooltip";
 
 interface ProductTableComponentProps {
   data: ProductDto[];
@@ -315,22 +319,31 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           <button
             onClick={() => handleViewUploadWebsite(row.id)}
             className="text-blue-600 hover:underline font-medium"
+            data-tooltip-id="view-tooltip"
+            data-tooltip-content="Xem"
           >
-            Website
+            <CgWebsite className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="view-tooltip" className="text-md" />
           </button>
           <span> / </span>
           <button
             onClick={() => handleViewUploadSapo(row.id)}
             className="text-blue-600 hover:underline font-medium"
+            data-tooltip-id="view-tooltip"
+            data-tooltip-content="Xem"
           >
-            SAPO
+            <TbCircleLetterS className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="view-tooltip" className="text-md" />
           </button>
           <span> / </span>
           <button
             onClick={() => handleView(row)}
             className="text-blue-600 hover:underline font-medium"
+            data-tooltip-id="view-tooltip"
+            data-tooltip-content="Xem"
           >
-            Xem
+            <FaEye className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="view-tooltip" className="text-md" />
           </button>
         </div>
       ),

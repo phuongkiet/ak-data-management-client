@@ -267,13 +267,13 @@ function ProductTable() {
               <div className="hidden md:inline-flex md:mr-2 py-2">
                 <Button
                   onClick={handleImportClick}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-[#334355] hover:bg-[#334355] text-white"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
                 >
                   Nhập file
                 </Button>
                 <Button
                   onClick={handleAdvancedOpen}
-                  className="ml-2 h-8 py-5 font-semibold rounded bg-[#334355] hover:bg-[#334355] text-white"
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
                 >
                   Nâng cao
                 </Button>
@@ -282,7 +282,7 @@ function ProductTable() {
               <div className="flex md:hidden gap-2">
                 <div
                   onClick={handleImportClick}
-                  className="bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center"
+                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Nhập file"
                 >
@@ -304,7 +304,7 @@ function ProductTable() {
                 </div>
                 <div
                   onClick={handleAdvancedOpen}
-                  className="bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center"
+                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Nâng cao"
                 >

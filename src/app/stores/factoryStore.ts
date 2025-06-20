@@ -36,6 +36,7 @@ export default class FactoryStore extends BaseStore {
       addFactory: action,
       updateFactory: action,
       updateFactoryFormUpdate: action,
+      deleteFactory: action,
     });
   }
 
@@ -167,5 +168,26 @@ export default class FactoryStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteFactory = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductFactory.deleteFactory(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadFactories();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

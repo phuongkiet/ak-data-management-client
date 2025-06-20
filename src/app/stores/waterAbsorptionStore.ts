@@ -36,6 +36,7 @@ export default class WaterAbsorptionStore extends BaseStore {
       addWaterAbsorption: action,
       updateWaterAbsorption: action,
       updateWaterAbsorptionFormUpdate: action,
+      deleteWaterAbsorption: action,
     });
   }
 
@@ -142,5 +143,26 @@ export default class WaterAbsorptionStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteWaterAbsorption = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.deleteWaterAbsorption(id);
+      if (result.success) {
+        toast.success("Xóa độ hút nước thành công.");
+        this.loadWaterAbsorption();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error("Lỗi khi xóa độ hút nước.");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

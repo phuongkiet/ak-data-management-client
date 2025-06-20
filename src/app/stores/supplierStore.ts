@@ -264,7 +264,6 @@ export default class SupplierStore extends BaseStore {
           firstContactInfomation: result.data?.firstContactInfomation ?? null,
           secondContactInfomation: result.data?.secondContactInfomation ?? null,
         };
-        console.log("supplierFormDetail:", this.supplierFormDetail);
 
         this.supplierDetail = result.data || this.supplierDetail;
         this.loading = false;

@@ -40,6 +40,7 @@ export default class StorageStore extends BaseStore {
       addStorage: action,
       updateStorage: action,
       updateStorageFormUpdate: action,
+      deleteStorage: action,
     });
   }
 
@@ -152,5 +153,26 @@ export default class StorageStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteStorage = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductStorage.deleteStorage(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadStorages();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

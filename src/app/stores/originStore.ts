@@ -38,6 +38,7 @@ export default class OriginStore extends BaseStore {
       addOrigin: action,
       updateOrigin: action,
       updateOriginFormUpdate: action,
+      deleteOrigin: action,
     });
   }
 
@@ -145,5 +146,26 @@ export default class OriginStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteOrigin = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductOrigin.deleteOrigin(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadOrigins();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

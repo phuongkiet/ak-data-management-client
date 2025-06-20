@@ -40,6 +40,7 @@ export default class BodyColorStore extends BaseStore {
       addBodyColor: action,
       updateBodyColor: action,
       updateBodyColorFormUpdate: action,
+      deleteBodyColor: action,
     });
   }
 
@@ -151,4 +152,25 @@ export default class BodyColorStore extends BaseStore {
       };
     });
   }
+
+  deleteBodyColor = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductBodyColor.deleteBodyColor(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadBodyColors();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  };
 }

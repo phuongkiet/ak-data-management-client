@@ -5,6 +5,8 @@ import { appCurrency } from '../../../app/common/common.ts';
 import { observer } from 'mobx-react-lite';
 import {  useNavigate } from 'react-router';
 import { useTheme } from '../../../app/context/ThemeContext.tsx';
+import { FaEye } from 'react-icons/fa';
+import { Tooltip } from 'react-tooltip';
 
 interface StrategyProductTableComponentProps {
   data: StrategyProductDto[];
@@ -80,8 +82,11 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
         <button
           onClick={() => handleView(row)}
           className="text-blue-600 hover:underline font-medium"
+          data-tooltip-id="view-tooltip"
+          data-tooltip-content="Xem"
         >
-          Xem
+          <FaEye className="w-6 h-6 hover:opacity-50" />
+          <Tooltip id="view-tooltip" className="text-md" />
         </button>
       ),
       ignoreRowClick: true,

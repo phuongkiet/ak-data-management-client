@@ -42,6 +42,7 @@ export default class AntiSlipperyStore extends BaseStore {
       addAntiSlippery: action,
       updateAntiSlippery: action,
       updateAntiSlipperyFormUpdate: action,
+      deleteAntiSlippery: action,
     });
   }
 
@@ -162,5 +163,26 @@ export default class AntiSlipperyStore extends BaseStore {
         [field]: value,
       };
     });
+  };
+
+  deleteAntiSlippery = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.AntiSlippery.deleteAntiSlippery(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadAntiSlipperys();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   };
 }

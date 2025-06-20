@@ -9,6 +9,9 @@ import ProductLabel from "../../form/product-form/ProductLabel.tsx";
 import ProductInputField from "../../form/product-form/input/product/ProductInputField.tsx";
 import ReactSelect from "react-select";
 import { useTheme } from "../../../app/context/ThemeContext.tsx";
+import { FaEye } from "react-icons/fa";
+import { Tooltip } from "react-tooltip";
+import { CiTrash } from 'react-icons/ci';
 
 interface SizeTableComponentProps {
   data: ProductSizeDto[];
@@ -34,7 +37,8 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
   // Update autoSized in store when length or wide changes
   useEffect(() => {
     if (sizeStore.sizeFormUpdate.length && sizeStore.sizeFormUpdate.wide) {
-      const autoSizedValue = sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length;
+      const autoSizedValue =
+        sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length;
       sizeStore.updateSizeFormUpdate("autoSized", autoSizedValue);
     } else {
       sizeStore.updateSizeFormUpdate("autoSized", "");
@@ -62,6 +66,14 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
     console.log(selectedProducts);
   };
 
+  const handleDelete = async (row: ProductSizeDto) => {
+    const success = await sizeStore.deleteSize(row.id);
+    if (success) {
+      setIsModalOpen(false);
+      setSelectedItem(null);
+    }
+  };
+
   const columns: TableColumn<ProductSizeDto>[] = [
     {
       name: "STT",
@@ -87,12 +99,26 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
     {
       name: "Hành động",
       cell: (row) => (
+        <div className="flex items-center gap-2">
         <button
           onClick={() => handleView(row)}
           className="text-blue-600 hover:underline font-medium"
+          data-tooltip-id="view-tooltip"
+          data-tooltip-content="Xem"
         >
-          Xem
+          <FaEye className="w-6 h-6 hover:opacity-50" />
+          <Tooltip id="view-tooltip" className="text-md" />
         </button>
+        <button
+          onClick={() => handleDelete(row)}
+          className="text-red-600 hover:underline font-medium"
+          data-tooltip-id="delete-tooltip"
+          data-tooltip-content="Xóa"
+        >
+          <CiTrash className="w-6 h-6 hover:opacity-50" />
+          <Tooltip id="delete-tooltip" className="text-md" />
+        </button>
+        </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,
@@ -102,10 +128,12 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
 
   const autoSized = () => {
     if (sizeStore.sizeFormUpdate.length && sizeStore.sizeFormUpdate.wide) {
-      return sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length;
+      return (
+        sizeStore.sizeFormUpdate.wide + "x" + sizeStore.sizeFormUpdate.length
+      );
     }
     return "";
-  }
+  };
 
   const handleSave = async () => {
     if (selectedItem) {
@@ -113,7 +141,7 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
       if (success) {
         setIsModalOpen(false);
         setSelectedItem(null);
-      }else{
+      } else {
         setIsModalOpen(false);
         setSelectedItem(null);
       }
@@ -130,7 +158,7 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
     <>
       <div className="rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-4">
         <DataTable
-          theme={theme === 'dark' ? 'customDark' : 'default'}
+          theme={theme === "dark" ? "customDark" : "default"}
           columns={columns}
           data={data}
           pagination
@@ -171,9 +199,17 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
                 type="number"
                 step={0.1}
                 min="0"
-                value={sizeStore.sizeFormUpdate.length !== undefined && sizeStore.sizeFormUpdate.length !== null ? sizeStore.sizeFormUpdate.length : ""}
+                value={
+                  sizeStore.sizeFormUpdate.length !== undefined &&
+                  sizeStore.sizeFormUpdate.length !== null
+                    ? sizeStore.sizeFormUpdate.length
+                    : ""
+                }
                 onChange={(e) =>
-                  sizeStore.updateSizeFormUpdate("length", Number(e.target.value))
+                  sizeStore.updateSizeFormUpdate(
+                    "length",
+                    Number(e.target.value)
+                  )
                 }
               />
             </div>
@@ -185,7 +221,12 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
                 type="number"
                 step={0.1}
                 min="0"
-                value={sizeStore.sizeFormUpdate.wide !== undefined && sizeStore.sizeFormUpdate.wide !== null ? sizeStore.sizeFormUpdate.wide : ""}
+                value={
+                  sizeStore.sizeFormUpdate.wide !== undefined &&
+                  sizeStore.sizeFormUpdate.wide !== null
+                    ? sizeStore.sizeFormUpdate.wide
+                    : ""
+                }
                 onChange={(e) =>
                   sizeStore.updateSizeFormUpdate("wide", Number(e.target.value))
                 }
@@ -195,10 +236,7 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
               <ProductLabel className="block text-sm font-medium mb-1">
                 Kích cỡ tự động
               </ProductLabel>
-              <ProductInputField
-                disabled
-                value={autoSized()}
-              />
+              <ProductInputField disabled value={autoSized()} />
             </div>
             <div>
               <ProductLabel className="block text-sm font-medium mb-1">
@@ -207,7 +245,8 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
               <ReactSelect
                 placeholder="Chọn mã công ty"
                 value={companyCodeOptions.find(
-                  (option) => option.value === sizeStore.sizeFormUpdate.companyCodeId
+                  (option) =>
+                    option.value === sizeStore.sizeFormUpdate.companyCodeId
                 )}
                 onChange={(e: any) =>
                   sizeStore.updateSizeFormUpdate("companyCodeId", e.value)

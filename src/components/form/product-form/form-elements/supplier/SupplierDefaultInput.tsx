@@ -17,7 +17,8 @@ const SupplierDefaultInput = () => {
   const { supplierStore, supplierTaxStore, factoryStore } = useStore();
   const { productSupplierTaxList } = supplierTaxStore;
   const { productFactoryList } = factoryStore;
-  const form = supplierStore.supplierFormDetail;
+  const { supplierFormDetail } = supplierStore;
+  const form = supplierFormDetail;
   const update = supplierStore.updateSupplierFormDetail;
   const { theme } = useTheme();
 
@@ -43,6 +44,50 @@ const SupplierDefaultInput = () => {
       : false
   );
 
+  const handleChangeSupplierName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSupplierName = e.target.value.toUpperCase().trim();
+    update("supplierName", newSupplierName);
+
+    const newSupplierNameForCode = newSupplierName
+      .replace(/ /g, "")
+      .toUpperCase();
+
+    const currentCodeName = form.supplierCodeName;
+    const parts = currentCodeName.split("-");
+
+    if (parts.length >= 3) {
+      const middlePart = parts[parts.length - 2];
+      const shortCode = parts[parts.length - 1];
+      const newSupplierCodeName = `${newSupplierNameForCode}-${middlePart}-${shortCode}`;
+      update("supplierCodeName", newSupplierCodeName);
+    } else {
+      const lastDashIndex = currentCodeName.lastIndexOf("-");
+      if (lastDashIndex !== -1) {
+        const suffix = currentCodeName.substring(lastDashIndex);
+        const newSupplierCodeName = newSupplierNameForCode + suffix;
+        update("supplierCodeName", newSupplierCodeName);
+      } else {
+        const newSupplierCodeName = newSupplierNameForCode;
+        update("supplierCodeName", newSupplierCodeName);
+      }
+    }
+  };
+
+  const handleSupplierNameBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newSupplierName = e.target.value;
+    if (form.firstContactInfomation === "") {
+      update("firstContactInfomation", `Liên hệ 1 ${newSupplierName}`);
+    }
+
+    if (form.secondContactInfomation === "") {
+      update("secondContactInfomation", `Liên hệ 2 ${newSupplierName}`);
+    }
+
+    if (form.supplierStorageAddress === "") {
+      update("supplierStorageAddress", `Địa chỉ kho ${newSupplierName}`);
+    }
+  };
+
   return (
     <ComponentCard title="Thông tin nhà cung cấp">
       <div className="space-y-6">
@@ -50,15 +95,19 @@ const SupplierDefaultInput = () => {
           {/* Column 1 */}
           <div className="space-y-6 pr-6 border-r border-gray-200">
             {/* Basic Information */}
-            <div>
-              <ProductLabel htmlFor="supplierName">
+            <div className="w-full">
+              <label
+                className="mb-3 block text-black dark:text-white"
+                htmlFor="supplierName"
+              >
                 Tên nhà cung cấp
-              </ProductLabel>
+              </label>
               <input
                 type="text"
+                id="supplierName"
                 value={form.supplierName ?? ""}
-                onChange={(e) => update("supplierName", e.target.value)}
-                placeholder="Nhập tên nhà cung cấp"
+                onChange={handleChangeSupplierName}
+                onBlur={handleSupplierNameBlur}
                 className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
               />
             </div>
@@ -219,7 +268,7 @@ const SupplierDefaultInput = () => {
               </ProductLabel>
               <input
                 type="text"
-                value={form.supplierStorageAddress ?? ""}
+                value={form.supplierStorageAddress ?? "Địa chỉ kho " + form.supplierName}
                 onChange={(e) =>
                   update("supplierStorageAddress", e.target.value)
                 }
@@ -234,7 +283,7 @@ const SupplierDefaultInput = () => {
               </ProductLabel>
               <input
                 type="text"
-                value={form.firstContactInfomation ?? ""}
+                value={form.firstContactInfomation ?? "Liên hệ 1 " + form.supplierName}
                 onChange={(e) =>
                   update("firstContactInfomation", e.target.value)
                 }

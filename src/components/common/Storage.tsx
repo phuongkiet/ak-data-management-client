@@ -9,6 +9,8 @@ import ProductInputField from "../form/product-form/input/product/ProductInputFi
 import { observer } from "mobx-react-lite";
 import { LinkStorageDto } from "../../app/models/storage/linkStorage.model";
 import { useTheme } from "../../app/context/ThemeContext.tsx";
+import { CiEdit, CiTrash } from "react-icons/ci";
+import { Tooltip } from "react-tooltip";
 
 const Storage = () => {
   const { userStore, linkStorageStore } = useStore();
@@ -54,6 +56,14 @@ const Storage = () => {
     linkStorageStore.updateLinkStorageForm("url", addUrl);
     await linkStorageStore.addLinkStorage();
     setIsAddModalOpen(false);
+  };
+
+  const handleDelete = async (row: LinkStorageDto) => {
+    const success = await linkStorageStore.deleteLinkStorage(row.id);
+    if (success) {
+      setIsModalOpen(false);
+      setSelectedId(0);
+    }
   };
 
   const columns: TableColumn<any>[] = [
@@ -120,12 +130,26 @@ const Storage = () => {
       name: "Hành động",
       cell: (row) => {
         return (
+          <div className="flex items-center gap-2">
           <button
             onClick={() => handleEdit(row)}
             className="text-blue-600 hover:underline font-medium dark:text-white"
+            data-tooltip-id="edit-tooltip"
+            data-tooltip-content="Chỉnh sửa"
           >
-            Chỉnh sửa
+            <CiEdit className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="edit-tooltip" className="text-md" />
           </button>
+          <button
+            onClick={() => handleDelete(row)}
+            className="text-red-600 hover:underline font-medium dark:text-white"
+            data-tooltip-id="delete-tooltip"
+            data-tooltip-content="Xóa"
+          >
+            <CiTrash className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="delete-tooltip" className="text-md" />
+          </button>
+          </div>
         );
       },
       ignoreRowClick: true,

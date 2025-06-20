@@ -38,6 +38,7 @@ export default class ColorStore extends BaseStore {
       addColor: action,
       updateColor: action,
       updateColorFormUpdate: action,
+      deleteColor: action,
     });
   }
 
@@ -145,5 +146,26 @@ export default class ColorStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteColor = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductColor.deleteColor(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadColors();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

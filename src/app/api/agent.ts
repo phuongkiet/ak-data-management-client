@@ -417,6 +417,8 @@ const ProductSupplier = {
     requests.get<SupplierDetailDto>(
       `/suppliers/supplier-detail?supplierId=` + id
     ),
+  deleteSupplier: (supplierId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/suppliers/delete-supplier?supplierId=${supplierId}`),
 };
 
 const ProductMaterial = {
@@ -440,6 +442,8 @@ const ProductMaterial = {
       `/materials/update-material?materialId=${materialId}`,
       material
     ),
+  deleteMaterial: (materialId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/materials/delete-material?materialId=${materialId}`),
 };
 
 const ProductSurface = {
@@ -461,6 +465,8 @@ const ProductSurface = {
       `/surfaces/update-surface?surfaceId=${surfaceId}`,
       surface
     ),
+  deleteSurface: (surfaceId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/surfaces/delete-surface?surfaceId=${surfaceId}`),
 };
 
 const ProductStorage = {
@@ -482,6 +488,8 @@ const ProductStorage = {
       `/storages/update-storage?storageId=${storageId}`,
       storage
     ),
+  deleteStorage: (storageId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/storages/delete-storage?storageId=${storageId}`),
 };
 
 const CompanyCode = {
@@ -507,6 +515,8 @@ const CompanyCode = {
       `/company-codes/update-company-code?companyCodeId=${companyCodeId}`,
       companyCode
     ),
+  deleteCompanyCode: (companyCodeId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/company-codes/delete-company-code?companyCodeId=${companyCodeId}`),
 };
 
 const CalculatedUnit = {
@@ -535,6 +545,8 @@ const CalculatedUnit = {
       `/calculated-units/update-calculated-unit?calculatedUnitId=${calculatedUnitId}`,
       calculatedUnit
     ),
+  deleteCalculatedUnit: (calculatedUnitId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/calculated-units/delete-calculated-unit?calculatedUnitId=${calculatedUnitId}`),
 };
 
 const AntiSlippery = {
@@ -560,6 +572,8 @@ const AntiSlippery = {
       `/anti-slipperys/update-anti-slippery?antiSlipperyId=${antiSlipperyId}`,
       antiSlippery
     ),
+  deleteAntiSlippery: (antiSlipperyId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/anti-slipperys/delete-anti-slippery?antiSlipperyId=${antiSlipperyId}`),
 };
 
 const ProductBodyColor = {
@@ -585,6 +599,8 @@ const ProductBodyColor = {
       `/body-colors/update-body-color?bodyColorId=${bodyColorId}`,
       bodyColor
     ),
+  deleteBodyColor: (bodyColorId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/body-colors/delete-body-color?bodyColorId=${bodyColorId}`),
 };
 
 const ProductColor = {
@@ -601,6 +617,8 @@ const ProductColor = {
     color: UpdateColorDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(`/colors/update-color?colorId=${colorId}`, color),
+  deleteColor: (colorId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/colors/delete-color?colorId=${colorId}`),
 };
 
 const ProductOrigin = {
@@ -619,6 +637,8 @@ const ProductOrigin = {
     origin: UpdateOriginDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(`/origins/update-origin?originId=${originId}`, origin),
+  deleteOrigin: (originId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/origins/delete-origin?originId=${originId}`),
 };
 
 const ProductPattern = {
@@ -640,6 +660,8 @@ const ProductPattern = {
       `/patterns/update-pattern?patternId=${patternId}`,
       pattern
     ),
+  deletePattern: (patternId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/patterns/delete-pattern?patternId=${patternId}`),
 };
 
 const ProductProcessing = {
@@ -665,6 +687,8 @@ const ProductProcessing = {
       `/processings/update-processing?processingId=${processingId}`,
       processing
     ),
+  deleteProcessing: (processingId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/processings/delete-processing?processingId=${processingId}`),
 };
 
 const ProductSize = {
@@ -682,6 +706,8 @@ const ProductSize = {
     size: UpdateSizeDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(`/sizes/update-size?sizeId=${sizeId}`, size),
+  deleteSize: (sizeId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/sizes/delete-size?sizeId=${sizeId}`),
 };
 
 const ProductWaterAbsorption = {
@@ -710,6 +736,8 @@ const ProductWaterAbsorption = {
       `/water-absorptions/update-water-absorption?waterAbsorptionId=${waterAbsorptionId}`,
       waterAbsorption
     ),
+  deleteWaterAbsorption: (waterAbsorptionId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/water-absorptions/delete-water-absorption?waterAbsorptionId=${waterAbsorptionId}`),
 };
 
 const ProductFactory = {
@@ -737,6 +765,8 @@ const ProductFactory = {
       `/factories/update-factory?factoryId=${factoryId}`,
       factory
     ),
+  deleteFactory: (factoryId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/factories/delete-factory?factoryId=${factoryId}`),
 };
 
 const ProductArea = {
@@ -750,6 +780,8 @@ const ProductArea = {
     requests.post<string>("/areas/add-area", area),
   updateArea: (area: UpdateAreaDto): Promise<ApiResponseModel<string>> =>
     requests.put<string>("/areas/update-area", area),
+  deleteArea: (areaId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/areas/delete-area?areaId=${areaId}`),
 };
 
 const LinkStorage = {
@@ -762,6 +794,8 @@ const LinkStorage = {
       `/links/update-link?linkId=${linkId}`,
       linkStorage
     ),
+  deleteLinkStorage: (linkId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/links/delete-link?linkId=${linkId}`),
 };
 
 const agent = {

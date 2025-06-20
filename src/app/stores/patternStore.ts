@@ -40,6 +40,7 @@ export default class PatternStore extends BaseStore {
       addPattern: action,
       updatePattern: action,
       updatePatternFormUpdate: action,
+      deletePattern: action,
     });
   }
 
@@ -148,5 +149,26 @@ export default class PatternStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deletePattern = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductPattern.deletePattern(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadPatterns();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

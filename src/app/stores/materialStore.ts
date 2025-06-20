@@ -38,6 +38,7 @@ export default class MaterialStore extends BaseStore {
       addMaterial: action,
       updateMaterial: action,
       updateMaterialFormUpdate: action,
+      deleteMaterial: action,
     });
   }
 
@@ -155,5 +156,26 @@ export default class MaterialStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteMaterial = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductMaterial.deleteMaterial(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadMaterials();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

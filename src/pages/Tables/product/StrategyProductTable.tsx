@@ -107,7 +107,7 @@ const StrategyProductTable = () => {
               <div className="flex md:hidden gap-2">
                 <div
                   onClick={selectedIds.length === 0 ? undefined : () => setIsBulkModalOpen(true)}
-                  className={`bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center${selectedIds.length === 0 ? ' opacity-50 cursor-not-allowed' : ''}`}
+                  className={`bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center${selectedIds.length === 0 ? ' opacity-50 cursor-not-allowed' : ''}`}
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Cập nhật giá"
                 >
@@ -143,7 +143,7 @@ const StrategyProductTable = () => {
                 </div>
                 <div
                   onClick={handleImportClick}
-                  className="bg-[#334355] hover:bg-[#334355] text-white rounded-lg flex items-center justify-center"
+                  className="bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center"
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Nhập file"
                 >

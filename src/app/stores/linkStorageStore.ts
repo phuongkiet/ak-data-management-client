@@ -38,6 +38,7 @@ export default class LinkStorageStore extends BaseStore {
       updateLinkStorage: action,
       updateLinkStorageFormUpdate: action,
       resetLinkStorageForm: action,
+      deleteLinkStorage: action,
     });
   }
 
@@ -176,5 +177,26 @@ export default class LinkStorageStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteLinkStorage = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.LinkStorage.deleteLinkStorage(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadLinkStorages();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }

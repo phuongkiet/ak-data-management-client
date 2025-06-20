@@ -13,6 +13,9 @@ import ReactSelect from "react-select";
 import ProductDatePicker from "../../form/product-form/product-date-picker.tsx";
 import { formatDateLocal } from "../../../app/common/common.ts";
 import { useTheme } from "../../../app/context/ThemeContext.tsx";
+import { CiEdit } from "react-icons/ci";
+import { Tooltip } from 'react-tooltip';
+import { CiLock, CiUnlock  } from "react-icons/ci";
 
 interface UserTableComponentProps {
   data: UserDto[];
@@ -126,21 +129,27 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
     {
       name: "Hành động",
       cell: (row) => (
-        <div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() =>
               row.status === 1 ? handleBanUser(row) : handleUnBanUser(row)
             }
-            className="text-blue-600 hover:underline font-medium"
+            className="text-blue-600 font-medium"
+            data-tooltip-id="lock-tooltip"
+            data-tooltip-content={row.status === 1 ? "Khóa" : "Mở khóa"}
           >
-            {row.status === 1 ? "Khóa" : "Mở khóa"}
+            {row.status === 1 ? <CiLock className="w-6 h-6 hover:opacity-50" /> : <CiUnlock className="w-6 h-6 hover:opacity-50 " />}
+            <Tooltip id="lock-tooltip" className="text-md" />
+
           </button>
-          <span> / </span>
           <button
             onClick={() => handleOpenModalUpdateUser(row)}
-            className="text-blue-600 hover:underline font-medium"
+            className="text-blue-600 font-medium"
+            data-tooltip-id="view-tooltip"
+            data-tooltip-content="Xem"
           >
-            Cập nhật
+            <CiEdit className="w-6 h-6 hover:opacity-50" />
+            <Tooltip id="view-tooltip" className="text-md" />
           </button>
         </div>
       ),

@@ -8,6 +8,9 @@ import Button from '../../ui/button/Button.tsx';
 import ProductLabel from '../../form/product-form/ProductLabel.tsx';
 import ProductInputField from '../../form/product-form/input/product/ProductInputField.tsx';
 import { useTheme } from '../../../app/context/ThemeContext.tsx';
+import { FaEye } from 'react-icons/fa';
+import { Tooltip } from 'react-tooltip';
+import { CiTrash } from 'react-icons/ci';
 
 interface CompanyCodeTableComponentProps {
   data: CompanyCodeDto[];
@@ -59,6 +62,14 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
     }
   }
 
+  const handleDelete = async (row: CompanyCodeDto) => {
+    const success = await companyCodeStore.deleteCompanyCode(row.id);
+    if (success) {
+      setIsModalOpen(false);
+      setSelectedItem(null);
+    }
+  };
+
   const columns: TableColumn<CompanyCodeDto>[] = [
     {
       name: 'STT',
@@ -74,12 +85,27 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
     {
       name: 'Hành động',
       cell: row => (
+        <div className="flex items-center gap-2">
         <button
           onClick={() => handleView(row)}
           className="text-blue-600 hover:underline font-medium"
+          data-tooltip-id="view-tooltip"
+          data-tooltip-content="Xem"
         >
-          Xem
+          <FaEye className="w-6 h-6 hover:opacity-50" />
+          <Tooltip id="view-tooltip" className="text-md" />
         </button>
+      ),
+        <button
+          onClick={() => handleDelete(row)}
+          className="text-red-600 hover:underline font-medium"
+          data-tooltip-id="delete-tooltip"
+          data-tooltip-content="Xóa"
+        >
+          <CiTrash className="w-6 h-6 hover:opacity-50" />
+          <Tooltip id="delete-tooltip" className="text-md" />
+        </button>
+        </div>
       ),
       ignoreRowClick: true,
       allowOverflow: true,

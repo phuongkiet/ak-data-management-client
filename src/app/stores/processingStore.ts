@@ -38,6 +38,7 @@ export default class ProcessingStore extends BaseStore {
       addProcessing: action,
       updateProcessing: action,
       updateProcessingFormUpdate: action,
+      deleteProcessing: action,
     });
   }
 
@@ -146,5 +147,26 @@ export default class ProcessingStore extends BaseStore {
         [field]: value
       };
     });
+  }
+
+  deleteProcessing = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductProcessing.deleteProcessing(id);
+      if (result.success) {
+        toast.success(result.data);
+        this.loadProcessings();
+        this.loading = false;
+        return true;
+      } else {
+        toast.error(result.errors[0]);
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 }
