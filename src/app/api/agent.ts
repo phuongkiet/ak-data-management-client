@@ -324,8 +324,8 @@ const Product = {
   getNextOrderNumber: (supplierId: number): Promise<ApiResponseModel<number>> =>
     requests.get<number>("/products/suppliers-order?supplierId=" + supplierId),
 
-  getTotalProducts: (): Promise<ApiResponseModel<number>> =>
-    requests.get<number>("/products/total-products"),
+  // getTotalProducts: (): Promise<ApiResponseModel<number>> =>
+  //   requests.get<number>("/products/total-products"),
 
   addNewProduct: (product: AddProductDto): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/products/add-new", product),

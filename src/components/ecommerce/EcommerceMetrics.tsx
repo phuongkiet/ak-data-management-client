@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useStore } from '../../app/stores/store';
 import {
   // ArrowDownIcon,
@@ -11,12 +10,6 @@ import { observer } from 'mobx-react-lite';
 
 const EcommerceMetrics = () => {
   const { productStore } = useStore();
-
-  useEffect(() => {
-    if (productStore.absoluteTotalCount === 0) {
-      productStore.getTotalProducts();
-    }
-  }, []);
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
@@ -52,10 +45,10 @@ const EcommerceMetrics = () => {
         <div className="flex items-end justify-between mt-5">
           <div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Anh Kiệt đẹp zai
+              Đã cập nhật giá
             </span>
             <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-              10
+              {productStore.absoluteTotalPricedCount ?? 0}
             </h4>
           </div>
           {/*<Badge color="error">*/}

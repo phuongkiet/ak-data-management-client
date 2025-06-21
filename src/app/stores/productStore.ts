@@ -30,6 +30,9 @@ export default class ProductStore {
   totalPages = 0;
   totalCount = 0;
   absoluteTotalCount = 0;
+  absoluteTotalPricedCount = 0;
+  hasLoadedTotalProducts = false;
+  hasLoadedTotalPricedProducts = false;
   pageNumber = 1;
   pageSize = 10;
   term: string | null = null;
@@ -128,8 +131,6 @@ export default class ProductStore {
     });
   };
 
-  hasLoadedTotalProducts = false;
-
   constructor() {
     makeAutoObservable(this);
     this.resetProductForm();
@@ -159,6 +160,15 @@ export default class ProductStore {
     this.pageNumber = savedPageNumber ? parseInt(savedPageNumber) : 1;
     this.pageSize = savedPageSize ? parseInt(savedPageSize) : 10;
   }
+
+  setTotalProducts = (total: number) => {
+    this.absoluteTotalCount = total;
+    this.hasLoadedTotalProducts = true;
+  };
+  setTotalPricedProducts = (total: number) => {
+    this.absoluteTotalPricedCount = total;
+    this.hasLoadedTotalPricedProducts = true;
+  };
 
   setSupplierId = (id: number | null) => {
     this.supplierId = id;
@@ -437,41 +447,6 @@ export default class ProductStore {
       runInAction(() => {
         this.loading = false;
       });
-    }
-  };
-
-  getTotalProducts = async () => {
-    // Kiểm tra localStorage trước
-    const cached = localStorage.getItem("totalProductsCache");
-    if (cached) {
-      const { value, timestamp } = JSON.parse(cached);
-      // Nếu chưa quá 24 tiếng thì dùng cache
-      if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
-        this.absoluteTotalCount = value;
-        this.hasLoadedTotalProducts = true;
-        return;
-      }
-    }
-
-    // Nếu chưa có hoặc đã quá hạn, gọi API
-    try {
-      const response = await agent.Product.getTotalProducts();
-      runInAction(() => {
-        if (response.success) {
-          this.absoluteTotalCount = response.data || 0;
-          // Lưu vào localStorage kèm timestamp
-          localStorage.setItem(
-            "totalProductsCache",
-            JSON.stringify({ value: this.absoluteTotalCount, timestamp: Date.now() })
-          );
-        } else {
-          toast.error(
-            response.errors?.[0] || "Không lấy được tổng số sản phẩm"
-          );
-        }
-      });
-    } catch (error) {
-      console.error("Error getting total products:", error);
     }
   };
 

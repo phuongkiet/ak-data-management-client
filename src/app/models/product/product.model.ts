@@ -387,6 +387,8 @@ export interface ProductMetadataDto {
   waterAbsoroptionDtos: ProductWaterAbsorptionDto[];
   supplierTaxDtos: SupplierTaxDto[];
   roleDtos: RoleDto[];
+  totalProducts: number;
+  totalPricedProducts: number;
 }
 
 export interface EditStrategyProductDto {

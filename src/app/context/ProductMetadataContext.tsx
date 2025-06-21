@@ -42,7 +42,8 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     waterAbsorptionStore,
     areaStore,
     supplierTaxStore,
-    roleStore
+    roleStore,
+    productStore
   } = useStore();
 
   const [metadata, setMetadata] = useState<ProductMetadata>(() => {
@@ -74,7 +75,9 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         productSurfaceDtos: [],
         waterAbsoroptionDtos: [],
         supplierTaxDtos: [],
-        roleDtos: []
+        roleDtos: [],
+        totalProducts: 0,
+        totalPricedProducts: 0
       },
       loading: true,
       error: null,
@@ -102,6 +105,10 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       waterAbsorptionStore.setProductWaterAbsorptionList(metadata.waterAbsoroptionDtos);
       supplierTaxStore.setProductSupplierTaxList(metadata.supplierTaxDtos);
       roleStore.setRoleList(metadata.roleDtos);
+      productStore.absoluteTotalCount = metadata.totalProducts;
+      productStore.absoluteTotalPricedCount = metadata.totalPricedProducts;
+      productStore.hasLoadedTotalProducts = true;
+      productStore.hasLoadedTotalPricedProducts = true;
     });
   };
 
