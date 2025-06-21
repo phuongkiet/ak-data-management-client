@@ -185,6 +185,10 @@ export default class ProductStore {
     this.pageNumber = 1;
   };
 
+  searchProduct = async () => {
+    await this.loadProducts();
+  };
+
   setFilters = (filters: Partial<AdvancedSearchDto>) => {
     runInAction(() => {
       // Sử dụng runInAction để cập nhật nhiều observable
@@ -258,7 +262,6 @@ export default class ProductStore {
         pageNumber,
         term
       );
-      console.log(result);
       runInAction(() => {
         this.strategyProductList = result.data?.results || [];
         this.totalPages = result.data?.totalPage || 0;
@@ -294,7 +297,6 @@ export default class ProductStore {
             ...product,
           },
         };
-        console.log(this.productDetail);
         this.loading = false;
       });
     } catch (error) {
@@ -370,7 +372,6 @@ export default class ProductStore {
   ) => {
     runInAction(() => {
       this.productForm[field] = value;
-      console.log(this.productForm);
     });
   };
 
@@ -555,7 +556,6 @@ export default class ProductStore {
       if (field in updatedProduct) {
         (updatedProduct as any)[field] = value;
       }
-      console.log(updatedProduct);
       // Tính toán lại tất cả các giá trị
       this.calculateStrategyProductFields(updatedProduct);
 

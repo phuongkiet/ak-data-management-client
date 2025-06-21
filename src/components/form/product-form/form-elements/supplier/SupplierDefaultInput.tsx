@@ -330,7 +330,7 @@ const SupplierDefaultInput = () => {
               </div>
 
               <div>
-                <ProductLabel htmlFor="input">Chiết khấu</ProductLabel>
+                <ProductLabel htmlFor="input">Chiết khấu (%)</ProductLabel>
                 <NumericFormat
                   value={form.discount ?? ""}
                   thousandSeparator
@@ -368,7 +368,7 @@ const SupplierDefaultInput = () => {
 
             <div>
               <ProductLabel htmlFor="input">
-                Phần trăm thanh toán nhanh
+                Phần trăm thanh toán nhanh (%)
               </ProductLabel>
               <NumericFormat
                 value={form.percentageOfFastPayment ?? ""}
@@ -406,7 +406,7 @@ const SupplierDefaultInput = () => {
 
             <div>
               <ProductLabel htmlFor="input">
-                Phần trăm doanh số quý
+                Phần trăm doanh số quý (%)
               </ProductLabel>
               <NumericFormat
                 value={form.percentageQuarterlySales ?? ""}
@@ -425,7 +425,7 @@ const SupplierDefaultInput = () => {
 
             <div>
               <ProductLabel htmlFor="input">
-                Phần trăm doanh số năm
+                Phần trăm doanh số năm (%)
               </ProductLabel>
               <NumericFormat
                 value={form.percentageYearSales ?? ""}
@@ -444,7 +444,7 @@ const SupplierDefaultInput = () => {
 
             <div>
               <ProductLabel htmlFor="input">
-                Phần trăm thay đổi số lượng
+                Phần trăm thay đổi số lượng (%)
               </ProductLabel>
               <NumericFormat
                 value={form.percentageChangeQuantity ?? ""}
@@ -463,7 +463,7 @@ const SupplierDefaultInput = () => {
 
             <div>
               <ProductLabel htmlFor="input">
-                Phần trăm trả lại số lượng
+                Phần trăm trả lại số lượng (%)
               </ProductLabel>
               <NumericFormat
                 value={form.percentageReturnQuantity ?? ""}

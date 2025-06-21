@@ -104,17 +104,16 @@ export default class SupplierStore extends BaseStore {
       });
 
       // Update metadata in localStorage without triggering change notification
-      const currentMetadata = OfflineStorage.getMetadata();
-      if (currentMetadata) {
-        currentMetadata.productSupplierDtos = list;
-        OfflineStorage.saveMetadata(currentMetadata);
-      }
+      this.updateMetadataInLocalStorage(list);
     });
   };
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadSuppliers(this.term);
+  }
+
+  searchSupplier = async () => {
+    await this.loadSuppliers(this.term ?? undefined);
   };
 
   loadSuppliers = async (term?: string) => {
@@ -165,6 +164,16 @@ export default class SupplierStore extends BaseStore {
           this.resetSupplierForm();
           // Load suppliers and update metadata
           this.loadSuppliers();
+          const newItem: ProductSupplierDto = {
+            id: Date.now(),
+            supplierName: this.supplierForm.supplierName,
+            supplierCodeName: this.supplierForm.supplierCodeName,
+            supplierShortCode: this.supplierForm.supplierShortCode,
+            shippingFee: null,
+            discount: null,
+            taxId: null,
+          };
+          this.addItemToMetadata(newItem);
         });
         return true;
       } else {
@@ -231,7 +240,6 @@ export default class SupplierStore extends BaseStore {
     this.loading = true;
     try {
       const result = await agent.ProductSupplier.loadDetail(id);
-      console.log("result:", result.data);
       runInAction(() => {
         this.supplierFormDetail = {
           taxId: result.data?.taxId ?? null,
@@ -283,7 +291,6 @@ export default class SupplierStore extends BaseStore {
   ) => {
     runInAction(() => {
       this.supplierFormDetail[field] = value;
-      console.log("supplierFormDetail:", this.supplierFormDetail);
     });
   };
 
@@ -298,6 +305,17 @@ export default class SupplierStore extends BaseStore {
         runInAction(() => {
           toast.success(response.data);
           this.loadSuppliers();
+          this.resetSupplierForm();
+          const updatedItem: ProductSupplierDto = {
+            id: id,
+            supplierName: this.supplierFormDetail.supplierName,
+            supplierCodeName: this.supplierFormDetail.supplierCodeName,
+            supplierShortCode: this.supplierFormDetail.supplierShortCode,
+            shippingFee: this.supplierFormDetail.shippingFee ?? null,
+            discount: this.supplierFormDetail.discount ?? null,
+            taxId: this.supplierFormDetail.taxId ?? null,
+          };
+          this.addItemToMetadata(updatedItem);
         });
         return true;
       } else {
@@ -319,4 +337,30 @@ export default class SupplierStore extends BaseStore {
       });
     }
   };
+
+  private updateMetadataInLocalStorage = (supplierList: ProductSupplierDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSupplierDtos = supplierList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductSupplierDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSupplierDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }   
+
+  // private removeItemFromMetadata = (id: number) => {
+  //   const currentMetadata = OfflineStorage.getMetadata();
+  //   if (currentMetadata) {
+  //     currentMetadata.productSupplierDtos = currentMetadata.productSupplierDtos.filter(
+  //       item => item.id !== id
+  //     );
+  //     OfflineStorage.saveMetadata(currentMetadata);
+  //   }
+  // }
 }

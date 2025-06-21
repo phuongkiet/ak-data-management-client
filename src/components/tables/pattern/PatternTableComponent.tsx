@@ -18,7 +18,6 @@ interface PatternTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface PatternTableComponentProps {
 const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
   const { patternStore } = useStore();
   const { loading } = patternStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductPatternDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductPatternDto | null>(null);
   const { theme } = useTheme();
@@ -38,16 +36,6 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
       shortCode: pattern.shortCode,
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductPatternDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Patterns:', state.selectedRows);
-    console.log(selectedProducts)
   };
 
   const handleDelete = async (row: ProductPatternDto) => {
@@ -135,7 +123,6 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

@@ -23,7 +23,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = observer(
     const { user } = userStore;
 
     useEffect(() => {
-      console.log("Birthday effect run", user?.birthday);
       if (user?.birthday) {
         const birthday = new Date(user.birthday);
         const today = new Date();
@@ -74,14 +73,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = observer(
       setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
     };
 
-    useEffect(() => {
-      console.log("ThemeProvider mounted");
-      return () => {
-        console.log("ThemeProvider unmounted");
-      };
-    }, []);
-
-    // Modal component (có thể thay bằng Modal của thư viện UI)
     const BirthdayModal = () =>
       showBirthdayModal ? (
         <Modal

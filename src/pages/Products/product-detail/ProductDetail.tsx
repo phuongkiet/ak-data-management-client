@@ -38,7 +38,6 @@ const ProductDetail = () => {
       ...prev,
       [field]: value,
     }));
-    console.log(updateProduct);
   };
 
   if (!id) {

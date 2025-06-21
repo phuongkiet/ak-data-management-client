@@ -50,16 +50,15 @@ export default class OriginStore extends BaseStore {
         this.productOriginRegistry.set(origin.id, origin);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productOriginDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadOrigins(this.term);
+  }
+
+  searchOrigin = async () => {
+    await this.loadOrigins(this.term ?? undefined);
   }
 
   loadOrigins = async (term?: string) => {
@@ -107,6 +106,12 @@ export default class OriginStore extends BaseStore {
         this.loadOrigins();
         this.resetOriginForm();
         this.loading = false;
+        const newItem: ProductOriginDto = {
+          id: Date.now(),
+          name: this.originForm.name,
+          upperName: this.originForm.upperName
+        };
+        this.addItemToMetadata(newItem);
         return true;
       }else{
         toast.error("Lỗi khi thêm xuất xứ.");
@@ -130,6 +135,12 @@ export default class OriginStore extends BaseStore {
         this.loadOrigins();
         this.resetOriginForm();
         this.loading = false;
+        const updatedItem: ProductOriginDto = {
+          id: id,
+          name: this.originFormUpdate.name,
+          upperName: this.originFormUpdate.upperName
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -156,6 +167,7 @@ export default class OriginStore extends BaseStore {
         toast.success(result.data);
         this.loadOrigins();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -166,6 +178,32 @@ export default class OriginStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (originList: ProductOriginDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productOriginDtos = originList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductOriginDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productOriginDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productOriginDtos = currentMetadata.productOriginDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

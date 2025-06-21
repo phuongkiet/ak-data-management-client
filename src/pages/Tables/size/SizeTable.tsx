@@ -19,6 +19,7 @@ function SizeTable() {
   const { productCompanyCodeList } = companyCodeStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -51,6 +52,11 @@ function SizeTable() {
     value: code.id,
     label: code.codeName,
   }));
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    sizeStore.setTerm(term);
+  };
 
   return (
     <>
@@ -212,7 +218,7 @@ function SizeTable() {
             </div>
           }
           onSearch={(term) => {
-            sizeStore.setTerm(term);
+            handleSearch(term);
           }}
           isOnline={isOnline}
         >
@@ -222,9 +228,8 @@ function SizeTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productSizeList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

@@ -18,7 +18,6 @@ interface ProcessingTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface ProcessingTableComponentProps {
 const ProcessingTableComponent = ({ data }: ProcessingTableComponentProps) => {
   const { processingStore } = useStore();
   const { loading } = processingStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductProcessingDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductProcessingDto | null>(null);
   const { theme } = useTheme();
@@ -37,16 +35,6 @@ const ProcessingTableComponent = ({ data }: ProcessingTableComponentProps) => {
       processingDescription: processing.processingDescription || '',
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductProcessingDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Processings:', state.selectedRows);
-    console.log(selectedProducts)
   };
 
   const handleDelete = async (row: ProductProcessingDto) => {
@@ -129,7 +117,6 @@ const ProcessingTableComponent = ({ data }: ProcessingTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

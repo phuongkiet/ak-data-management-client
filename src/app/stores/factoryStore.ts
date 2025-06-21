@@ -48,16 +48,15 @@ export default class FactoryStore extends BaseStore {
         this.productFactoryRegistry.set(factory.id, factory);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productFactoryDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadFactories(this.term);
+  }
+
+  searchFactory = async () => {
+    await this.loadFactories(this.term ?? undefined);
   }
 
   loadFactories = async (term?: string) => {
@@ -131,6 +130,11 @@ export default class FactoryStore extends BaseStore {
         this.loading = false;
         this.factoryForm.name = '';
         this.loadFactories();
+        const newItem: ProductFactoryDto = {
+          id: Date.now(),
+          name: this.factoryForm.name,
+        };
+        this.addItemToMetadata(newItem);
         return true;
       }
       return false;
@@ -152,6 +156,11 @@ export default class FactoryStore extends BaseStore {
         this.loadFactories();
         this.resetFactoryForm();
         this.loading = false;
+        const updatedItem: ProductFactoryDto = {
+          id: id,
+          name: this.factoryFormUpdate.name,
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -178,6 +187,7 @@ export default class FactoryStore extends BaseStore {
         toast.success(result.data);
         this.loadFactories();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -188,6 +198,32 @@ export default class FactoryStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (factoryList: ProductFactoryDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productFactoryDtos = factoryList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductFactoryDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productFactoryDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productFactoryDtos = currentMetadata.productFactoryDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

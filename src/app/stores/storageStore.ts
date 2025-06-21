@@ -52,23 +52,21 @@ export default class StorageStore extends BaseStore {
         this.productStorageRegistry.set(storage.id, storage);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productStorageDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadStorages(this.term);
+  }
+
+  searchStorage = async () => {
+    await this.loadStorages(this.term ?? undefined);
   }
 
   loadStorages = async (term?: string) => {
     this.loading = true;
     try {
       const result = await agent.ProductStorage.storageList(term);
-      console.log(result);
       runInAction(() => {
         this.productStorageList = result.data || [];
         this.loading = false;
@@ -113,6 +111,11 @@ export default class StorageStore extends BaseStore {
         this.loadStorages();
         this.resetStorageForm();
         this.loading = false;
+        const newItem: ProductStorageDto = {
+          id: Date.now(),
+          name: this.storageForm.name,
+        };
+        this.addItemToMetadata(newItem);
         return true;
       } else {
         toast.error("Lỗi khi thêm kho.");
@@ -137,6 +140,11 @@ export default class StorageStore extends BaseStore {
         this.loadStorages();
         this.resetStorageForm();
         this.loading = false;
+        const updatedItem: ProductStorageDto = {
+          id: id,
+          name: this.storageFormUpdate.name,
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -163,6 +171,7 @@ export default class StorageStore extends BaseStore {
         toast.success(result.data);
         this.loadStorages();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -173,6 +182,32 @@ export default class StorageStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (storageList: ProductStorageDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productStorageDtos = storageList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductStorageDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productStorageDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productStorageDtos = currentMetadata.productStorageDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

@@ -41,7 +41,14 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
       name: 'Id',
       selector: row => row.id,
       sortable: true,
-      maxWidth: '3px'
+      maxWidth: '3px',
+      cell: (row) => {
+        return (
+          <button className='text-blue-600 dark:text-white hover:underline' onClick={() => handleView(row)}>
+            {row.id}
+          </button>
+        );
+      }
     },
     {
       name: 'Mã nhà cung cấp',

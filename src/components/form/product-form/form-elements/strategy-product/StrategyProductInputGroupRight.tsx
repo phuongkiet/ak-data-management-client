@@ -46,7 +46,7 @@ const StrategyProductInputGroupRight = ({
   return (
     <ComponentCard title="Thuế và Chính sách">
       <div>
-        <ProductLabel>Chính sách chuẩn</ProductLabel>
+        <ProductLabel>Chính sách chuẩn (%)</ProductLabel>
         <NumericFormat
           value={product?.policyStandard ?? form.policyStandard ?? 76}
           thousandSeparator
@@ -93,7 +93,7 @@ const StrategyProductInputGroupRight = ({
       </div>
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <ProductLabel htmlFor="input">Chính sách 1</ProductLabel>
+          <ProductLabel htmlFor="input">Chính sách 1 (%)</ProductLabel>
           <NumericFormat
             value={form?.firstPolicyStandardAfterDiscount ?? 5}
             thousandSeparator
@@ -115,7 +115,7 @@ const StrategyProductInputGroupRight = ({
           />
         </div>
         <div>
-          <ProductLabel htmlFor="input">Chính sách 2</ProductLabel>
+          <ProductLabel htmlFor="input">Chính sách 2 (%)</ProductLabel>
           <NumericFormat
             value={form.secondPolicyStandardAfterDiscount ?? 5}
             thousandSeparator

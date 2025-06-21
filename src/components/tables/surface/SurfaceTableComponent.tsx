@@ -18,7 +18,6 @@ interface SurfaceTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface SurfaceTableComponentProps {
 const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
   const { surfaceStore } = useStore();
   const { loading } = surfaceStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductSurfaceDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductSurfaceDto | null>(null);
   const { theme } = useTheme();
@@ -38,16 +36,6 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
       description: surface.description || '',
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductSurfaceDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Surfaces:', state.selectedRows);
-    console.log(selectedProducts)
   };
 
   const handleDelete = async (row: ProductSurfaceDto) => {
@@ -130,7 +118,6 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

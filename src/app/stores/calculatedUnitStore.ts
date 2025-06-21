@@ -50,17 +50,16 @@ export default class CalculatedUnitStore extends BaseStore {
       if (calculatedUnit.id != null)
         this.productCalculatedUnitRegistry.set(calculatedUnit.id, calculatedUnit);
     });
-    // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.calculatedUnitDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
     this.loadCalculatedUnits(this.term);
+  }
+
+  searchCalculatedUnit = async () => {
+    await this.loadCalculatedUnits(this.term ?? undefined);
   }
 
   loadCalculatedUnits = async (term?: string) => {
@@ -101,6 +100,12 @@ export default class CalculatedUnitStore extends BaseStore {
         toast.success("Thêm đơn vị tính thành công.");
         this.loadCalculatedUnits();
         this.resetCalculatedUnitForm();
+        const newItem: CalculatedUnitDto = {
+          id: Date.now(),
+          calculatedUnitName: this.calculatedUnitForm.calculatedUnitName,
+          autoCalculatedUnitName: this.calculatedUnitForm.autoCalculatedUnitName,
+        };
+        this.addItemToMetadata(newItem);
         this.loading = false;
         return true;
       }
@@ -119,6 +124,12 @@ export default class CalculatedUnitStore extends BaseStore {
         toast.success("Cập nhật đơn vị tính thành công.");
         this.loadCalculatedUnits();
         this.resetCalculatedUnitForm();
+        const newItem: CalculatedUnitDto = {
+          id: Date.now(),
+          calculatedUnitName: this.calculatedUnitForm.calculatedUnitName,
+          autoCalculatedUnitName: this.calculatedUnitForm.autoCalculatedUnitName,
+        };
+        this.addItemToMetadata(newItem);
         this.loading = false;
         return true;
       }
@@ -163,6 +174,7 @@ export default class CalculatedUnitStore extends BaseStore {
       if (result.success) {
         toast.success(result.data);
         this.loadCalculatedUnits();
+        this.removeItemFromMetadata(id);
         this.loading = false;
         return true;
       } else {
@@ -176,4 +188,28 @@ export default class CalculatedUnitStore extends BaseStore {
       });
     }
   };
+
+  private updateMetadataInLocalStorage = (calculatedUnitList: CalculatedUnitDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.calculatedUnitDtos = calculatedUnitList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.calculatedUnitDtos = currentMetadata.calculatedUnitDtos.filter(item => item.id !== id);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: CalculatedUnitDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.calculatedUnitDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
 }

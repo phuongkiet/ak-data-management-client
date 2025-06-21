@@ -52,16 +52,15 @@ export default class PatternStore extends BaseStore {
         this.productPatternRegistry.set(pattern.id, pattern);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productPatternDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadPatterns(this.term);
+  }
+
+  searchPattern = async () => {
+    await this.loadPatterns(this.term ?? undefined);
   }
 
   resetPatternForm = () => {
@@ -109,6 +108,13 @@ export default class PatternStore extends BaseStore {
         toast.success(response.data);
         this.resetPatternForm();
         await this.loadPatterns();
+        const newItem: ProductPatternDto = {
+          id: Date.now(),
+          name: this.patternForm.name,
+          shortCode: this.patternForm.shortCode,
+          description: this.patternForm.description
+        };
+        this.addItemToMetadata(newItem);
         return true;
       } else {
         toast.error(response.errors?.[0] || 'Có lỗi xảy ra khi thêm hệ vân');
@@ -133,6 +139,13 @@ export default class PatternStore extends BaseStore {
         this.loadPatterns();
         this.resetPatternForm();
         this.loading = false;
+        const updatedItem: ProductPatternDto = {
+          id: id,
+          name: this.patternFormUpdate.name,
+          shortCode: this.patternFormUpdate.shortCode,
+          description: this.patternFormUpdate.description
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -159,6 +172,7 @@ export default class PatternStore extends BaseStore {
         toast.success(result.data);
         this.loadPatterns();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -169,6 +183,32 @@ export default class PatternStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (patternList: ProductPatternDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productPatternDtos = patternList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductPatternDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productPatternDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productPatternDtos = currentMetadata.productPatternDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

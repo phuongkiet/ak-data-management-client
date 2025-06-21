@@ -41,7 +41,6 @@ const ProductTableComponent = ({
   onPageSizeChange,
   totalCount,
 }: ProductTableComponentProps) => {
-  const [selectedProducts, setSelectedProducts] = useState<ProductDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSapoModalOpen, setIsSapoModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -102,9 +101,7 @@ const ProductTableComponent = ({
     );
     setProductMaterial(material?.name ?? "");
 
-    const color = colorStore.productColorList.find(
-      (x) => x.id === selectedProduct?.colorId
-    );
+    const color = colorStore.productColorList.find(c => c.id == selectedProduct?.colorId);
     setProductColor(color?.name ?? "");
 
     const pattern = patternStore.productPatternList.find(
@@ -120,7 +117,7 @@ const ProductTableComponent = ({
     );
 
     const actualSize = size
-      ? `${Number(size.length) / 10} x ${Number(size.wide) / 10} cm`
+      ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
       : "";
 
     const displayWebsiteSize =
@@ -208,23 +205,19 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     setSelectedProduct(null);
   };
 
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Products:", state.selectedRows);
-    console.log(selectedProducts);
-  };
-
   const columns: TableColumn<ProductDto>[] = [
     {
       name: "STT",
       selector: (row) => row.id,
       sortable: true,
-      maxWidth: "3px",
-      wrap: false,
+      maxWidth: "80px",
+      cell: (row) => {
+        return (
+          <button className="text-blue-600 dark:text-white hover:underline" onClick={() => handleView(row)}>
+            {row.id}
+          </button>
+        );
+      }
     },
     {
       name: "Ngày đăng",
@@ -242,6 +235,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       name: "Mã hàng",
       selector: (row) => row.confirmAutoBarCode,
       sortable: true,
+      minWidth: "150px",
       cell: (row) => {
         const isUploaded =
           Number(row.uploadWebsiteStatus) === 1 ||
@@ -260,6 +254,15 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     {
       name: "Mã NCC",
       selector: (row) => row.supplierCode,
+      minWidth: "150px",
+      cell: (row) => {
+        return (
+          <div className="" data-tooltip-id="view-tooltip" data-tooltip-content={row.supplierCode}>
+            {row.supplierCode.slice(0, 10)}...
+            <Tooltip id="view-tooltip" className="text-md" />
+          </div>
+        );
+      }
     },
     {
       name: "Mã SKU",
@@ -282,7 +285,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       sortable: true,
     },
     {
-      name: "Giá khuyến mãi",
+      name: "Giá KM",
       selector: (row) =>
         row.discountedPrice?.toLocaleString()
           ? appCurrency + "" + row.discountedPrice?.toLocaleString()
@@ -315,32 +318,30 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     {
       name: "Hành động",
       cell: (row) => (
-        <div>
+        <div className="flex items-center gap-2">
           <button
             onClick={() => handleViewUploadWebsite(row.id)}
-            className="text-blue-600 hover:underline font-medium"
+            className="dark:text-blue-600 text-[#334355] hover:underline font-medium"
             data-tooltip-id="view-tooltip"
-            data-tooltip-content="Xem"
+            data-tooltip-content="Website"
           >
             <CgWebsite className="w-6 h-6 hover:opacity-50" />
             <Tooltip id="view-tooltip" className="text-md" />
           </button>
-          <span> / </span>
           <button
             onClick={() => handleViewUploadSapo(row.id)}
-            className="text-blue-600 hover:underline font-medium"
+            className="dark:text-blue-600 text-emerald-500 hover:underline font-medium"
             data-tooltip-id="view-tooltip"
-            data-tooltip-content="Xem"
+            data-tooltip-content="Sapo"
           >
             <TbCircleLetterS className="w-6 h-6 hover:opacity-50" />
             <Tooltip id="view-tooltip" className="text-md" />
           </button>
-          <span> / </span>
           <button
             onClick={() => handleView(row)}
-            className="text-blue-600 hover:underline font-medium"
+            className="dark:text-blue-600 text-fuchsia-600 hover:underline font-medium"
             data-tooltip-id="view-tooltip"
-            data-tooltip-content="Xem"
+            data-tooltip-content="Chi tiết"
           >
             <FaEye className="w-6 h-6 hover:opacity-50" />
             <Tooltip id="view-tooltip" className="text-md" />
@@ -372,7 +373,6 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

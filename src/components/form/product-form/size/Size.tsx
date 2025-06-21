@@ -57,11 +57,9 @@ const SizeGroup = ({
   );
 
   const handleSizeChange = (selectedOption: Option | null) => {
-    console.log('Selected size option:', selectedOption);
     
     if (selectedOption) {
       const size = productSizeList.find(s => s.id === selectedOption.value);
-      console.log('Selected size:', size);
       
       if (size) {
         // Update size ID and company code
@@ -74,7 +72,6 @@ const SizeGroup = ({
           onChange("areaPerUnit", Number(areaPerUnit.toFixed(2)));
           onChange("areaPerBox", Number(areaPerBox.toFixed(2)));
         } else if (isCreateMode) {
-          console.log('Updating form with size ID:', selectedOption.value);
           productStore.updateProductForm("actualSizeId", selectedOption.value);
           productStore.updateProductForm("companyCodeId", size.companyCodeId);
         }

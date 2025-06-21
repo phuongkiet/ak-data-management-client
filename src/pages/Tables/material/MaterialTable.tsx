@@ -18,7 +18,7 @@ function MaterialTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadMaterials();
@@ -30,6 +30,15 @@ function MaterialTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    materialStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await materialStore.searchMaterial();
   };
 
   return (
@@ -114,8 +123,9 @@ function MaterialTable() {
             </div>
           }
           onSearch={(term) => {
-            materialStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <MaterialTableComponent
@@ -124,9 +134,8 @@ function MaterialTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productMaterialList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

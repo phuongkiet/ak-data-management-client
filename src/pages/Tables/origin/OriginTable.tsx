@@ -17,7 +17,7 @@ function OriginTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadOrigins();
@@ -29,6 +29,15 @@ function OriginTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    originStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await originStore.searchOrigin();
   };
 
   return (
@@ -113,8 +122,9 @@ function OriginTable() {
             </div>
           }
           onSearch={(term) => {
-            originStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <OriginTableComponent
@@ -123,9 +133,8 @@ function OriginTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productOriginList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

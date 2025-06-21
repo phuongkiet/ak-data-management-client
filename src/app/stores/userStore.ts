@@ -79,7 +79,10 @@ export default class UserStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.listAllUser(this.term);
+  };
+
+  searchUser = async () => {
+    await this.listAllUser(this.term ?? undefined);
   };
 
   listAllUser = async (term?: string) => {
@@ -100,7 +103,6 @@ export default class UserStore {
       runInAction(() => {
         this.loading = false;
       });
-      console.log(error);
       toast.error("Lỗi khi tải danh sách người dùng");
     }
   };

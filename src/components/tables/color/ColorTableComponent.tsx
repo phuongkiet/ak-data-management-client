@@ -19,7 +19,6 @@ interface ColorTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -27,10 +26,7 @@ interface ColorTableComponentProps {
 const ColorTableComponent = ({ data }: ColorTableComponentProps) => {
   const { colorStore } = useStore();
   const { loading } = colorStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductColorDto[]>(
-    []
-  );
-
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductColorDto | null>(
     null
@@ -54,16 +50,6 @@ const ColorTableComponent = ({ data }: ColorTableComponentProps) => {
       }
     }
   }
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductColorDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Colors:", state.selectedRows);
-    console.log(selectedProducts);
-  };
 
   const handleDelete = async (row: ProductColorDto) => {
     const success = await colorStore.deleteColor(row.id);
@@ -131,7 +117,6 @@ const ColorTableComponent = ({ data }: ColorTableComponentProps) => {
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

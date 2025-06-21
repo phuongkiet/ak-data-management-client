@@ -23,7 +23,6 @@ interface UserTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -31,7 +30,6 @@ interface UserTableComponentProps {
 const UserTableComponent = ({ data }: UserTableComponentProps) => {
   const { userStore, roleStore } = useStore();
   const { loading } = userStore;
-  const [selectedUsers, setSelectedUsers] = useState<UserDto[]>([]);
   const [isOpenModalUpdateUser, setIsOpenModalUpdateUser] = useState(false);
   const [editUser, setEditUser] = useState<UserDto | null>(null);
   const { theme } = useTheme();
@@ -46,7 +44,6 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
   const handleOpenModalUpdateUser = (user: UserDto) => {
     setEditUser({ ...user });
     setIsOpenModalUpdateUser(true);
-    setSelectedUsers([user]);
   };
 
   const handleUpdateUser = async (user: UserDto) => {
@@ -62,16 +59,6 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
     }else{
       setIsOpenModalUpdateUser(false);
     }
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: UserDto[];
-  }) => {
-    setSelectedUsers(state.selectedRows);
-    console.log("Selected Users:", state.selectedRows);
-    console.log(selectedUsers);
   };
 
   const roleOptions = roleStore.roleList.map((role: RoleDto) => ({
@@ -170,7 +157,6 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={
           <div className="py-8 text-center font-semibold font-roboto w-full">

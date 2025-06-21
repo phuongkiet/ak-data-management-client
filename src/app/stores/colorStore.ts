@@ -49,17 +49,16 @@ export default class ColorStore extends BaseStore {
       if (color.id != null)
         this.productColorRegistry.set(color.id, color);
     });
-    // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productColorDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
     this.loadColors(this.term);
+  }
+
+  searchColor = async () => {
+    await this.loadColors(this.term ?? undefined);
   }
 
   resetColorForm = () => {
@@ -106,6 +105,12 @@ export default class ColorStore extends BaseStore {
         toast.success("Thêm màu sắc thành công.");
         this.loadColors();
         this.resetColorForm();
+        const newItem: ProductColorDto = {
+          id: Date.now(),
+          name: this.colorForm.name,
+          colorHexCode: this.colorForm.colorHexCode
+        };
+        this.addItemToMetadata(newItem);
         this.loading = false;
         return true;
       } else{
@@ -129,6 +134,12 @@ export default class ColorStore extends BaseStore {
         toast.success("Cập nhật màu sắc thành công.");
         this.loadColors();
         this.resetColorForm();
+        const updatedItem: ProductColorDto = {
+          id: id,
+          name: this.colorFormUpdate.name,
+          colorHexCode: this.colorFormUpdate.colorHexCode
+        };
+        this.addItemToMetadata(updatedItem);
         this.loading = false;
         return true;
       }
@@ -155,6 +166,7 @@ export default class ColorStore extends BaseStore {
       if (result.success) {
         toast.success(result.data);
         this.loadColors();
+        this.removeItemFromMetadata(id);
         this.loading = false;
         return true;
       } else {
@@ -166,6 +178,30 @@ export default class ColorStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (colorList: ProductColorDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productColorDtos = colorList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productColorDtos = currentMetadata.productColorDtos.filter(item => item.id !== id);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  } 
+
+  private addItemToMetadata = (newItem: ProductColorDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productColorDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

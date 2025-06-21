@@ -18,7 +18,6 @@ interface CalculatedUnitTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface CalculatedUnitTableComponentProps {
 const CalculatedUnitTableComponent = ({ data }: CalculatedUnitTableComponentProps) => {
   const { calculatedUnitStore } = useStore();
   const { loading } = calculatedUnitStore;
-  const [selectedProducts, setSelectedProducts] = useState<CalculatedUnitDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CalculatedUnitDto | null>(null);
   const { theme } = useTheme();
@@ -48,16 +46,6 @@ const CalculatedUnitTableComponent = ({ data }: CalculatedUnitTableComponentProp
       }
     }
   }
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: CalculatedUnitDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Calculated Units:', state.selectedRows);
-    console.log(selectedProducts)
-  };
 
   const handleDelete = async (row: CalculatedUnitDto) => {
     const success = await calculatedUnitStore.deleteCalculatedUnit(row.id);
@@ -126,7 +114,6 @@ const CalculatedUnitTableComponent = ({ data }: CalculatedUnitTableComponentProp
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

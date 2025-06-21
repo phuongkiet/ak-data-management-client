@@ -19,7 +19,6 @@ interface WaterAbsorptionTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -46,9 +45,6 @@ const WaterAbsorptionTableComponent = ({
 }: WaterAbsorptionTableComponentProps) => {
   const { waterAbsorptionStore } = useStore();
   const { loading } = waterAbsorptionStore;
-  const [selectedProducts, setSelectedProducts] = useState<
-    ProductWaterAbsorptionDto[]
-  >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] =
     useState<ProductWaterAbsorptionDto | null>(null);
@@ -61,16 +57,6 @@ const WaterAbsorptionTableComponent = ({
     setOperator(op);
     setLevel(val);
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductWaterAbsorptionDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Water Absorptions:", state.selectedRows);
-    console.log(selectedProducts);
   };
 
   const handleDelete = async (row: ProductWaterAbsorptionDto) => {
@@ -156,7 +142,6 @@ const WaterAbsorptionTableComponent = ({
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

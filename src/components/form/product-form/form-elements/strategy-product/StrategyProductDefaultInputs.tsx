@@ -119,9 +119,9 @@ const StrategyProductDefaultInputs = ({ product }: ProductProps) => {
         {/* Cột phải */}
         <div className="space-y-6">
           <div>
-            <ProductLabel>Chiết khấu</ProductLabel>
+            <ProductLabel>Chiết khấu (%)</ProductLabel>
             <Input
-              type="text"
+              type="text"   
               disabled={false}
               placeholder="Nhập chiết khấu"
               value={detail?.discount ?? form.discount ?? ""}

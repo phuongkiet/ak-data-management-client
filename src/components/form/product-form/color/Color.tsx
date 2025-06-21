@@ -39,7 +39,6 @@ const ColorGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
       const color = productColorList.find(
         (c) => c.id === productStore.productForm.colorId
       );
-      console.log(color?.id);
       return color?.colorHexCode || "#ffffff";
     } else {
       const color = productColorList.find((c) => c.id === product?.colorId);
@@ -89,11 +88,6 @@ const ColorGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
                     (c) => c.id === selected.value
                   );
                   setHexColor(color?.colorHexCode || "");
-                  console.log(
-                    "Selected color:",
-                    color?.id,
-                    color?.colorHexCode
-                  );
                 }
               }}
               placeholder={"Chọn màu gạch..."}

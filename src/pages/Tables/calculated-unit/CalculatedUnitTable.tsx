@@ -17,7 +17,7 @@ function CalculatedUnitTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadBodyColors();
@@ -29,6 +29,15 @@ function CalculatedUnitTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    calculatedUnitStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await calculatedUnitStore.searchCalculatedUnit();
   };
 
   return (
@@ -115,8 +124,9 @@ function CalculatedUnitTable() {
             </div>
           }
           onSearch={(term) => {
-            calculatedUnitStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <CalculatedUnitTableComponent
@@ -125,9 +135,8 @@ function CalculatedUnitTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productCalculatedUnitList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

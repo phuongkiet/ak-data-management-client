@@ -18,7 +18,7 @@ function ProcessingTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadProcessings();
@@ -30,6 +30,15 @@ function ProcessingTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    processingStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await processingStore.searchProcessing();
   };
 
   return (
@@ -114,8 +123,9 @@ function ProcessingTable() {
             </div>
           } 
           onSearch={(term) => {
-            processingStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <ProcessingTableComponent
@@ -124,9 +134,8 @@ function ProcessingTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productProcessingList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

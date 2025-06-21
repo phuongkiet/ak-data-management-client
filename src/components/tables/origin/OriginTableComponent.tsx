@@ -17,7 +17,6 @@ interface OriginTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -25,9 +24,6 @@ interface OriginTableComponentProps {
 const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
   const { originStore } = useStore();
   const { loading } = originStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductOriginDto[]>(
-    []
-  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductOriginDto | null>(
     null
@@ -40,16 +36,6 @@ const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
       upperName: origin.upperName,
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductOriginDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Origins:", state.selectedRows);
-    console.log(selectedProducts);
   };
 
   const handleDelete = async (row: ProductOriginDto) => {
@@ -132,7 +118,6 @@ const OriginTableComponent = ({ data }: OriginTableComponentProps) => {
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

@@ -50,16 +50,15 @@ export default class ProcessingStore extends BaseStore {
         this.productProcessingRegistry.set(processing.id, processing);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productProcessingDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadProcessings(this.term);
+  }
+
+  searchProcessing = async () => {
+    await this.loadProcessings(this.term ?? undefined);
   }
 
   loadProcessings = async (term?: string) => {
@@ -107,6 +106,12 @@ export default class ProcessingStore extends BaseStore {
         this.loadProcessings();
         this.resetProcessingForm();
         this.loading = false;
+        const newItem: ProductProcessingDto = {
+          id: Date.now(),
+          processingCode: this.processingForm.processingCode,
+          processingDescription: this.processingForm.processingDescription
+        };
+        this.addItemToMetadata(newItem);
         return true;
       } else {
         toast.error("Lỗi khi thêm gia công khác.")
@@ -131,6 +136,12 @@ export default class ProcessingStore extends BaseStore {
         this.loadProcessings();
         this.resetProcessingForm();
         this.loading = false;
+        const updatedItem: ProductProcessingDto = {
+          id: id,
+          processingCode: this.processingFormUpdate.processingCode,
+          processingDescription: this.processingFormUpdate.processingDescription
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -157,6 +168,7 @@ export default class ProcessingStore extends BaseStore {
         toast.success(result.data);
         this.loadProcessings();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -167,6 +179,32 @@ export default class ProcessingStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (processingList: ProductProcessingDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productProcessingDtos = processingList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductProcessingDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productProcessingDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productProcessingDtos = currentMetadata.productProcessingDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

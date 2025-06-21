@@ -18,7 +18,6 @@ interface BodyColorTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface BodyColorTableComponentProps {
 const BodyColorTableComponent = ({ data }: BodyColorTableComponentProps) => {
   const { bodyColorStore } = useStore();
   const { loading } = bodyColorStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductBodyColorDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductBodyColorDto | null>(null);
   const { theme } = useTheme();
@@ -48,16 +46,6 @@ const BodyColorTableComponent = ({ data }: BodyColorTableComponentProps) => {
       }
     }
   }
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductBodyColorDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Body Colors:', state.selectedRows);
-    console.log(selectedProducts)
-  };
 
   const handleDelete = async (row: ProductBodyColorDto) => {
     const success = await bodyColorStore.deleteBodyColor(row.id);
@@ -121,7 +109,6 @@ const BodyColorTableComponent = ({ data }: BodyColorTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

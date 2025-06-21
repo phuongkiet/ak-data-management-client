@@ -47,17 +47,16 @@ export default class CompanyCodeStore extends BaseStore {
       if (companyCode.id != null)
         this.productCompanyCodeRegistry.set(companyCode.id, companyCode);
     });
-    // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.companyCodeDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
     this.loadCompanyCodes(this.term);
+  }
+
+  searchCompanyCode = async () => {
+    await this.loadCompanyCodes(this.term ?? undefined);
   }
 
   loadCompanyCodes = async (term?: string) => {
@@ -102,6 +101,11 @@ export default class CompanyCodeStore extends BaseStore {
       if (result.success) {
         toast.success("Thêm mã công ty thành công.")
         this.loadCompanyCodes();
+        const newItem: CompanyCodeDto = {
+          id: Date.now(),
+          codeName: this.companyCodeForm.codeName,
+        };
+        this.addItemToMetadata(newItem);
         this.resetCompanyCodeForm();
         this.loading = false;
         return true;
@@ -126,6 +130,11 @@ export default class CompanyCodeStore extends BaseStore {
       if (result.success) {
         toast.success("Cập nhật mã công ty thành công.");
         this.loadCompanyCodes();
+        const updatedItem: CompanyCodeDto = {
+          id: id,
+          codeName: this.companyCodeFormUpdate.codeName,
+        };
+        this.addItemToMetadata(updatedItem);
         this.resetCompanyCodeForm();
         this.loading = false;
         return true;
@@ -153,6 +162,7 @@ export default class CompanyCodeStore extends BaseStore {
       if (result.success) {
         toast.success(result.data);
         this.loadCompanyCodes();
+        this.removeItemFromMetadata(id);
         this.loading = false;
         return true;
       } else {
@@ -164,6 +174,30 @@ export default class CompanyCodeStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (companyCodeList: CompanyCodeDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.companyCodeDtos = companyCodeList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: CompanyCodeDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.companyCodeDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    };
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.companyCodeDtos = currentMetadata.companyCodeDtos.filter(item => item.id !== id);
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

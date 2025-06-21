@@ -35,7 +35,7 @@ function UserTable() {
     email: "",
     roleId: 0
   });
-
+  const [searchTerm, setSearchTerm] = useState("");
   function changeRoleName(roleName: string) {
     switch (roleName) {
       case "Admin":
@@ -61,6 +61,10 @@ function UserTable() {
       listAllUser();
     }
   }, [isOnline]);
+
+  const handleSearchSubmit = async () => {
+    await userStore.searchUser();
+  };
 
   return (
     <>
@@ -296,8 +300,10 @@ function UserTable() {
             </div>
           }
           onSearch={(term) => {
+            setSearchTerm(term);
             userStore.setTerm(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <UserTableComponent
@@ -306,9 +312,8 @@ function UserTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={userList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

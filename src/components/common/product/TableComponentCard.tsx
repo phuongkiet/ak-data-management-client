@@ -20,6 +20,7 @@ interface ComponentCardProps {
   isModalOpen?: boolean;
   additionalButtons?: React.ReactNode;
   onSearch?: (term: string) => void;
+  onSearchSubmit?: () => void;
   searchPlaceholder?: string;
   searchTerm?: string;
   onPageSizeChange?: (newPageSize: number) => void;
@@ -45,6 +46,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   isModalOpen: externalIsModalOpen,
   additionalButtons,
   onSearch,
+  onSearchSubmit,
   searchPlaceholder = "Tìm kiếm...",
   searchTerm,
   isOnline
@@ -66,6 +68,12 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onSearch) onSearch(e.target.value);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearchSubmit) {
+      onSearchSubmit();
+    }
   };
 
   return (
@@ -119,12 +127,13 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
               type="text"
               value={searchTerm}
               onChange={handleSearchInputChange}
+              onKeyDown={handleKeyPress}
               placeholder={searchPlaceholder}
               className="border rounded px-3 py-2 mr-2 dark:border-gray-700 focus:outline-blue-950 w-full md:w-auto text-black dark:text-white"
               disabled={!isOnline}
             />
             <Button
-              onClick={() => onSearch(searchTerm || '')}
+              onClick={() => onSearchSubmit && onSearchSubmit()}
               className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[40px] w-10 md:w-auto flex items-center justify-center"
               aria-label="Tìm kiếm"
               disabled={!isOnline}

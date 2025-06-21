@@ -50,16 +50,15 @@ export default class MaterialStore extends BaseStore {
         this.productMaterialRegistry.set(material.id, material);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productMaterialDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadMaterials(this.term);
+  }
+
+  searchMaterial = async () => {
+    await this.loadMaterials(this.term ?? undefined);
   }
 
   loadMaterials = async (term?: string) => {
@@ -121,6 +120,12 @@ export default class MaterialStore extends BaseStore {
         this.loadMaterials();
         this.resetMaterialForm();
         this.loading = false;
+        const newItem: ProductMaterialDto = {
+          id: Date.now(),
+          name: this.materialForm.name,
+          description: this.materialForm.description
+        };
+        this.addItemToMetadata(newItem);
         return true;
       }
     } catch (error) {
@@ -140,6 +145,12 @@ export default class MaterialStore extends BaseStore {
         this.loadMaterials();
         this.resetMaterialForm();
         this.loading = false;
+        const updatedItem: ProductMaterialDto = {
+          id: id,
+          name: this.materialFormUpdate.name,
+          description: this.materialFormUpdate.description
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -166,6 +177,7 @@ export default class MaterialStore extends BaseStore {
         toast.success(result.data);
         this.loadMaterials();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -176,6 +188,32 @@ export default class MaterialStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (materialList: ProductMaterialDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productMaterialDtos = materialList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductMaterialDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productMaterialDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productMaterialDtos = currentMetadata.productMaterialDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

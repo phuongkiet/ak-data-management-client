@@ -17,7 +17,6 @@ interface StorageTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -25,7 +24,6 @@ interface StorageTableComponentProps {
 const StorageTableComponent = ({ data }: StorageTableComponentProps) => {
   const { storageStore } = useStore();
   const { loading } = storageStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductStorageDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductStorageDto | null>(null);
   const { theme } = useTheme();
@@ -35,16 +33,6 @@ const StorageTableComponent = ({ data }: StorageTableComponentProps) => {
       name: storage.name,
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductStorageDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Storages:', state.selectedRows);
-    console.log(selectedProducts)
   };
 
   const handleDelete = async (row: ProductStorageDto) => {
@@ -121,7 +109,6 @@ const StorageTableComponent = ({ data }: StorageTableComponentProps) => {
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

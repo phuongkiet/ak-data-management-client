@@ -17,7 +17,7 @@ function StorageTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadStorages();
@@ -29,6 +29,15 @@ function StorageTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    storageStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await storageStore.searchStorage();
   };
 
   return (
@@ -103,8 +112,9 @@ function StorageTable() {
             </div>
           }
           onSearch={(term) => {
-            storageStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <StorageTableComponent
@@ -113,9 +123,8 @@ function StorageTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productStorageList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

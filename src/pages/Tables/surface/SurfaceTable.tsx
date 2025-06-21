@@ -16,6 +16,8 @@ function SurfaceTable() {
   const { productSurfaceList, loading } = surfaceStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -30,6 +32,15 @@ function SurfaceTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    surfaceStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await surfaceStore.searchSurface();
   };
 
   return (
@@ -114,8 +125,9 @@ function SurfaceTable() {
             </div>
           }
           onSearch={(term) => {
-            surfaceStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <SurfaceTableComponent
@@ -124,9 +136,8 @@ function SurfaceTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productSurfaceList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

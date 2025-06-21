@@ -20,7 +20,7 @@ function AntiSlipperyTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadAntiSlipperys();
@@ -32,6 +32,15 @@ function AntiSlipperyTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    antiSlipperyStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await antiSlipperyStore.searchAntiSlippery();
   };
 
   return (
@@ -116,8 +125,9 @@ function AntiSlipperyTable() {
             </div>
           }
           onSearch={(term) => {
-            antiSlipperyStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <AntiSlipperyTableComponent
@@ -126,9 +136,8 @@ function AntiSlipperyTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productAntiSlipperyList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

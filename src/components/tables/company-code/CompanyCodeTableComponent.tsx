@@ -18,7 +18,6 @@ interface CompanyCodeTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -26,7 +25,6 @@ interface CompanyCodeTableComponentProps {
 const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => {
   const { companyCodeStore } = useStore();
   const { loading } = companyCodeStore;
-  const [selectedProducts, setSelectedProducts] = useState<CompanyCodeDto[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<CompanyCodeDto | null>(null);
   const { theme } = useTheme();
@@ -37,16 +35,6 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
       // ... các field khác nếu có
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: CompanyCodeDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log('Selected Company Codes:', state.selectedRows);
-    console.log(selectedProducts)
   };
 
   const handleSave = async () => {
@@ -125,7 +113,6 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
         highlightOnHover
         striped
         selectableRows
-        onSelectedRowsChange={handleSelectedRowsChange}
         progressPending={loading}
         progressComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Đang chờ...</div>}
         noDataComponent={<div className="py-8 text-center font-semibold font-roboto w-full">Không có dữ liệu để hiển thị.</div>}

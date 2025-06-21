@@ -60,16 +60,15 @@ export default class SizeStore extends BaseStore {
         this.productSizeRegistry.set(size.id, size);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productSizeDtos = this.productSizeList;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   } 
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadSizes(this.term);
+  }
+
+  searchSize = async () => {
+    await this.loadSizes(this.term ?? undefined);
   }
 
   loadSizes = async (term?: string) => {
@@ -117,6 +116,14 @@ export default class SizeStore extends BaseStore {
         this.loadSizes();
         this.resetSizeForm();
         this.loading = false;
+        const newItem: ProductSizeDto = {
+          id: Date.now(),
+          wide: this.sizeForm.wide,
+          length: this.sizeForm.length,
+          autoSized: this.sizeForm.autoSized,
+          companyCodeId: this.sizeForm.companyCodeId
+        };
+        this.addItemToMetadata(newItem);
         return true;
       }else{
         toast.error("Lỗi khi thêm kích thước.");
@@ -140,6 +147,14 @@ export default class SizeStore extends BaseStore {
         await this.loadSizes();
         this.resetSizeForm();
         this.loading = false;
+        const updatedItem: ProductSizeDto = {
+          id: id,
+          wide: this.sizeFormUpdate.wide,
+          length: this.sizeFormUpdate.length,
+          autoSized: this.sizeFormUpdate.autoSized,
+          companyCodeId: this.sizeFormUpdate.companyCodeId
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       } else {
         toast.error("Lỗi khi cập nhật kích thước.");
@@ -171,6 +186,7 @@ export default class SizeStore extends BaseStore {
         toast.success(result.data);
         this.loadSizes();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -181,6 +197,32 @@ export default class SizeStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (sizeList: ProductSizeDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSizeDtos = sizeList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductSizeDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSizeDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSizeDtos = currentMetadata.productSizeDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

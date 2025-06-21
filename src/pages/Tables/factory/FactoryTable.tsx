@@ -20,7 +20,7 @@ const FactoryTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rawFactoryName, setRawFactoryName] = useState("");
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
@@ -57,6 +57,15 @@ const FactoryTable = () => {
     value: sup.id,
     label: sup.supplierName,
   }));
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    factoryStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await factoryStore.searchFactory();
+  };
 
   return (
     <>
@@ -191,8 +200,9 @@ const FactoryTable = () => {
             </div>
           }
           onSearch={(term) => {
-            factoryStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <FactoryTableComponent
@@ -201,9 +211,8 @@ const FactoryTable = () => {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productFactoryList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

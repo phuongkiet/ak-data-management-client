@@ -19,7 +19,6 @@ interface SizeTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -28,9 +27,6 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
   const { sizeStore, companyCodeStore } = useStore();
   const { loading } = sizeStore;
   const { productCompanyCodeList } = companyCodeStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductSizeDto[]>(
-    []
-  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductSizeDto | null>(null);
   const { theme } = useTheme();
@@ -54,16 +50,6 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
       companyCodeId: size.companyCodeId,
     };
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductSizeDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Sizes:", state.selectedRows);
-    console.log(selectedProducts);
   };
 
   const handleDelete = async (row: ProductSizeDto) => {
@@ -166,7 +152,6 @@ const SizeTableComponent = ({ data }: SizeTableComponentProps) => {
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

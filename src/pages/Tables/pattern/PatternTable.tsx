@@ -19,7 +19,7 @@ function PatternTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadPatterns();
@@ -31,6 +31,15 @@ function PatternTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    patternStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await patternStore.searchPattern();
   };
 
   return (
@@ -128,8 +137,9 @@ function PatternTable() {
             </div>
           }
           onSearch={(term) => {
-            patternStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <PatternTableComponent
@@ -138,9 +148,8 @@ function PatternTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productPatternList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

@@ -47,7 +47,9 @@ const SupplierGroup = ({product, isCreateMode, onChange}: ProductProps) => {
     // Chỉ set lại nếu khác với current state
     if (selected?.value !== selectedSupplier?.value) {
       setSelectedSupplier(selected);
-      setAutoSupplierCode(product?.supplierCode || '');
+      // Khi edit, sử dụng supplierCode từ product hoặc supplierShortCode từ selected supplier
+      const supplier = productSupplierList.find(x => x.id === product.supplierId);
+      setAutoSupplierCode(product?.supplierCode || supplier?.supplierShortCode || '');
     }
   }, [product?.supplierId, product?.supplierCode, supplierOptions.length]);
 

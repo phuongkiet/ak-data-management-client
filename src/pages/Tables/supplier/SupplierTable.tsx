@@ -30,7 +30,7 @@ function SupplierTable() {
   const [customerClassification, setCustomerClassification] =
     useState<string>("");
   const [productSupplier, setProductSupplier] = useState<string>("");
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadSuppliers();
@@ -94,6 +94,15 @@ function SupplierTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    supplierStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await supplierStore.searchSupplier();
   };
 
   return (
@@ -269,8 +278,9 @@ function SupplierTable() {
             </div>
           }
           onSearch={(term) => {
-            supplierStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <SupplierTableComponent
@@ -279,9 +289,8 @@ function SupplierTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productSupplierList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

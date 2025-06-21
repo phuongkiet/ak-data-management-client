@@ -52,17 +52,16 @@ export default class BodyColorStore extends BaseStore {
         this.productBodyColorRegistry.set(bodyColor.id, bodyColor);
     });
 
-    // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productBodyColorDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   setTerm = (term: string) => {
     this.term = term;
     this.loadBodyColors(this.term);
+  }
+
+  searchBodyColor = async () => {
+    await this.loadBodyColors(this.term ?? undefined);
   }
 
   loadBodyColors = async (term?: string) => {
@@ -111,6 +110,11 @@ export default class BodyColorStore extends BaseStore {
         toast.success("Thêm màu sắc thân gạch thành công.");
         this.loadBodyColors();
         this.resetBodyColorForm();
+        const newItem: ProductBodyColorDto = {
+          id: Date.now(),
+          name: this.bodyColorForm.name,
+        };
+        this.addItemToMetadata(newItem);
         this.loading = false;
         return true;
       } else {
@@ -134,6 +138,11 @@ export default class BodyColorStore extends BaseStore {
         toast.success("Cập nhật màu sắc thân gạch thành công.");
         this.loadBodyColors();
         this.resetBodyColorForm();
+        const newItem: ProductBodyColorDto = {
+          id: Date.now(),
+          name: this.bodyColorForm.name,
+        };
+        this.addItemToMetadata(newItem);
         this.loading = false;
         return true;
       }
@@ -160,6 +169,7 @@ export default class BodyColorStore extends BaseStore {
       if (result.success) {
         toast.success(result.data);
         this.loadBodyColors();
+        this.removeItemFromMetadata(id);
         this.loading = false;
         return true;
       } else {
@@ -173,4 +183,28 @@ export default class BodyColorStore extends BaseStore {
       });
     }
   };
+
+  private updateMetadataInLocalStorage = (bodyColorList: ProductBodyColorDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productBodyColorDtos = bodyColorList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productBodyColorDtos = currentMetadata.productBodyColorDtos.filter(item => item.id !== id);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  } 
+
+  private addItemToMetadata = (newItem: ProductBodyColorDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productBodyColorDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
 }

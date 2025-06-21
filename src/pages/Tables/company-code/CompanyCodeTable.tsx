@@ -18,7 +18,7 @@ function CompanyCodeTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadCompanyCodes();
@@ -30,6 +30,15 @@ function CompanyCodeTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    companyCodeStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await companyCodeStore.searchCompanyCode();
   };
 
   return (
@@ -104,19 +113,19 @@ function CompanyCodeTable() {
             </div>
           }
           onSearch={(term) => {
-            companyCodeStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
-        >
+        > 
           <CompanyCodeTableComponent
             data={productCompanyCodeList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productCompanyCodeList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

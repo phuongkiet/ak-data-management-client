@@ -225,7 +225,6 @@ const ProductDefaultInputs = ({
       if (pattern?.name) {
         const newWebsiteProductName =
           `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
-        console.log("New website name:", newWebsiteProductName);
         setWebsiteProductName(newWebsiteProductName);
         productStore.updateProductForm(
           "displayWebsiteName",

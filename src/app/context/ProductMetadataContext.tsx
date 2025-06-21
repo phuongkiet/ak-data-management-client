@@ -15,7 +15,8 @@ interface ProductMetadata {
 
 interface ProductMetadataContextType {
   metadata: ProductMetadata;
-  refreshMetadata: () => Promise<void>;
+  refreshMetadata: (forceRefresh?: boolean) => Promise<void>;
+  syncMetadataFromStores: () => void;
   loading: boolean;
 }
 
@@ -104,17 +105,56 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     });
   };
 
-  const loadMetadata = async () => {
-    const cachedMetadata = OfflineStorage.getMetadata();
-    if (cachedMetadata) {
+  const syncMetadataFromStores = () => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      // Sync từ các store vào metadata
+      currentMetadata.companyCodeDtos = companyCodeStore.productCompanyCodeList;
+      currentMetadata.calculatedUnitDtos = calculatedUnitStore.productCalculatedUnitList;
+      currentMetadata.productAntiSlipperyDtos = antiSlipperyStore.productAntiSlipperyList;
+      currentMetadata.productAreaDtos = areaStore.productAreaList;
+      currentMetadata.productBodyColorDtos = bodyColorStore.productBodyColorList;
+      currentMetadata.productColorDtos = colorStore.productColorList;
+      currentMetadata.productFactoryDtos = factoryStore.productFactoryList;
+      currentMetadata.productMaterialDtos = materialStore.productMaterialList;
+      currentMetadata.productOriginDtos = originStore.productOriginList;
+      currentMetadata.productPatternDtos = patternStore.productPatternList;
+      currentMetadata.productProcessingDtos = processingStore.productProcessingList;
+      currentMetadata.productSizeDtos = sizeStore.productSizeList;
+      currentMetadata.productStorageDtos = storageStore.productStorageList;
+      currentMetadata.productSupplierDtos = supplierStore.productSupplierList;
+      currentMetadata.productSurfaceDtos = surfaceStore.productSurfaceList;
+      currentMetadata.waterAbsoroptionDtos = waterAbsorptionStore.productWaterAbsorptionList;
+      currentMetadata.supplierTaxDtos = supplierTaxStore.productSupplierTaxList;
+      currentMetadata.roleDtos = roleStore.roleList;
+      
+      // Lưu lại vào localStorage
+      OfflineStorage.saveMetadata(currentMetadata);
+      
+      // Cập nhật state
       setMetadata({
-        ProductMetadataDto: cachedMetadata,
+        ProductMetadataDto: currentMetadata,
         loading: false,
         error: null,
         lastUpdated: Date.now()
       });
-      updateStores(cachedMetadata);
-      return;
+    }
+  };
+
+  const loadMetadata = async (forceRefresh: boolean = false) => {
+    // Nếu không force refresh và có cache, sử dụng cache
+    if (!forceRefresh) {
+      const cachedMetadata = OfflineStorage.getMetadata();
+      if (cachedMetadata) {
+        setMetadata({
+          ProductMetadataDto: cachedMetadata,
+          loading: false,
+          error: null,
+          lastUpdated: Date.now()
+        });
+        updateStores(cachedMetadata);
+        return;
+      }
     }
 
     try {
@@ -158,7 +198,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
   useEffect(() => {
     const shouldLoadMetadata = isOnline && (
       !metadata.lastUpdated || 
-      Date.now() - metadata.lastUpdated > 3600000 // 1 hour
+      Date.now() - metadata.lastUpdated > 3600000 // 1 hours
     );
 
     if (shouldLoadMetadata) {
@@ -177,7 +217,8 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     <ProductMetadataContext.Provider
       value={{
         metadata,
-        refreshMetadata: loadMetadata,
+        refreshMetadata: (forceRefresh = false) => loadMetadata(forceRefresh),
+        syncMetadataFromStores,
         loading: metadata.loading,
       }}
     >

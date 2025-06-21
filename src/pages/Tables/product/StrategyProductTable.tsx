@@ -22,7 +22,6 @@ const StrategyProductTable = () => {
     loading,
     pageNumber,
     setPageNumber,
-    setTerm,
     totalCount,
     term,
   } = productStore;
@@ -30,7 +29,7 @@ const StrategyProductTable = () => {
   const { productSupplierTaxList } = supplierTaxStore;
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -65,6 +64,11 @@ const StrategyProductTable = () => {
     productStore.pageSize = newPageSize;
     setPageSize(newPageSize);
     setPageNumber(1); // Reset to first page
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    productStore.setTerm(term);
   };
 
   return (
@@ -168,7 +172,7 @@ const StrategyProductTable = () => {
           }
           isOnline={isOnline}
           onSearch={(term) => {
-            setTerm(term);
+            handleSearch(term);
             setPageNumber(1);
           }}
         >
@@ -178,7 +182,7 @@ const StrategyProductTable = () => {
             currentPage={pageNumber}
             onPageChange={handlePageChange}
             totalCount={totalCount}
-            searchTerm={term ?? ""}
+            searchTerm={searchTerm}
             onPageSizeChange={handlePageSizeChange}
             onSelectedIdsChange={setSelectedIds}
           />

@@ -13,7 +13,6 @@ const EcommerceMetrics = () => {
   const { productStore } = useStore();
 
   useEffect(() => {
-    console.log(productStore.absoluteTotalCount);
     if (productStore.absoluteTotalCount === 0) {
       productStore.getTotalProducts();
     }

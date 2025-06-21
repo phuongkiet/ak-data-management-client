@@ -17,7 +17,7 @@ function BodyColorTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadBodyColors();
@@ -29,6 +29,15 @@ function BodyColorTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    bodyColorStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await bodyColorStore.searchBodyColor();
   };
 
   return (
@@ -103,8 +112,9 @@ function BodyColorTable() {
             </div>
           }
           onSearch={(term) => {
-            bodyColorStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <BodyColorTableComponent
@@ -113,9 +123,8 @@ function BodyColorTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productBodyColorList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

@@ -50,11 +50,7 @@ export default class SurfaceStore extends BaseStore {
         this.productSurfaceRegistry.set(surface.id, surface);
     });
     // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productSurfaceDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   }
 
   resetSurfaceForm = () => {
@@ -66,7 +62,10 @@ export default class SurfaceStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadSurfaces(this.term);
+  }
+
+  searchSurface = async () => {
+    await this.loadSurfaces(this.term ?? undefined);
   }
 
   loadSurfaces = async (term?: string) => {
@@ -100,12 +99,17 @@ export default class SurfaceStore extends BaseStore {
     this.loading = true;
     try {
       const result = await agent.ProductSurface.addSurface(this.surfaceForm);
-      console.log(result);
       if (result.success) {
         toast.success("Bề mặt đã được tạo thành công.");
         this.loading = false;
         this.resetSurfaceForm();
         this.loadSurfaces();
+        const newItem: ProductSurfaceDto = {
+          id: Date.now(),
+          name: this.surfaceForm.name,
+          description: this.surfaceForm.description
+        };
+        this.addItemToMetadata(newItem);
         return true;
       }else{
         toast.error("Lỗi khi tạo bề mặt.");
@@ -130,6 +134,13 @@ export default class SurfaceStore extends BaseStore {
         this.loadSurfaces();
         this.resetSurfaceForm();
         this.loading = false;
+        // Cập nhật item trong metadata với form data
+        const updatedItem: ProductSurfaceDto = {
+          id: id,
+          name: this.surfaceFormUpdate.name,
+          description: this.surfaceFormUpdate.description
+        };
+        this.addItemToMetadata(updatedItem);
         return true;
       }
     } catch (error) {
@@ -156,6 +167,7 @@ export default class SurfaceStore extends BaseStore {
         toast.success(result.data);
         this.loadSurfaces();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -166,6 +178,32 @@ export default class SurfaceStore extends BaseStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  }
+
+  private updateMetadataInLocalStorage = (surfaceList: ProductSurfaceDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSurfaceDtos = surfaceList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private addItemToMetadata = (newItem: ProductSurfaceDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSurfaceDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productSurfaceDtos = currentMetadata.productSurfaceDtos.filter(
+        item => item.id !== id
+      );
+      OfflineStorage.saveMetadata(currentMetadata);
     }
   }
 }

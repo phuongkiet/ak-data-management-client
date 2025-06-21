@@ -19,7 +19,6 @@ interface FactoryTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -27,9 +26,6 @@ interface FactoryTableComponentProps {
 const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
   const { factoryStore, supplierStore } = useStore();
   const { loading } = factoryStore;
-  const [selectedProducts, setSelectedProducts] = useState<ProductFactoryDto[]>(
-    []
-  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ProductFactoryDto | null>(
     null
@@ -63,16 +59,6 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
       factoryStore.updateFactoryFormUpdate("name", factory.name);
     }
     setIsModalOpen(true);
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductFactoryDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Factories:", state.selectedRows);
-    console.log(selectedProducts);
   };
 
   const handleDelete = async (row: ProductFactoryDto) => {
@@ -150,7 +136,6 @@ const FactoryTableComponent = ({ data }: FactoryTableComponentProps) => {
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

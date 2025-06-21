@@ -65,36 +65,45 @@ export default class LinkStorageStore extends BaseStore {
     this.loadLinkStorages();
   }
 
+  searchLinkStorage = async () => {
+    await this.loadLinkStorages();
+  }
+
   loadLinkStorages = async () => {
     this.loading = true;
     try {
-      // Kiểm tra localStorage trước
+      // Lấy dữ liệu localStorage (nếu có)
       const cached = localStorage.getItem("linkStorageList");
+      let cachedData: LinkStorageDto[] = [];
       if (cached) {
-        const data = JSON.parse(cached);
+        cachedData = JSON.parse(cached);
         runInAction(() => {
-          this.linkStorageList = data;
+          this.linkStorageList = cachedData;
           this.loading = false;
           this.linkStorageRegistry.clear();
-          data.forEach((linkStorage: any) => {
+          cachedData.forEach((linkStorage: any) => {
             if (linkStorage.name != null) this.linkStorageRegistry.set(linkStorage.name, linkStorage);
           });
         });
-        return;
       }
 
-      // Nếu chưa có, gọi API
+      // Gọi API lấy dữ liệu mới nhất
       const result = await agent.LinkStorage.linkStorageList();
-      runInAction(() => {
-        this.linkStorageList = result.data || [];
-        this.loading = false;
-        this.linkStorageRegistry.clear();
-        this.linkStorageList.forEach(linkStorage => {
-          if (linkStorage.name != null) this.linkStorageRegistry.set(linkStorage.name, linkStorage);
+      const apiData = result.data || [];
+
+      // So sánh dữ liệu API với localStorage
+      if (JSON.stringify(apiData) !== JSON.stringify(cachedData)) {
+        // Nếu khác biệt thì cập nhật lại localStorage và state
+        runInAction(() => {
+          this.linkStorageList = apiData;
+          this.linkStorageRegistry.clear();
+          this.loading = false;
+          apiData.forEach(linkStorage => {
+            if (linkStorage.name != null) this.linkStorageRegistry.set(linkStorage.name, linkStorage);
+          });
+          localStorage.setItem("linkStorageList", JSON.stringify(apiData));
         });
-        // Lưu vào localStorage
-        localStorage.setItem("linkStorageList", JSON.stringify(this.linkStorageList));
-      });
+      }
     } catch (error) {
       runInAction(() => {
         this.loading = false;
@@ -186,6 +195,7 @@ export default class LinkStorageStore extends BaseStore {
       if (result.success) {
         toast.success(result.data);
         this.loadLinkStorages();
+        
         this.loading = false;
         return true;
       } else {

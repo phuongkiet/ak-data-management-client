@@ -39,7 +39,6 @@ const Storage = () => {
   };
 
   const handleSave = async () => {
-    console.log("Update with id:", selectedId);
     await linkStorageStore.updateLinkStorage(selectedId);
     setIsModalOpen(false);
   };

@@ -17,7 +17,7 @@ function ColorTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
-
+  const [searchTerm, setSearchTerm] = useState("");
   // useEffect(() => {
   //   if (isOnline) {
   //     loadColors();
@@ -29,6 +29,15 @@ function ColorTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    colorStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await colorStore.searchColor();
   };
 
   return (
@@ -125,8 +134,9 @@ function ColorTable() {
             </div>
           }
           onSearch={(term) => {
-            colorStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <ColorTableComponent
@@ -135,9 +145,8 @@ function ColorTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productColorList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

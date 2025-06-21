@@ -19,7 +19,6 @@ interface AntiSlipperyTableComponentProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onSearch: (term: string) => void;
   totalCount: number;
   searchTerm: string;
 }
@@ -29,9 +28,6 @@ const AntiSlipperyTableComponent = ({
 }: AntiSlipperyTableComponentProps) => {
   const { antiSlipperyStore } = useStore();
   const { loading } = antiSlipperyStore;
-  const [selectedProducts, setSelectedProducts] = useState<
-    ProductAntiSlipperyDto[]
-  >([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] =
     useState<ProductAntiSlipperyDto | null>(null);
@@ -62,16 +58,6 @@ const AntiSlipperyTableComponent = ({
         setSelectedItem(null);
       }
     }
-  };
-
-  const handleSelectedRowsChange = (state: {
-    allSelected: boolean;
-    selectedCount: number;
-    selectedRows: ProductAntiSlipperyDto[];
-  }) => {
-    setSelectedProducts(state.selectedRows);
-    console.log("Selected Anti Slippery:", state.selectedRows);
-    console.log(selectedProducts);
   };
 
   const handleDelete = async (row: ProductAntiSlipperyDto) => {
@@ -141,7 +127,6 @@ const AntiSlipperyTableComponent = ({
           highlightOnHover
           striped
           selectableRows
-          onSelectedRowsChange={handleSelectedRowsChange}
           progressPending={loading}
           progressComponent={
             <div className="py-8 text-center font-semibold font-roboto w-full">

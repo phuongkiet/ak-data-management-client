@@ -29,6 +29,7 @@ function WaterAbsorptionTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [operator, setOperator] = useState("");
   const [level, setLevel] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
@@ -53,6 +54,15 @@ function WaterAbsorptionTable() {
     if (result) {
       handleModalClose();
     }
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    waterAbsorptionStore.setTerm(term);
+  };
+
+  const handleSearchSubmit = async () => {
+    await waterAbsorptionStore.searchWaterAbsorption();
   };
 
   return (
@@ -191,8 +201,9 @@ function WaterAbsorptionTable() {
             </div>
           }
           onSearch={(term) => {
-            waterAbsorptionStore.setTerm(term);
+            handleSearch(term);
           }}
+          onSearchSubmit={handleSearchSubmit}
           isOnline={isOnline}
         >
           <WaterAbsorptionTableComponent
@@ -201,9 +212,8 @@ function WaterAbsorptionTable() {
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            onSearch={() => {}}
             totalCount={productWaterAbsorptionList.length}
-            searchTerm={""}
+            searchTerm={searchTerm}
           />
         </TableComponentCard>
       </div>

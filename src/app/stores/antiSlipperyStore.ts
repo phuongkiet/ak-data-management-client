@@ -54,12 +54,7 @@ export default class AntiSlipperyStore extends BaseStore {
         this.productAntiSlipperyRegistry.set(antiSlippery.id, antiSlippery);
     });
 
-    // Update metadata in localStorage
-    const currentMetadata = OfflineStorage.getMetadata();
-    if (currentMetadata) {
-      currentMetadata.productAntiSlipperyDtos = list;
-      OfflineStorage.saveMetadata(currentMetadata);
-    }
+    this.updateMetadataInLocalStorage(list);
   };
 
   setTerm = (term: string) => {
@@ -67,9 +62,12 @@ export default class AntiSlipperyStore extends BaseStore {
     this.loadAntiSlipperys(this.term);
   };
 
+  searchAntiSlippery = async () => {
+    await this.loadAntiSlipperys(this.term ?? undefined);
+  }
+
   loadAntiSlipperys = async (term?: string) => {
     this.loading = true;
-    console.log("loadAntiSlipperys called");
     try {
       const result = await agent.AntiSlippery.antiSlipperyList(term);
       runInAction(() => {
@@ -119,6 +117,12 @@ export default class AntiSlipperyStore extends BaseStore {
         this.loadAntiSlipperys();
         this.resetAntiSlipperyForm();
         this.loading = false;
+        const newItem: ProductAntiSlipperyDto = {
+          id: Date.now(),
+          antiSlipLevel: this.antiSlipperyForm.antiSlipLevel,
+          description: this.antiSlipperyForm.description,
+        };
+        this.addItemToMetadata(newItem);
         return true;
       } else {
         toast.error("Lỗi khi thêm độ chống trươt.");
@@ -143,6 +147,12 @@ export default class AntiSlipperyStore extends BaseStore {
         toast.success("Cập nhật độ chống trươt thành công.");
         this.loadAntiSlipperys();
         this.resetAntiSlipperyForm();
+        const updatedItem: ProductAntiSlipperyDto = {
+          id: id,
+          antiSlipLevel: this.antiSlipperyFormUpdate.antiSlipLevel,
+          description: this.antiSlipperyFormUpdate.description,
+        };
+        this.addItemToMetadata(updatedItem);
         this.loading = false;
         return true;
       }
@@ -173,6 +183,7 @@ export default class AntiSlipperyStore extends BaseStore {
         toast.success(result.data);
         this.loadAntiSlipperys();
         this.loading = false;
+        this.removeItemFromMetadata(id);
         return true;
       } else {
         toast.error(result.errors[0]);
@@ -185,4 +196,26 @@ export default class AntiSlipperyStore extends BaseStore {
       });
     }
   };
+
+  private updateMetadataInLocalStorage = (antiSlipperyList: ProductAntiSlipperyDto[]) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productAntiSlipperyDtos = antiSlipperyList;
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+  private removeItemFromMetadata = (id: number) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productAntiSlipperyDtos = currentMetadata.productAntiSlipperyDtos.filter(item => item.id !== id);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
+  private addItemToMetadata = (newItem: ProductAntiSlipperyDto) => {
+    const currentMetadata = OfflineStorage.getMetadata();
+    if (currentMetadata) {
+      currentMetadata.productAntiSlipperyDtos.push(newItem);
+      OfflineStorage.saveMetadata(currentMetadata);
+    }
+  }
 }
