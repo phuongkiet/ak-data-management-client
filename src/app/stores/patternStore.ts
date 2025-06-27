@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddPatternDto, ProductPatternDto, UpdatePatternDto } from '../models/product/productPattern.model.ts'
@@ -9,7 +9,12 @@ export default class PatternStore extends BaseStore {
   productPatternList: ProductPatternDto[] = [];
   productPatternRegistry = new Map<number, ProductPatternDto>();
   loading = false;
+  tempList: ProductPatternDto[] = [];
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productPatternList;
+  }
 
   patternForm: AddPatternDto = {
     name: '',
@@ -28,10 +33,12 @@ export default class PatternStore extends BaseStore {
     makeObservable(this, {
       productPatternList: observable,
       productPatternRegistry: observable,
+      tempList: observable,
       loading: observable,
       term: observable,
       patternForm: observable,
       patternFormUpdate: observable,
+      displayList: computed,
       setProductPatternList: action,
       setTerm: action,
       loadPatterns: action,
@@ -60,7 +67,16 @@ export default class PatternStore extends BaseStore {
   }
 
   searchPattern = async () => {
-    await this.loadPatterns(this.term ?? undefined);
+    await this.loadPatterns(this.term);
+  }
+
+  loadAllPatterns = async () => {
+    await this.loadPatterns();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   resetPatternForm = () => {
@@ -76,7 +92,18 @@ export default class PatternStore extends BaseStore {
     try {
       const result = await agent.ProductPattern.patternList(term);
       runInAction(() => {
-        this.productPatternList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productPatternList
+          this.productPatternList = result.data || [];
+          // Cập nhật registry
+          this.productPatternRegistry.clear();
+          this.productPatternList.forEach(pattern => {
+            if (pattern.id != null) this.productPatternRegistry.set(pattern.id, pattern);
+          });
+        }
         this.loading = false;
 
         // Optionally: store surfaces in a Map
@@ -107,7 +134,7 @@ export default class PatternStore extends BaseStore {
       if (response.data) {
         toast.success(response.data);
         this.resetPatternForm();
-        await this.loadPatterns();
+        await this.loadAllPatterns(); // Reload toàn bộ list
         const newItem: ProductPatternDto = {
           id: Date.now(),
           name: this.patternForm.name,
@@ -136,7 +163,7 @@ export default class PatternStore extends BaseStore {
       const result = await agent.ProductPattern.updatePattern(id, this.patternFormUpdate);
       if (result.success) {
         toast.success("Cập nhật hệ vân thành công.");
-        this.loadPatterns();
+        this.loadAllPatterns(); // Reload toàn bộ list
         this.resetPatternForm();
         this.loading = false;
         const updatedItem: ProductPatternDto = {
@@ -170,7 +197,7 @@ export default class PatternStore extends BaseStore {
       const result = await agent.ProductPattern.deletePattern(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadPatterns();
+        this.loadAllPatterns(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

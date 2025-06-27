@@ -41,12 +41,12 @@ const CompanyCodeGroup = ({
 
   const handleCompanyCodeChange = (selected: Option | null) => {
     if (!selected) {
+      // Clear companyCodeId and confirmSupplierItemCode in productStore
+      productStore.updateProductForm("companyCodeId", null);
+      productStore.updateProductForm("confirmSupplierItemCode", "");
       if (onChange) {
         onChange("companyCodeId", null);
-        onChange("confirmSupplierItemCode", ""); // Clear SKU when company code is cleared
-      } else if (isCreateMode) {
-        productStore.updateProductForm("companyCodeId", null);
-        // productStore.updateProductForm("confirmSupplierItemCode", ""); // Clear SKU when company code is cleared
+        onChange("confirmSupplierItemCode", "");
       }
       return;
     }
@@ -58,7 +58,7 @@ const CompanyCodeGroup = ({
 
     if (companyCode?.codeName) {
       // Get the current code and extract everything after the first space
-      const currentCode = product?.confirmSupplierItemCode || "";
+      const currentCode = product?.confirmSupplierItemCode || productStore.productForm.confirmSupplierItemCode || "";
       const codeAfterSpace = currentCode.includes(" ")
         ? currentCode.substring(currentCode.indexOf(" ") + 1)
         : "";
@@ -68,12 +68,13 @@ const CompanyCodeGroup = ({
         ? `${companyCode.codeName} ${codeAfterSpace}`
         : companyCode.codeName;
 
+      // Always update productStore
+      productStore.updateProductForm("companyCodeId", companyCodeId);
+      productStore.updateProductForm("confirmSupplierItemCode", newCode);
+      // If parent wants to sync, call onChange
       if (onChange) {
         onChange("companyCodeId", companyCodeId);
         onChange("confirmSupplierItemCode", newCode);
-      } else if (isCreateMode) {
-        productStore.updateProductForm("companyCodeId", companyCodeId);
-        // productStore.updateProductForm("confirmSupplierItemCode", newCode);
       }
     }
   };

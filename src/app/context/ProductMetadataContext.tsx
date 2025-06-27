@@ -77,7 +77,8 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         supplierTaxDtos: [],
         roleDtos: [],
         totalProducts: 0,
-        totalPricedProducts: 0
+        totalPricedProducts: 0,
+        supplierSizeCombinationDtos: []
       },
       loading: true,
       error: null,
@@ -109,6 +110,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       productStore.absoluteTotalPricedCount = metadata.totalPricedProducts;
       productStore.hasLoadedTotalProducts = true;
       productStore.hasLoadedTotalPricedProducts = true;
+      productStore.existingSupplierSizeCombinations = metadata.supplierSizeCombinationDtos;
     });
   };
 
@@ -134,7 +136,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       currentMetadata.waterAbsoroptionDtos = waterAbsorptionStore.productWaterAbsorptionList;
       currentMetadata.supplierTaxDtos = supplierTaxStore.productSupplierTaxList;
       currentMetadata.roleDtos = roleStore.roleList;
-      
+      currentMetadata.supplierSizeCombinationDtos = productStore.existingSupplierSizeCombinations;
       // Lưu lại vào localStorage
       OfflineStorage.saveMetadata(currentMetadata);
       

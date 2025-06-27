@@ -61,7 +61,7 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
           onChange={async (selectedOption) => {
             if (!selectedOption) {
               if (onChange) {
-                onChange("productFactoryId", product?.productFactoryId);
+                onChange("productFactoryId", null);
               } else if (isCreateMode) {
                 productStore.updateProductForm("productFactoryId", null);
               }
@@ -69,14 +69,12 @@ const FactoryGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
               return;
             }
 
-            if (isCreateMode) {
-              if (onChange) {
-                onChange("productFactoryId", selectedOption.value);
-              } else if (isCreateMode) {
-                productStore.updateProductForm("productFactoryId", selectedOption.value);
-              }
-              setSelectedFactory(selectedOption);
+            if (onChange) {
+              onChange("productFactoryId", selectedOption.value);
+            } else if (isCreateMode) {
+              productStore.updateProductForm("productFactoryId", selectedOption.value);
             }
+            setSelectedFactory(selectedOption);
           }}
           placeholder="Chọn nhà máy..."
           isClearable={true}

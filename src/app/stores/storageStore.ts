@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, computed, makeObservable, observable, runInAction } from "mobx";
 import agent from "../api/agent.ts";
 import { toast } from "react-toastify";
 import {
@@ -14,6 +14,11 @@ export default class StorageStore extends BaseStore {
   productStorageRegistry = new Map<number, ProductStorageDto>();
   loading = false;
   term: string = '';
+  tempList: ProductStorageDto[] = [];
+
+  get displayList() {
+    return this.term ? this.tempList : this.productStorageList;
+  }
 
   storageForm: AddStorageDto = {
     name: "",
@@ -28,6 +33,8 @@ export default class StorageStore extends BaseStore {
     makeObservable(this, {
       productStorageList: observable,
       productStorageRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       storageForm: observable,
@@ -60,7 +67,16 @@ export default class StorageStore extends BaseStore {
   }
 
   searchStorage = async () => {
-    await this.loadStorages(this.term ?? undefined);
+    await this.loadStorages(this.term);
+  }
+
+  loadAllStorages = async () => {
+    await this.loadStorages();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadStorages = async (term?: string) => {
@@ -80,6 +96,7 @@ export default class StorageStore extends BaseStore {
       });
     } catch (error) {
       runInAction(() => {
+        this.loading = false;
         this.loading = false;
       });
       console.error("Failed to load storage", error);
@@ -108,7 +125,7 @@ export default class StorageStore extends BaseStore {
       const result = await agent.ProductStorage.addStorage(this.storageForm);
       if (result.success) {
         toast.success("Thêm kho thành công.");
-        this.loadStorages();
+        this.loadAllStorages(); // Reload toàn bộ list
         this.resetStorageForm();
         this.loading = false;
         const newItem: ProductStorageDto = {
@@ -137,7 +154,7 @@ export default class StorageStore extends BaseStore {
       const result = await agent.ProductStorage.updateStorage(id, this.storageFormUpdate);
       if (result.success) {
         toast.success("Cập nhật kho thành công.");
-        this.loadStorages();
+        this.loadAllStorages(); // Reload toàn bộ list
         this.resetStorageForm();
         this.loading = false;
         const updatedItem: ProductStorageDto = {
@@ -169,7 +186,7 @@ export default class StorageStore extends BaseStore {
       const result = await agent.ProductStorage.deleteStorage(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadStorages();
+        this.loadAllStorages(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

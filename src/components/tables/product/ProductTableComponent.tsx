@@ -265,14 +265,14 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       }
     },
     {
-      name: "Mã SKU",
-      selector: (row) => row.confirmSupplierItemCode,
+      name: "Mã của NCC",
+      selector: (row) => row.supplierItemCode,
       sortable: true,
       minWidth: "180px",
       wrap: false,
       cell: (row) => (
         <div className="w-full h-full flex items-center bg-blue-700 text-white py-2 pl-3">
-          {row.confirmSupplierItemCode}
+          {row.supplierItemCode}
         </div>
       ),
     },

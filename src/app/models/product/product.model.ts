@@ -22,6 +22,7 @@ export interface ProductDto {
   id: number;
   createdDate: string; // DateTime => string (ISO format)
   updatedAt: string;
+  supplierItemCode: string;
   confirmSupplierItemCode: string;
   confirmSupplierCode?: string;
   confirmProductCode: string;
@@ -389,6 +390,7 @@ export interface ProductMetadataDto {
   roleDtos: RoleDto[];
   totalProducts: number;
   totalPricedProducts: number;
+  supplierSizeCombinationDtos: SupplierSizeCombinationDto[];
 }
 
 export interface EditStrategyProductDto {

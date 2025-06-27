@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -12,17 +12,17 @@ import { ChromePicker } from "react-color";
 import { useApi } from "../../../hooks/useApi.ts";
 function ColorTable() {
   const { colorStore } = useStore();
-  const { productColorList, loading } = colorStore;
+  const { displayList, loading, loadAllColors } = colorStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadColors();
-  //   }
-  // }, [isOnline]);
+  useEffect(() => {
+    if (isOnline) {
+      loadAllColors();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await colorStore.addColor();
@@ -140,12 +140,12 @@ function ColorTable() {
           isOnline={isOnline}
         >
           <ColorTableComponent
-            data={productColorList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productColorList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, makeObservable, observable, runInAction, computed } from "mobx";
 import agent from "../api/agent.ts";
 import { toast } from "react-toastify";
 import {
@@ -12,8 +12,13 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class BodyColorStore extends BaseStore {
   productBodyColorList: ProductBodyColorDto[] = [];
   productBodyColorRegistry = new Map<number, ProductBodyColorDto>();
+  tempList: ProductBodyColorDto[] = [];
   loading = false;
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productBodyColorList;
+  }
 
   bodyColorForm: AddBodyColorDto = {
     name: "",
@@ -28,10 +33,12 @@ export default class BodyColorStore extends BaseStore {
     makeObservable(this, {
       productBodyColorList: observable,
       productBodyColorRegistry: observable,
+      tempList: observable,
       loading: observable,
       term: observable,
       bodyColorForm: observable,
       bodyColorFormUpdate: observable,
+      displayList: computed,
       setProductBodyColorList: action,
       setTerm: action,
       loadBodyColors: action,
@@ -57,11 +64,20 @@ export default class BodyColorStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadBodyColors(this.term);
+    // Không tự động gọi search nữa, chỉ lưu term
   }
 
   searchBodyColor = async () => {
-    await this.loadBodyColors(this.term ?? undefined);
+    await this.loadBodyColors(this.term);
+  }
+
+  loadAllBodyColors = async () => {
+    await this.loadBodyColors();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadBodyColors = async (term?: string) => {
@@ -69,15 +85,20 @@ export default class BodyColorStore extends BaseStore {
     try {
       const result = await agent.ProductBodyColor.bodyColorList(term);
       runInAction(() => {
-        this.productBodyColorList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productBodyColorList
+          this.productBodyColorList = result.data || [];
+          // Cập nhật registry
+          this.productBodyColorRegistry.clear();
+          this.productBodyColorList.forEach((bodyColor) => {
+            if (bodyColor.id != null)
+              this.productBodyColorRegistry.set(bodyColor.id, bodyColor);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productBodyColorRegistry.clear();
-        this.productBodyColorList.forEach((bodyColor) => {
-          if (bodyColor.id != null)
-            this.productBodyColorRegistry.set(bodyColor.id, bodyColor);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -108,7 +129,7 @@ export default class BodyColorStore extends BaseStore {
       );
       if (result.success) {
         toast.success("Thêm màu sắc thân gạch thành công.");
-        this.loadBodyColors();
+        this.loadAllBodyColors();
         this.resetBodyColorForm();
         const newItem: ProductBodyColorDto = {
           id: Date.now(),
@@ -136,7 +157,7 @@ export default class BodyColorStore extends BaseStore {
       const result = await agent.ProductBodyColor.updateBodyColor(id, this.bodyColorFormUpdate);
       if (result.success) {
         toast.success("Cập nhật màu sắc thân gạch thành công.");
-        this.loadBodyColors();
+        this.loadAllBodyColors();
         this.resetBodyColorForm();
         const newItem: ProductBodyColorDto = {
           id: Date.now(),
@@ -168,7 +189,7 @@ export default class BodyColorStore extends BaseStore {
       const result = await agent.ProductBodyColor.deleteBodyColor(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadBodyColors();
+        this.loadAllBodyColors();
         this.removeItemFromMetadata(id);
         this.loading = false;
         return true;

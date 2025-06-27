@@ -16,7 +16,7 @@ function SupplierTable() {
   const { supplierStore } = useStore();
   const { isOnline } = useApi();
   const {
-    productSupplierList,
+    displayList,
     loading,
     updateSupplierForm,
     addSupplier,
@@ -31,11 +31,17 @@ function SupplierTable() {
     useState<string>("");
   const [productSupplier, setProductSupplier] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadSuppliers();
-  //   }
-  // }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      supplierStore.clearSearch();
+      if (isOnline) {
+        supplierStore.loadAllSuppliers();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (customerClassification && areaValue.id) {
@@ -284,12 +290,12 @@ function SupplierTable() {
           isOnline={isOnline}
         >
           <SupplierTableComponent
-            data={productSupplierList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productSupplierList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

@@ -35,7 +35,6 @@ function ProductTable() {
     importProducts,
     loading,
     existingSupplierSizeCombinations, // Lấy danh sách combinations từ store
-    loadingCombinations,
   } = productStore;
 
   const { productSupplierList } = supplierStore;
@@ -67,9 +66,8 @@ function ProductTable() {
     if (
       !isOnline ||
       supplierStore.loading ||
-      sizeStore.loading ||
-      productStore.loadingCombinations
-    )
+      sizeStore.loading
+        )
       return;
 
     productStore.setFilters({
@@ -90,14 +88,7 @@ function ProductTable() {
     isOnline,
     supplierStore.loading,
     sizeStore.loading,
-    productStore.loadingCombinations,
   ]);
-
-  useEffect(() => {
-    if (isOnline && productStore.existingSupplierSizeCombinations.length === 0 && !productStore.loadingCombinations) {
-      productStore.loadExistingSupplierSizeCombinations();
-    }
-  }, [isOnline]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
@@ -378,7 +369,7 @@ function ProductTable() {
           {/* Size Column */}
           <div>
             <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Kích Thước</h2>
-            {sizeStore.loading || loadingCombinations ? ( // Hiển thị loading state
+            {sizeStore.loading ? ( // Hiển thị loading state
               <p>Đang tải kích thước...</p>
             ) : (
               <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">

@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed,  makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddSurfaceDto, ProductSurfaceDto, UpdateSurfaceDto } from '../models/product/productSurface.model.ts'
@@ -10,6 +10,11 @@ export default class SurfaceStore extends BaseStore {
   productSurfaceRegistry = new Map<number, ProductSurfaceDto>();
   loading = false;
   term: string = '';
+  tempList: ProductSurfaceDto[] = [];
+
+  get displayList() {
+    return this.term ? this.tempList : this.productSurfaceList;
+  }
 
   surfaceForm: AddSurfaceDto = {
     name: "",
@@ -26,6 +31,8 @@ export default class SurfaceStore extends BaseStore {
     makeObservable(this, {
       productSurfaceList: observable,
       productSurfaceRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       surfaceForm: observable,
@@ -65,7 +72,16 @@ export default class SurfaceStore extends BaseStore {
   }
 
   searchSurface = async () => {
-    await this.loadSurfaces(this.term ?? undefined);
+    await this.loadSurfaces(this.term);
+  }
+
+  loadAllSurfaces = async () => {
+    await this.loadSurfaces();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadSurfaces = async (term?: string) => {
@@ -73,7 +89,18 @@ export default class SurfaceStore extends BaseStore {
     try {
       const result = await agent.ProductSurface.surfaceList(term);
       runInAction(() => {
-        this.productSurfaceList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productSurfaceList
+          this.productSurfaceList = result.data || [];
+          // Cập nhật registry
+          this.productSurfaceRegistry.clear();
+          this.productSurfaceList.forEach(surface => {
+            if (surface.id != null) this.productSurfaceRegistry.set(surface.id, surface);
+          });
+        }
         this.loading = false;
 
         // Optionally: store surfaces in a Map
@@ -131,7 +158,7 @@ export default class SurfaceStore extends BaseStore {
       const result = await agent.ProductSurface.updateSurface(id, this.surfaceFormUpdate);
       if (result.success) {
         toast.success("Cập nhật bề mặt thành công.");
-        this.loadSurfaces();
+        this.loadAllSurfaces(); // Reload toàn bộ list
         this.resetSurfaceForm();
         this.loading = false;
         // Cập nhật item trong metadata với form data
@@ -165,7 +192,7 @@ export default class SurfaceStore extends BaseStore {
       const result = await agent.ProductSurface.deleteSurface(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadSurfaces();
+        this.loadAllSurfaces(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

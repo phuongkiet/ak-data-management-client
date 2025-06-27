@@ -11,8 +11,6 @@ import Alerts from '../../pages/UiElements/Alerts'
 import Badges from '../../pages/UiElements/Badges'
 import Avatars from '../../pages/UiElements/Avatars'
 import Buttons from '../../pages/UiElements/Buttons'
-import LineChart from '../../pages/Charts/LineChart'
-import BarChart from '../../pages/Charts/BarChart'
 import Calendar from '../../pages/Calendar'
 import ProductTable from '../../pages/Tables/product/ProductTable.tsx'
 import StrategyProductTable from '../../pages/Tables/product/StrategyProductTable.tsx'
@@ -42,6 +40,7 @@ import VerifyEmail from '../../pages/AuthPages/VerifyEmail.tsx'
 import StrategyProductDetail from '../../pages/StrategyProducts/StrategyProductDetail.tsx'
 import SupplierDetail from '../../pages/Suppliers/SupplierDetail.tsx'
 import CalculatedUnitTable from '../../pages/Tables/calculated-unit/CalculatedUnitTable.tsx'
+import Pricing from '../../pages/Products/Pricing.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -119,9 +118,7 @@ export const routes: RouteObject[] = [
       { path: 'images', element: <Images /> },
       { path: 'videos', element: <Videos /> },
 
-      // Charts
-      { path: 'line-chart', element: <LineChart /> },
-      { path: 'bar-chart', element: <BarChart /> },
+      { path: 'pricing', element: <Pricing /> },
 
       // Protected route
       {

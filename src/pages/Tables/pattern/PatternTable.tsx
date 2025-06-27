@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -13,18 +13,30 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function PatternTable() {
   const { patternStore } = useStore();
-  const { productPatternList, loading } = patternStore;
+  const { displayList, loading, loadAllPatterns } = patternStore;
   const { isOnline } = useApi();
   // Add modal state and handlers
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadPatterns();
-  //   }
-  // }, [isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      loadAllPatterns();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      patternStore.clearSearch();
+      if (isOnline) {
+        patternStore.loadAllPatterns();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     const result = await patternStore.addPattern();
@@ -143,12 +155,12 @@ function PatternTable() {
           isOnline={isOnline}
         >
           <PatternTableComponent
-            data={productPatternList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productPatternList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

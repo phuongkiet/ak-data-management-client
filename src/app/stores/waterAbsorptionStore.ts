@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddWaterAbsorptionDto, ProductWaterAbsorptionDto, UpdateWaterAbsorptionDto } from '../models/product/productWaterAbsorption.model.ts'
@@ -10,6 +10,11 @@ export default class WaterAbsorptionStore extends BaseStore {
   productWaterAbsorptionRegistry = new Map<number, ProductWaterAbsorptionDto>();
   loading = false;
   term: string = '';
+  tempList: ProductWaterAbsorptionDto[] = [];
+
+  get displayList() {
+    return this.term ? this.tempList : this.productWaterAbsorptionList;
+  }
 
   waterAbsorptionForm: AddWaterAbsorptionDto = {
     waterAbsoprtionLevel: ""
@@ -26,12 +31,16 @@ export default class WaterAbsorptionStore extends BaseStore {
       productWaterAbsorptionRegistry: observable,
       loading: observable,
       term: observable,
+      tempList: observable,
+      displayList: computed,
       waterAbsorptionForm: observable,
       waterAbsorptionFormUpdate: observable,
       setProductWaterAbsorptionList: action,
       setTerm: action,
       searchWaterAbsorption: action,
       loadWaterAbsorption: action,
+      loadAllWaterAbsorption: action,
+      clearSearch: action,
       resetWaterAbsorptionForm: action,
       updateWaterAbsorptionForm: action,
       addWaterAbsorption: action,
@@ -50,6 +59,146 @@ export default class WaterAbsorptionStore extends BaseStore {
     });
     // Update metadata in localStorage
     this.updateMetadataInLocalStorage(list);
+  }
+
+  setTerm = (term: string) => {
+    this.term = term;
+  }
+
+  searchWaterAbsorption = async () => {
+    await this.loadWaterAbsorption(this.term);
+  }
+
+  loadAllWaterAbsorption = async () => {
+    await this.loadWaterAbsorption();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
+  }
+
+  loadWaterAbsorption = async (term?: string) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.waterAbsorptionList(term);
+      runInAction(() => {
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productWaterAbsorptionList
+          this.productWaterAbsorptionList = result.data || [];
+          // Cập nhật registry
+          this.productWaterAbsorptionRegistry.clear();
+          this.productWaterAbsorptionList.forEach(waterAbsorption => {
+            if (waterAbsorption.id != null) this.productWaterAbsorptionRegistry.set(waterAbsorption.id, waterAbsorption);
+          });
+        }
+        this.loading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Failed to load water absorption", error);
+      toast.error("Lỗi khi tải dữ liệu độ hút nước.")
+    }
+  };
+
+  updateWaterAbsorptionForm = <K extends keyof AddWaterAbsorptionDto>(field: K, value: AddWaterAbsorptionDto[K]) => {
+    runInAction(() => {
+      this.waterAbsorptionForm[field] = value;
+    });
+  }
+
+  resetWaterAbsorptionForm = () => {
+    this.waterAbsorptionForm = {
+      waterAbsoprtionLevel: ""
+    };
+  }
+
+  addWaterAbsorption = async () => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.addWaterAbsorption(this.waterAbsorptionForm);
+      if (result.success) {
+        toast.success("Thêm độ hút nước thành công.");
+        this.loadAllWaterAbsorption(); // Reload toàn bộ list
+        this.resetWaterAbsorptionForm();
+        this.loading = false;
+        const newItem: ProductWaterAbsorptionDto = {
+          id: Date.now(),
+          waterAbsoprtionLevel: this.waterAbsorptionForm.waterAbsoprtionLevel
+        };
+        this.addItemToMetadata(newItem);
+        return true;
+      } else {
+        toast.error("Lỗi khi thêm độ hút nước.");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+      console.error("Failed to add water absorption", error);
+      toast.error("Lỗi khi thêm độ hút nước.");
+    }
+  }
+
+  updateWaterAbsorption = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.updateWaterAbsorption(id, this.waterAbsorptionFormUpdate);
+      if (result.success) {
+        toast.success("Cập nhật độ hút nước thành công.");
+        this.loadAllWaterAbsorption(); // Reload toàn bộ list
+        this.resetWaterAbsorptionForm();
+        this.loading = false;
+        const updatedItem: ProductWaterAbsorptionDto = {
+          id: id,
+          waterAbsoprtionLevel: this.waterAbsorptionFormUpdate.waterAbsoprtionLevel
+        };
+        this.addItemToMetadata(updatedItem);
+        return true;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
+
+  updateWaterAbsorptionFormUpdate = <K extends keyof UpdateWaterAbsorptionDto>(field: K, value: UpdateWaterAbsorptionDto[K]) => {
+    runInAction(() => {
+      this.waterAbsorptionFormUpdate = {
+        ...this.waterAbsorptionFormUpdate,
+        [field]: value
+      };
+    });
+  }
+
+  deleteWaterAbsorption = async (id: number) => {
+    this.loading = true;
+    try {
+      const result = await agent.ProductWaterAbsorption.deleteWaterAbsorption(id);
+      if (result.success) {
+        toast.success("Xóa độ hút nước thành công.");
+        this.loadAllWaterAbsorption(); // Reload toàn bộ list
+        this.loading = false;
+        this.removeItemFromMetadata(id);
+        return true;
+      } else {
+        toast.error("Lỗi khi xóa độ hút nước.");
+        this.loading = false;
+        return false;
+      }
+    } catch (error) {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
   }
 
   // Method để cập nhật metadata trong localStorage
@@ -90,146 +239,6 @@ export default class WaterAbsorptionStore extends BaseStore {
         item => item.id !== id
       );
       OfflineStorage.saveMetadata(currentMetadata);
-    }
-  }
-
-  setTerm = (term: string) => {
-    this.term = term;
-    // Không tự động gọi search nữa, chỉ lưu term
-  }
-
-  // Method riêng để thực hiện search khi bấm nút tìm kiếm
-  searchWaterAbsorption = async () => {
-    await this.loadWaterAbsorption(this.term);
-  }
-
-  loadWaterAbsorption = async (term?: string) => {
-    this.loading = true;
-    try {
-      const result = await agent.ProductWaterAbsorption.waterAbsorptionList(term);
-      runInAction(() => {
-        this.productWaterAbsorptionList = result.data || [];
-        this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productWaterAbsorptionRegistry.clear();
-        this.productWaterAbsorptionList.forEach(waterAbsorption => {
-          if (waterAbsorption.id != null) this.productWaterAbsorptionRegistry.set(waterAbsorption.id, waterAbsorption);
-        });
-
-        // Update metadata in localStorage
-        this.updateMetadataInLocalStorage(this.productWaterAbsorptionList);
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
-      console.error("Failed to load water absorption", error);
-      toast.error("Lỗi khi tải dữ liệu độ hút nước.")
-    }
-  };
-
-  updateWaterAbsorptionForm = <K extends keyof AddWaterAbsorptionDto>(field: K, value: AddWaterAbsorptionDto[K]) => {
-    runInAction(() => {
-      this.waterAbsorptionForm[field] = value;
-    });
-  }
-
-  resetWaterAbsorptionForm = () => {
-    this.waterAbsorptionForm = {
-      waterAbsoprtionLevel: ""
-    };
-  }
-
-  addWaterAbsorption = async () => {
-    this.loading = true;
-    try {
-      const result = await agent.ProductWaterAbsorption.addWaterAbsorption(this.waterAbsorptionForm);
-      if (result.success) {
-        toast.success("Thêm độ hút nước thành công.");
-        
-        // Tạo item mới từ form data và thêm vào metadata
-        const newItem: ProductWaterAbsorptionDto = {
-          id: Date.now(), // Temporary ID, sẽ được cập nhật khi reload
-          waterAbsoprtionLevel: this.waterAbsorptionForm.waterAbsoprtionLevel
-        };
-        this.addItemToMetadata(newItem);
-        
-        // Reload data để lấy ID thực từ server
-        await this.loadWaterAbsorption();
-        this.resetWaterAbsorptionForm();
-        this.loading = false;
-        return true;
-      } else {
-        toast.error("Lỗi khi thêm độ hút nước.");
-        this.loading = false;
-        return false;
-      }
-    } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
-    }
-  }
-
-  updateWaterAbsorption = async (id: number) => {
-    this.loading = true;
-    try {
-      const result = await agent.ProductWaterAbsorption.updateWaterAbsorption(id, this.waterAbsorptionFormUpdate);
-      if (result.success) {
-        toast.success("Cập nhật độ hút nước thành công.");
-        
-        // Cập nhật item trong metadata với form data
-        const updatedItem: ProductWaterAbsorptionDto = {
-          id: id,
-          waterAbsoprtionLevel: this.waterAbsorptionFormUpdate.waterAbsoprtionLevel
-        };
-        this.addItemToMetadata(updatedItem);
-        
-        // Reload data để đảm bảo đồng bộ
-        await this.loadWaterAbsorption();
-        this.resetWaterAbsorptionForm();
-        this.loading = false;
-        return true;
-      }
-    } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
-    }
-  }
-
-  updateWaterAbsorptionFormUpdate = <K extends keyof UpdateWaterAbsorptionDto>(field: K, value: UpdateWaterAbsorptionDto[K]) => {
-    runInAction(() => {
-      this.waterAbsorptionFormUpdate = {
-        ...this.waterAbsorptionFormUpdate,
-        [field]: value
-      };
-    });
-  }
-
-  deleteWaterAbsorption = async (id: number) => {
-    this.loading = true;
-    try {
-      const result = await agent.ProductWaterAbsorption.deleteWaterAbsorption(id);
-      if (result.success) {
-        toast.success("Xóa độ hút nước thành công.");
-        
-        // Xóa item khỏi metadata
-        this.removeItemFromMetadata(id);
-        
-        this.loadWaterAbsorption();
-        this.loading = false;
-        return true;
-      } else {
-        toast.error("Lỗi khi xóa độ hút nước.");
-        this.loading = false;
-        return false;
-      }
-    } catch (error) {
-      runInAction(() => {
-        this.loading = false;
-      });
     }
   }
 }

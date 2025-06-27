@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -12,17 +12,29 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function BodyColorTable() {
   const { bodyColorStore } = useStore();
-  const { productBodyColorList, loading } = bodyColorStore;
+  const { displayList, loading, loadAllBodyColors } = bodyColorStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadBodyColors();
-  //   }
-  // }, [isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      loadAllBodyColors();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      bodyColorStore.clearSearch();
+      if (isOnline) {
+        bodyColorStore.loadAllBodyColors();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     const result = await bodyColorStore.addBodyColor();
@@ -118,12 +130,12 @@ function BodyColorTable() {
           isOnline={isOnline}
         >
           <BodyColorTableComponent
-            data={productBodyColorList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productBodyColorList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

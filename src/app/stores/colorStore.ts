@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction, computed } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddColorDto, ProductColorDto, UpdateColorDto } from '../models/product/productColor.model.ts'
@@ -8,8 +8,13 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class ColorStore extends BaseStore {
   productColorList: ProductColorDto[] = [];
   productColorRegistry = new Map<number, ProductColorDto>();
+  tempList: ProductColorDto[] = [];
   loading = false;
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productColorList;
+  }
 
   colorForm: AddColorDto = {
     name: "",
@@ -26,6 +31,8 @@ export default class ColorStore extends BaseStore {
     makeObservable(this, {
       productColorList: observable,
       productColorRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       colorForm: observable,
@@ -54,11 +61,20 @@ export default class ColorStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadColors(this.term);
+    // Không tự động gọi search nữa, chỉ lưu term
   }
 
   searchColor = async () => {
     await this.loadColors(this.term ?? undefined);
+  }
+
+  loadAllColors = async () => {
+    await this.loadColors();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   resetColorForm = () => {
@@ -73,14 +89,20 @@ export default class ColorStore extends BaseStore {
     try {
       const result = await agent.ProductColor.colorList(term);
       runInAction(() => {
-        this.productColorList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productColorList
+          this.productColorList = result.data || [];
+          // Cập nhật registry
+          this.productColorRegistry.clear();
+          this.productColorList.forEach((color) => {
+            if (color.id != null)
+              this.productColorRegistry.set(color.id, color);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productColorRegistry.clear();
-        this.productColorList.forEach(color => {
-          if (color.id != null) this.productColorRegistry.set(color.id, color);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -103,7 +125,7 @@ export default class ColorStore extends BaseStore {
       const result = await agent.ProductColor.addColor(this.colorForm);
       if (result.success) {
         toast.success("Thêm màu sắc thành công.");
-        this.loadColors();
+        this.loadAllColors();
         this.resetColorForm();
         const newItem: ProductColorDto = {
           id: Date.now(),
@@ -132,7 +154,7 @@ export default class ColorStore extends BaseStore {
       const result = await agent.ProductColor.updateColor(id, this.colorFormUpdate);
       if (result.success) {
         toast.success("Cập nhật màu sắc thành công.");
-        this.loadColors();
+        this.loadAllColors();
         this.resetColorForm();
         const updatedItem: ProductColorDto = {
           id: id,
@@ -165,7 +187,7 @@ export default class ColorStore extends BaseStore {
       const result = await agent.ProductColor.deleteColor(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadColors();
+        this.loadAllColors();
         this.removeItemFromMetadata(id);
         this.loading = false;
         return true;

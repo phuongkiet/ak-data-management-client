@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -12,17 +12,29 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function OriginTable() {
   const { originStore } = useStore();
-  const { productOriginList, loading } = originStore;
+  const { displayList, loading, loadAllOrigins } = originStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadOrigins();
-  //   }
-  // }, [isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      loadAllOrigins();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      originStore.clearSearch();
+      if (isOnline) {
+        originStore.loadAllOrigins();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     const result = await originStore.addOrigin();
@@ -128,12 +140,12 @@ function OriginTable() {
           isOnline={isOnline}
         >
           <OriginTableComponent
-            data={productOriginList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productOriginList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

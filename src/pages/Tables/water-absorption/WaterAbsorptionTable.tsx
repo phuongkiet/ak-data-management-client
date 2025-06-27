@@ -23,7 +23,7 @@ const operatorOptions = [
 function WaterAbsorptionTable() {
   const { theme } = useTheme();
   const { waterAbsorptionStore } = useStore();
-  const { productWaterAbsorptionList, loading } =
+  const { displayList, loading, loadAllWaterAbsorption } =
     waterAbsorptionStore; 
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,11 +34,22 @@ function WaterAbsorptionTable() {
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadWaterAbsorption();
-  //   }
-  // }, [isOnline]);
+  useEffect(() => {
+    if (isOnline) {
+      loadAllWaterAbsorption();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      waterAbsorptionStore.clearSearch();
+      if (isOnline) {
+        waterAbsorptionStore.loadAllWaterAbsorption();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (operator && level) {
@@ -207,12 +218,12 @@ function WaterAbsorptionTable() {
           isOnline={isOnline}
         >
           <WaterAbsorptionTableComponent
-            data={productWaterAbsorptionList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productWaterAbsorptionList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

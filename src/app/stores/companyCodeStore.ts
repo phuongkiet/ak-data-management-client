@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction, computed } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddCompanyCodeDto, CompanyCodeDto, UpdateCompanyCodeDto } from '../models/product/companyCode.model.ts'
@@ -8,8 +8,13 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class CompanyCodeStore extends BaseStore {
   productCompanyCodeList: CompanyCodeDto[] = [];
   productCompanyCodeRegistry = new Map<number, CompanyCodeDto>();
+  tempList: CompanyCodeDto[] = [];
   loading = false;
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productCompanyCodeList;
+  }
 
   companyCodeForm: AddCompanyCodeDto = {
     codeName: "",
@@ -24,6 +29,8 @@ export default class CompanyCodeStore extends BaseStore {
     makeObservable(this, {
       productCompanyCodeList: observable,
       productCompanyCodeRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       companyCodeForm: observable,
@@ -52,11 +59,20 @@ export default class CompanyCodeStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadCompanyCodes(this.term);
+    // Không tự động gọi search nữa, chỉ lưu term
   }
 
   searchCompanyCode = async () => {
     await this.loadCompanyCodes(this.term ?? undefined);
+  }
+
+  loadAllCompanyCodes = async () => {
+    await this.loadCompanyCodes();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadCompanyCodes = async (term?: string) => {
@@ -64,14 +80,19 @@ export default class CompanyCodeStore extends BaseStore {
     try {
       const result = await agent.CompanyCode.companyCodeList(term);
       runInAction(() => {
-        this.productCompanyCodeList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productCompanyCodeList
+          this.productCompanyCodeList = result.data || [];
+          // Cập nhật registry
+          this.productCompanyCodeRegistry.clear();
+          this.productCompanyCodeList.forEach((companyCode) => {
+            if (companyCode.id != null) this.productCompanyCodeRegistry.set(companyCode.id, companyCode);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productCompanyCodeRegistry.clear();
-        this.productCompanyCodeList.forEach(companyCode => {
-          if (companyCode.id != null) this.productCompanyCodeRegistry.set(companyCode.id, companyCode);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -100,7 +121,7 @@ export default class CompanyCodeStore extends BaseStore {
       const result = await agent.CompanyCode.addCompanyCode(this.companyCodeForm);
       if (result.success) {
         toast.success("Thêm mã công ty thành công.")
-        this.loadCompanyCodes();
+        this.loadAllCompanyCodes();
         const newItem: CompanyCodeDto = {
           id: Date.now(),
           codeName: this.companyCodeForm.codeName,
@@ -129,7 +150,7 @@ export default class CompanyCodeStore extends BaseStore {
       const result = await agent.CompanyCode.updateCompanyCode(id, this.companyCodeFormUpdate);
       if (result.success) {
         toast.success("Cập nhật mã công ty thành công.");
-        this.loadCompanyCodes();
+        this.loadAllCompanyCodes();
         const updatedItem: CompanyCodeDto = {
           id: id,
           codeName: this.companyCodeFormUpdate.codeName,
@@ -161,7 +182,7 @@ export default class CompanyCodeStore extends BaseStore {
       const result = await agent.CompanyCode.deleteCompanyCode(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadCompanyCodes();
+        this.loadAllCompanyCodes();
         this.removeItemFromMetadata(id);
         this.loading = false;
         return true;

@@ -1,4 +1,4 @@
-import { makeObservable, observable, action, runInAction } from 'mobx'
+import { makeObservable, observable, action, runInAction, computed } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddMaterialDto, ProductMaterialDto, UpdateMaterialDto } from '../models/product/productMaterial.model.ts'
@@ -8,6 +8,7 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class MaterialStore extends BaseStore {
   productMaterialList: ProductMaterialDto[] = [];
   productMaterialRegistry = new Map<number, ProductMaterialDto>();
+  tempList: ProductMaterialDto[] = []; // Thêm temp list cho search
   loading = false;
   term: string = '';
 
@@ -21,15 +22,22 @@ export default class MaterialStore extends BaseStore {
     description: null
   };
 
+  // Getter để trả về list phù hợp
+  get displayList() {
+    return this.term ? this.tempList : this.productMaterialList;
+  }
+
   constructor() {
     super();
     makeObservable(this, {
       productMaterialList: observable,
       productMaterialRegistry: observable,
+      tempList: observable,
       loading: observable,
       term: observable,
       materialForm: observable,
       materialFormUpdate: observable,
+      displayList: computed,
       setProductMaterialList: action,
       setTerm: action,
       loadMaterials: action,
@@ -55,10 +63,20 @@ export default class MaterialStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
+    // Không tự động gọi search nữa, chỉ lưu term
   }
 
   searchMaterial = async () => {
-    await this.loadMaterials(this.term ?? undefined);
+    await this.loadMaterials(this.term);
+  }
+
+  loadAllMaterials = async () => {
+    await this.loadMaterials();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadMaterials = async (term?: string) => {
@@ -70,14 +88,19 @@ export default class MaterialStore extends BaseStore {
       try {
         const result = await agent.ProductMaterial.materialList(term);
         runInAction(() => {
-          this.productMaterialList = result.data || [];
+          if (term) {
+            // Nếu có term (search), lưu vào tempList
+            this.tempList = result.data || [];
+          } else {
+            // Nếu không có term, load toàn bộ vào productMaterialList
+            this.productMaterialList = result.data || [];
+            // Cập nhật registry
+            this.productMaterialRegistry.clear();
+            this.productMaterialList.forEach(material => {
+              if (material.id != null) this.productMaterialRegistry.set(material.id, material);
+            });
+          }
           this.loading = false;
-
-          // Optionally: store suppliers in a Map
-          this.productMaterialRegistry.clear();
-          this.productMaterialList.forEach(supplier => {
-            if (supplier.id != null) this.productMaterialRegistry.set(supplier.id, supplier);
-          });
         });
       } catch (error: any) {
         if (error.response?.status === 503 && retryCount < maxRetries) {
@@ -117,7 +140,7 @@ export default class MaterialStore extends BaseStore {
       const result = await agent.ProductMaterial.addMaterial(this.materialForm);
       if (result.success) {
         toast.success("Thêm chất liệu thành công.");
-        this.loadMaterials();
+        this.loadAllMaterials(); // Reload toàn bộ list
         this.resetMaterialForm();
         this.loading = false;
         const newItem: ProductMaterialDto = {
@@ -142,7 +165,7 @@ export default class MaterialStore extends BaseStore {
       const result = await agent.ProductMaterial.updateMaterial(id, this.materialFormUpdate);
       if (result.success) {
         toast.success("Cập nhật chất liệu thành công.");
-        this.loadMaterials();
+        this.loadAllMaterials(); // Reload toàn bộ list
         this.resetMaterialForm();
         this.loading = false;
         const updatedItem: ProductMaterialDto = {
@@ -175,7 +198,7 @@ export default class MaterialStore extends BaseStore {
       const result = await agent.ProductMaterial.deleteMaterial(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadMaterials();
+        this.loadAllMaterials(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

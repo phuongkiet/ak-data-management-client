@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddProcessingDto, ProductProcessingDto, UpdateProcessingDto } from '../models/product/productProcessing.model.ts'
@@ -9,7 +9,12 @@ export default class ProcessingStore extends BaseStore {
   productProcessingList: ProductProcessingDto[] = [];
   productProcessingRegistry = new Map<number, ProductProcessingDto>();
   loading = false;
+  tempList: ProductProcessingDto[] = [];
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productProcessingList;
+  }
 
   processingForm: AddProcessingDto = {
     processingCode: "",
@@ -30,6 +35,8 @@ export default class ProcessingStore extends BaseStore {
       term: observable,
       processingForm: observable,
       processingFormUpdate: observable,
+      tempList: observable,
+      displayList: computed,
       setProductProcessingList: action,
       setTerm: action,
       loadProcessings: action,
@@ -58,7 +65,16 @@ export default class ProcessingStore extends BaseStore {
   }
 
   searchProcessing = async () => {
-    await this.loadProcessings(this.term ?? undefined);
+    await this.loadProcessings(this.term);
+  }
+
+  loadAllProcessings = async () => {
+    await this.loadProcessings();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadProcessings = async (term?: string) => {
@@ -66,14 +82,18 @@ export default class ProcessingStore extends BaseStore {
     try {
       const result = await agent.ProductProcessing.processingList(term);
       runInAction(() => {
-        this.productProcessingList = result.data || [];
-        this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productProcessingRegistry.clear();
-        this.productProcessingList.forEach(processing => {
-          if (processing.id != null) this.productProcessingRegistry.set(processing.id, processing);
-        });
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productProcessingList
+          this.productProcessingList = result.data || [];
+          // Cập nhật registry
+          this.productProcessingRegistry.clear();
+          this.productProcessingList.forEach(processing => {
+            if (processing.id != null) this.productProcessingRegistry.set(processing.id, processing);
+          });
+        }
       });
     } catch (error) {
       runInAction(() => {
@@ -103,7 +123,7 @@ export default class ProcessingStore extends BaseStore {
       const result = await agent.ProductProcessing.addProcessing(this.processingForm);
       if (result.success) {
         toast.success("Thêm gia công khác thành công.")
-        this.loadProcessings();
+        this.loadAllProcessings(); // Reload toàn bộ list
         this.resetProcessingForm();
         this.loading = false;
         const newItem: ProductProcessingDto = {
@@ -133,7 +153,7 @@ export default class ProcessingStore extends BaseStore {
       const result = await agent.ProductProcessing.updateProcessing(id, this.processingFormUpdate);
       if (result.success) {
         toast.success("Cập nhật gia công khác thành công.");
-        this.loadProcessings();
+        this.loadAllProcessings(); // Reload toàn bộ list
         this.resetProcessingForm();
         this.loading = false;
         const updatedItem: ProductProcessingDto = {

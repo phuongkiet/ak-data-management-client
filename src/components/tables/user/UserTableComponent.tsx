@@ -47,6 +47,7 @@ const UserTableComponent = ({ data }: UserTableComponentProps) => {
   };
 
   const handleUpdateUser = async (user: UserDto) => {
+    console.log(user);  
     const result = await userStore.updateUser(user.email, {
       birthday: user.birthday,
       name: user.name,

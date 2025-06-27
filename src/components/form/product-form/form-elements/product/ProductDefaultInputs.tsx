@@ -50,6 +50,7 @@ const ProductDefaultInputs = ({
   const { productBodyColorList } = bodyColorStore;
   const { productMaterialList } = materialStore;
   const { productSurfaceList } = surfaceStore;
+  const { getNextOrderNumberAuto } = productStore;
 
   const [confirmSupplierItemCode, setConfirmSupplierItemCode] = useState<
     string | undefined
@@ -372,6 +373,156 @@ const ProductDefaultInputs = ({
       onChange("weightPerBox", newWeightPerBox);
     }
   };
+
+  useEffect(() => {
+    if (!isCreateMode && product?.supplierId) {
+      // Khi supplierId thay đổi ở chế độ update
+      const fetchAndUpdate = async () => {
+        await getNextOrderNumberAuto();
+        // Lấy lại productOrderNumber mới nhất từ store
+        const newOrderNumber = productStore.productForm.productOrderNumber;
+        if (onChange) {
+          onChange("productOrderNumber", newOrderNumber);
+        }
+        
+        // Cập nhật productCode và autoBarCode
+        if (product?.supplierId && newOrderNumber) {
+          const supplier = productSupplierList.find(
+            (x) => x.id === product.supplierId
+          );
+          const pattern = productPatternList.find(
+            (x) => x.id === product.brickPatternId
+          );
+
+          if (supplier?.supplierShortCode) {
+            // Cập nhật productCode
+            const newProductCode = `${supplier.supplierShortCode}.${newOrderNumber}`;
+            if (onChange) {
+              onChange("productCode", newProductCode);
+            }
+
+            // Cập nhật autoBarCode
+            const patternCode = pattern?.shortCode || "";
+            const newBarCode = `${supplier.supplierShortCode}.${newOrderNumber}${patternCode}`;
+            if (onChange) {
+              onChange("autoBarCode", newBarCode);
+            }
+          }
+        }
+        
+        // Cập nhật lại displayWebsiteName cho chế độ update
+        if (
+          productStore.productForm.autoBarCode &&
+          product?.supplierId &&
+          product?.brickPatternId &&
+          product?.actualSizeId &&
+          product?.colorId &&
+          product?.brickBodyId &&
+          product?.materialId &&
+          product?.surfaceFeatureId
+        ) {
+          const pattern = productPatternList.find(
+            (x) => x.id === product.brickPatternId
+          );
+
+          const size = productSizeList.find(
+            (x) => x.id === product.actualSizeId
+          );
+
+          const actualSize = size
+            ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
+            : "";
+
+          const color = productColorList.find(
+            (x) => x.id === product.colorId
+          );
+
+          const bodyColor = productBodyColorList.find(
+            (x) => x.id === product.brickBodyId
+          );
+
+          const material = productMaterialList.find(
+            (x) => x.id === product.materialId
+          );
+
+          const surfaceFeature = productSurfaceList.find(
+            (x) => x.id === product.surfaceFeatureId
+          );
+
+          if (pattern?.name) {
+            const newWebsiteProductName =
+              `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
+            
+            if (onChange) {
+              onChange("displayWebsiteName", newWebsiteProductName);
+            }
+          }
+        }
+      };
+      fetchAndUpdate();
+    }
+  }, [product?.supplierId]);
+
+  // Thêm useEffect để theo dõi thay đổi của các trường khác ở chế độ update
+  useEffect(() => {
+    if (!isCreateMode && onChange) {
+      // Cập nhật displayWebsiteName khi các trường thay đổi
+      if (
+        product?.autoBarCode &&
+        product?.supplierId &&
+        product?.brickPatternId &&
+        product?.actualSizeId &&
+        product?.colorId &&
+        product?.brickBodyId &&
+        product?.materialId &&
+        product?.surfaceFeatureId
+      ) {
+        const pattern = productPatternList.find(
+          (x) => x.id === product.brickPatternId
+        );
+
+        const size = productSizeList.find(
+          (x) => x.id === product.actualSizeId
+        );
+
+        const actualSize = size
+          ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
+          : "";
+
+        const color = productColorList.find(
+          (x) => x.id === product.colorId
+        );
+
+        const bodyColor = productBodyColorList.find(
+          (x) => x.id === product.brickBodyId
+        );
+
+        const material = productMaterialList.find(
+          (x) => x.id === product.materialId
+        );
+
+        const surfaceFeature = productSurfaceList.find(
+          (x) => x.id === product.surfaceFeatureId
+        );
+
+        if (pattern?.name) {
+          const newWebsiteProductName =
+            `${product.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
+          
+          onChange("displayWebsiteName", newWebsiteProductName);
+        }
+      }
+    }
+  }, [
+    product?.brickPatternId,
+    product?.actualSizeId,
+    product?.colorId,
+    product?.brickBodyId,
+    product?.materialId,
+    product?.surfaceFeatureId,
+    product?.autoBarCode,
+    isCreateMode
+  ]);
 
   return (
     <ComponentCard title="Thông tin mã hàng">

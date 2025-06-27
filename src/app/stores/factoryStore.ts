@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction, computed } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddFactoryDto, ProductFactoryDto, UpdateFactoryDto } from '../models/product/productFactory.model.ts';
@@ -8,8 +8,13 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class FactoryStore extends BaseStore {
   productFactoryList: ProductFactoryDto[] = [];
   productFactoryRegistry = new Map<number, ProductFactoryDto>();
+  tempList: ProductFactoryDto[] = [];
   loading = false;
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productFactoryList;
+  }
 
   factoryForm: AddFactoryDto = {
     name: '',
@@ -24,6 +29,8 @@ export default class FactoryStore extends BaseStore {
     makeObservable(this, {
       productFactoryList: observable,
       productFactoryRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       factoryForm: observable,
@@ -56,7 +63,16 @@ export default class FactoryStore extends BaseStore {
   }
 
   searchFactory = async () => {
-    await this.loadFactories(this.term ?? undefined);
+    await this.loadFactories(this.term);
+  }
+
+  loadAllFactories = async () => {
+    await this.loadFactories();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadFactories = async (term?: string) => {
@@ -64,14 +80,19 @@ export default class FactoryStore extends BaseStore {
     try {
       const result = await agent.ProductFactory.factoryList(term);
       runInAction(() => {
-        this.productFactoryList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productFactoryList
+          this.productFactoryList = result.data || [];
+          // Cập nhật registry
+          this.productFactoryRegistry.clear();
+          this.productFactoryList.forEach((factory) => {
+            if (factory.id != null) this.productFactoryRegistry.set(factory.id, factory);
+          });
+        }
         this.loading = false;
-
-        // Store factories in a Map
-        this.productFactoryRegistry.clear();
-        this.productFactoryList.forEach(factory => {
-          if (factory.id != null) this.productFactoryRegistry.set(factory.id, factory);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -153,7 +174,7 @@ export default class FactoryStore extends BaseStore {
       const result = await agent.ProductFactory.updateFactory(id, this.factoryFormUpdate);
       if (result.success) {
         toast.success("Cập nhật nhà máy thành công.");
-        this.loadFactories();
+        this.loadAllFactories();
         this.resetFactoryForm();
         this.loading = false;
         const updatedItem: ProductFactoryDto = {
@@ -185,7 +206,7 @@ export default class FactoryStore extends BaseStore {
       const result = await agent.ProductFactory.deleteFactory(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadFactories();
+        this.loadAllFactories();
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

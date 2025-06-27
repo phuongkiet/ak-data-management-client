@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddSizeDto, ProductSizeDto, UpdateSizeDto } from '../models/product/productSize.model.ts'
@@ -9,7 +9,12 @@ export default class SizeStore extends BaseStore {
   productSizeList: ProductSizeDto[] = [];
   productSizeRegistry = new Map<number, ProductSizeDto>();
   loading = false;
+  tempList: ProductSizeDto[] = [];
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productSizeList;
+  }
 
   sizeForm: AddSizeDto = {
     wide: 0,
@@ -30,6 +35,8 @@ export default class SizeStore extends BaseStore {
     makeObservable(this, {
       productSizeList: observable,
       productSizeRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       sizeForm: observable,
@@ -68,7 +75,16 @@ export default class SizeStore extends BaseStore {
   }
 
   searchSize = async () => {
-    await this.loadSizes(this.term ?? undefined);
+    await this.loadSizes(this.term);
+  }
+
+  loadAllSizes = async () => {
+    await this.loadSizes();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   loadSizes = async (term?: string) => {
@@ -76,14 +92,19 @@ export default class SizeStore extends BaseStore {
     try {
       const result = await agent.ProductSize.sizeList(term);
       runInAction(() => {
-        this.productSizeList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productSizeList
+          this.productSizeList = result.data || [];
+          // Cập nhật registry
+          this.productSizeRegistry.clear();
+          this.productSizeList.forEach(size => {
+            if (size.id != null) this.productSizeRegistry.set(size.id, size);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productSizeRegistry.clear();
-        this.productSizeList.forEach(size => {
-          if (size.id != null) this.productSizeRegistry.set(size.id, size);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -113,7 +134,7 @@ export default class SizeStore extends BaseStore {
       const result = await agent.ProductSize.addSize(this.sizeForm);
       if(result.success){
         toast.success("Thêm kích thước thành công.");
-        this.loadSizes();
+        this.loadAllSizes(); // Reload toàn bộ list
         this.resetSizeForm();
         this.loading = false;
         const newItem: ProductSizeDto = {
@@ -144,7 +165,7 @@ export default class SizeStore extends BaseStore {
       const result = await agent.ProductSize.updateSize(id, this.sizeFormUpdate);
       if (result.success) {
         toast.success("Cập nhật kích thước thành công.");
-        await this.loadSizes();
+        await this.loadAllSizes(); // Reload toàn bộ list
         this.resetSizeForm();
         this.loading = false;
         const updatedItem: ProductSizeDto = {
@@ -184,7 +205,7 @@ export default class SizeStore extends BaseStore {
       const result = await agent.ProductSize.deleteSize(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadSizes();
+        this.loadAllSizes(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;

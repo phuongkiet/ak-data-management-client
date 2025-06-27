@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -12,17 +12,17 @@ import ProductInputField from "../../../components/form/product-form/input/produ
 
 function CalculatedUnitTable() {
   const { calculatedUnitStore } = useStore();
-  const { productCalculatedUnitList, loading } = calculatedUnitStore;
+  const { displayList, loading, loadAllCalculatedUnits } = calculatedUnitStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadBodyColors();
-  //   }
-  // }, [isOnline]);
+  useEffect(() => {
+    if (isOnline) {
+      loadAllCalculatedUnits();
+    }
+  }, [isOnline]);
 
   const handleSubmit = async () => {
     const result = await calculatedUnitStore.addCalculatedUnit();
@@ -130,12 +130,12 @@ function CalculatedUnitTable() {
           isOnline={isOnline}
         >
           <CalculatedUnitTableComponent
-            data={productCalculatedUnitList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productCalculatedUnitList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

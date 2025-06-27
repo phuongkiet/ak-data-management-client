@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, makeObservable, observable, runInAction, computed } from "mobx";
 import agent from "../api/agent.ts";
 import { toast } from "react-toastify";
 import {
@@ -12,6 +12,7 @@ import { OfflineStorage } from "../services/offlineStorage.ts";
 export default class AntiSlipperyStore extends BaseStore {
   productAntiSlipperyList: ProductAntiSlipperyDto[] = [];
   productAntiSlipperyRegistry = new Map<number, ProductAntiSlipperyDto>();
+  tempList: ProductAntiSlipperyDto[] = [];
   loading = false;
   term: string = "";
 
@@ -30,10 +31,12 @@ export default class AntiSlipperyStore extends BaseStore {
     makeObservable(this, {
       productAntiSlipperyList: observable,
       productAntiSlipperyRegistry: observable,
+      tempList: observable,
       loading: observable,
       term: observable,
       antiSlipperyForm: observable,
       antiSlipperyFormUpdate: observable,
+      displayList: computed,
       setProductAntiSlipperyList: action,
       setTerm: action,
       loadAntiSlipperys: action,
@@ -59,11 +62,11 @@ export default class AntiSlipperyStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
-    this.loadAntiSlipperys(this.term);
+    // Không tự động gọi search nữa, chỉ lưu term
   };
 
   searchAntiSlippery = async () => {
-    await this.loadAntiSlipperys(this.term ?? undefined);
+    await this.loadAntiSlipperys(this.term);
   }
 
   loadAntiSlipperys = async (term?: string) => {
@@ -71,15 +74,20 @@ export default class AntiSlipperyStore extends BaseStore {
     try {
       const result = await agent.AntiSlippery.antiSlipperyList(term);
       runInAction(() => {
-        this.productAntiSlipperyList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productAntiSlipperyList
+          this.productAntiSlipperyList = result.data || [];
+          // Cập nhật registry
+          this.productAntiSlipperyRegistry.clear();
+          this.productAntiSlipperyList.forEach((antiSlippery) => {
+            if (antiSlippery.id != null)
+              this.productAntiSlipperyRegistry.set(antiSlippery.id, antiSlippery);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productAntiSlipperyRegistry.clear();
-        this.productAntiSlipperyList.forEach((antiSlippery) => {
-          if (antiSlippery.id != null)
-            this.productAntiSlipperyRegistry.set(antiSlippery.id, antiSlippery);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -89,6 +97,15 @@ export default class AntiSlipperyStore extends BaseStore {
       toast.error("Lỗi khi tải dữ liệu độ chống trươt.");
     }
   };
+
+  loadAllAntiSlipperys = async () => {
+    await this.loadAntiSlipperys();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
+  }
 
   updateAntiSlipperyForm = <K extends keyof AddAntiSlipperyDto>(
     field: K,
@@ -114,7 +131,7 @@ export default class AntiSlipperyStore extends BaseStore {
       );
       if (result.success) {
         toast.success("Thêm độ chống trươt thành công.");
-        this.loadAntiSlipperys();
+        this.loadAllAntiSlipperys(); // Reload toàn bộ list
         this.resetAntiSlipperyForm();
         this.loading = false;
         const newItem: ProductAntiSlipperyDto = {
@@ -145,7 +162,7 @@ export default class AntiSlipperyStore extends BaseStore {
       );
       if (result.success) {
         toast.success("Cập nhật độ chống trươt thành công.");
-        this.loadAntiSlipperys();
+        this.loadAllAntiSlipperys(); // Reload toàn bộ list
         this.resetAntiSlipperyForm();
         const updatedItem: ProductAntiSlipperyDto = {
           id: id,
@@ -181,7 +198,7 @@ export default class AntiSlipperyStore extends BaseStore {
       const result = await agent.AntiSlippery.deleteAntiSlippery(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadAntiSlipperys();
+        this.loadAllAntiSlipperys(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;
@@ -217,5 +234,9 @@ export default class AntiSlipperyStore extends BaseStore {
       currentMetadata.productAntiSlipperyDtos.push(newItem);
       OfflineStorage.saveMetadata(currentMetadata);
     }
+  }
+
+  get displayList() {
+    return this.term ? this.tempList : this.productAntiSlipperyList;
   }
 }

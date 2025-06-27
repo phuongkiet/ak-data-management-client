@@ -187,6 +187,7 @@ const SizeGroup = ({
             <Input
               type="number"
               placeholder="9mm"
+              step={0.1}
               value={isCreateMode ? thickness : product?.thicknessSize}
               onChange={handleThicknessChange}
               error={!!thicknessError}

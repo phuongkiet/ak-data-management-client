@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -13,17 +13,29 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function MaterialTable() {
   const { materialStore } = useStore();
-  const { productMaterialList, loading } = materialStore;
+  const { displayList, loading, loadAllMaterials } = materialStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadMaterials();
-  //   }
-  // }, [isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      loadAllMaterials();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      materialStore.clearSearch();
+      if (isOnline) {
+        materialStore.loadAllMaterials();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     const result = await materialStore.addMaterial();
@@ -129,12 +141,12 @@ function MaterialTable() {
           isOnline={isOnline}
         >
           <MaterialTableComponent
-            data={productMaterialList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productMaterialList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

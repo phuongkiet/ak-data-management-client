@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import {  useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -13,7 +13,7 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function AntiSlipperyTable() {
   const { antiSlipperyStore } = useStore();
-  const { productAntiSlipperyList, loading } =
+  const { displayList, loading, loadAllAntiSlipperys } =
     antiSlipperyStore;
   const { isOnline } = useApi();
 
@@ -21,11 +21,23 @@ function AntiSlipperyTable() {
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadAntiSlipperys();
-  //   }
-  // }, [isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      loadAllAntiSlipperys();
+    }
+  }, [isOnline]);
+
+  // Cleanup effect khi rời khỏi trang
+  useEffect(() => {
+    return () => {
+      // Reset search và load lại list đầy đủ khi rời khỏi trang
+      antiSlipperyStore.clearSearch();
+      if (isOnline) {
+        antiSlipperyStore.loadAllAntiSlipperys();
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     const result = await antiSlipperyStore.addAntiSlippery();
@@ -131,12 +143,12 @@ function AntiSlipperyTable() {
           isOnline={isOnline}
         >
           <AntiSlipperyTableComponent
-            data={productAntiSlipperyList}
+            data={displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productAntiSlipperyList.length}
+            totalCount={displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

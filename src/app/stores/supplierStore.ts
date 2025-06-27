@@ -4,7 +4,7 @@ import {
   UpdateSupplierForStrategyDto,
   SupplierDetailDto,
 } from "../models/product/productSupplier.model.ts";
-import { makeObservable, observable, action, runInAction } from "mobx";
+import { makeObservable, observable, action, runInAction, computed } from "mobx";
 import agent from "../api/agent.ts";
 import { toast } from "react-toastify";
 import { ProductAreaDto } from "../models/product/productArea.model.ts";
@@ -18,6 +18,7 @@ export default class SupplierStore extends BaseStore {
   loading = false;
   orderNumber = 0;
   term: string = "";
+  tempList: ProductSupplierDto[] = [];
   areaValue: ProductAreaDto = {
     id: 0,
     areaName: "",
@@ -35,11 +36,17 @@ export default class SupplierStore extends BaseStore {
   supplierFormDetail: UpdateSupplierForStrategyDto =
     {} as UpdateSupplierForStrategyDto;
 
+  get displayList() {
+    return this.term ? this.tempList : this.productSupplierList;
+  }
+
   constructor() {
     super();
     makeObservable(this, {
       productSupplierList: observable,
       productSupplierRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       orderNumber: observable,
       term: observable,
@@ -113,15 +120,35 @@ export default class SupplierStore extends BaseStore {
   }
 
   searchSupplier = async () => {
-    await this.loadSuppliers(this.term ?? undefined);
+    await this.loadSuppliers(this.term);
   };
+
+  loadAllSuppliers = async () => {
+    await this.loadSuppliers();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
+  }
 
   loadSuppliers = async (term?: string) => {
     this.loading = true;
     try {
       const result = await agent.ProductSupplier.supplierList(term);
       runInAction(() => {
-        this.setProductSupplierList(result.data || []);
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productSupplierList
+          this.productSupplierList = result.data || [];
+          // Cập nhật registry
+          this.productSupplierRegistry.clear();
+          this.productSupplierList.forEach(supplier => {
+            if (supplier.id != null) this.productSupplierRegistry.set(supplier.id, supplier);
+          });
+        }
         this.loading = false;
       });
     } catch (error) {
@@ -304,7 +331,7 @@ export default class SupplierStore extends BaseStore {
       if (response.data) {
         runInAction(() => {
           toast.success(response.data);
-          this.loadSuppliers();
+          this.loadAllSuppliers(); // Reload toàn bộ list
           this.resetSupplierForm();
           const updatedItem: ProductSupplierDto = {
             id: id,

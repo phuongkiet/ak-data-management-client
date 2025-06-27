@@ -1,4 +1,4 @@
-import { action, makeObservable, observable, runInAction } from 'mobx'
+import { action, makeObservable, observable, runInAction, computed } from 'mobx'
 import agent from '../api/agent.ts'
 import { toast } from 'react-toastify'
 import { AddOriginDto, ProductOriginDto, UpdateOriginDto } from '../models/product/productOrigin.model.ts'
@@ -8,8 +8,13 @@ import { OfflineStorage } from '../services/offlineStorage.ts'
 export default class OriginStore extends BaseStore {
   productOriginList: ProductOriginDto[] = [];
   productOriginRegistry = new Map<number, ProductOriginDto>();
+  tempList: ProductOriginDto[] = [];
   loading = false;
   term: string = '';
+
+  get displayList() {
+    return this.term ? this.tempList : this.productOriginList;
+  }
 
   originForm: AddOriginDto = {
     name: "",
@@ -26,6 +31,8 @@ export default class OriginStore extends BaseStore {
     makeObservable(this, {
       productOriginList: observable,
       productOriginRegistry: observable,
+      tempList: observable,
+      displayList: computed,
       loading: observable,
       term: observable,
       originForm: observable,
@@ -55,10 +62,20 @@ export default class OriginStore extends BaseStore {
 
   setTerm = (term: string) => {
     this.term = term;
+    // Không tự động gọi search nữa, chỉ lưu term
+  }
+
+  loadAllOrigins = async () => {
+    await this.loadOrigins();
+  }
+
+  clearSearch = () => {
+    this.term = "";
+    this.tempList = [];
   }
 
   searchOrigin = async () => {
-    await this.loadOrigins(this.term ?? undefined);
+    await this.loadOrigins(this.term);
   }
 
   loadOrigins = async (term?: string) => {
@@ -66,14 +83,19 @@ export default class OriginStore extends BaseStore {
     try {
       const result = await agent.ProductOrigin.originList(term);
       runInAction(() => {
-        this.productOriginList = result.data || [];
+        if (term) {
+          // Nếu có term (search), lưu vào tempList
+          this.tempList = result.data || [];
+        } else {
+          // Nếu không có term, load toàn bộ vào productOriginList
+          this.productOriginList = result.data || [];
+          // Cập nhật registry
+          this.productOriginRegistry.clear();
+          this.productOriginList.forEach(origin => {
+            if (origin.id != null) this.productOriginRegistry.set(origin.id, origin);
+          });
+        }
         this.loading = false;
-
-        // Optionally: store suppliers in a Map
-        this.productOriginRegistry.clear();
-        this.productOriginList.forEach(origin => {
-          if (origin.id != null) this.productOriginRegistry.set(origin.id, origin);
-        });
       });
     } catch (error) {
       runInAction(() => {
@@ -103,7 +125,7 @@ export default class OriginStore extends BaseStore {
       const result = await agent.ProductOrigin.addOrigin(this.originForm);
       if (result.success) {
         toast.success("Thêm xuất xứ thành công.");
-        this.loadOrigins();
+        this.loadAllOrigins(); // Reload toàn bộ list
         this.resetOriginForm();
         this.loading = false;
         const newItem: ProductOriginDto = {
@@ -132,7 +154,7 @@ export default class OriginStore extends BaseStore {
       const result = await agent.ProductOrigin.updateOrigin(id, this.originFormUpdate);
       if (result.success) {
         toast.success("Cập nhật xuất xứ thành công.");
-        this.loadOrigins();
+        this.loadAllOrigins(); // Reload toàn bộ list
         this.resetOriginForm();
         this.loading = false;
         const updatedItem: ProductOriginDto = {
@@ -165,7 +187,7 @@ export default class OriginStore extends BaseStore {
       const result = await agent.ProductOrigin.deleteOrigin(id);
       if (result.success) {
         toast.success(result.data);
-        this.loadOrigins();
+        this.loadAllOrigins(); // Reload toàn bộ list
         this.loading = false;
         this.removeItemFromMetadata(id);
         return true;
