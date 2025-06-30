@@ -38,6 +38,7 @@ export default class ProductStore {
   term: string | null = null;
   supplierId: number | null = null;
   sizeId: number | null = null;
+  reportTemplatePath: string | null = "https://docs.google.com/spreadsheets/d/1Wh_sasdQiKNeGO6xaxzcll7IzBJuv2E4/edit?gid=1423339376#gid=1423339376";
 
   productForm: AddProductDto = {} as AddProductDto;
   productDetail: ProductDetail = {} as ProductDetail;
@@ -745,5 +746,24 @@ export default class ProductStore {
       this.bulkEditDto[key as keyof typeof this.bulkEditDto] = null;
     });
   };
+
+  generateReport = async () => {
+    this.loading = true;
+    try {
+      const response = await agent.Product.generateReport();
+      if(response.success) {
+        toast.success(response.data);
+      } else {
+        toast.error(response.errors?.[0] || "Lỗi khi tạo báo cáo");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast.error("Lỗi khi tạo báo cáo");
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
+    }
+  }
 }
 

@@ -386,6 +386,9 @@ const Product = {
     formData.append("file", file);
     return requests.put<string>("/products/update-batch-product", formData);
   },
+
+  generateReport: (): Promise<ApiResponseModel<string>> =>
+    requests.get<string>(`/products/generate-report`),
 };
 
 const ProductSupplier = {

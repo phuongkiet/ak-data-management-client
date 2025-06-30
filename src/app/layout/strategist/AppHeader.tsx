@@ -4,6 +4,7 @@ import { useSidebar } from "../../context/SidebarContext.tsx";
 import { ThemeToggleButton } from "../../../components/common/ThemeToggleButton.tsx";
 import UserDropdown from "../../../components/header/UserDropdown.tsx";
 import { ProductMetadataReloadButton } from "../../../components/common/ProductMetadataReloadButton.tsx";
+import { ReportGenerationButton } from "../../../components/common/ReportGenerationButton.tsx";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -121,8 +122,9 @@ const AppHeader: React.FC = () => {
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
+            <ReportGenerationButton />  
             <ProductMetadataReloadButton />
-            <ThemeToggleButton />            
+            <ThemeToggleButton />
           </div>
           {/* <!-- User Area --> */}
           <UserDropdown />

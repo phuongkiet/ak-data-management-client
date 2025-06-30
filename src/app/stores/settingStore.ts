@@ -14,6 +14,8 @@ export default class SettingStore {
   settingForm: UpdateSettingDto = {
     emailToSend: "",
     emailToCC: [],
+    googleDriveFileId: "",
+    googleDriveStorageLinkId: ""
   };
 
   constructor() {
@@ -61,7 +63,9 @@ export default class SettingStore {
           this.setting = {
             ...this.setting,
             emailToSend: setting.emailToSend,
-            emailToCC: setting.emailToCC
+            emailToCC: setting.emailToCC,
+            googleDriveFileId: setting.googleDriveFileId,
+            googleDriveStorageLinkId: setting.googleDriveStorageLinkId
           };
         }
         toast.success("Cập nhật cài đặt thành công.");

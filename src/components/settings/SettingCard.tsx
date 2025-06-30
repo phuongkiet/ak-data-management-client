@@ -9,26 +9,30 @@ import Button from "../ui/button/Button.tsx";
 const SettingCard = () => {
   const { settingStore } = useStore();
   const { setting, updateSetting, loading } = settingStore;
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     emailToSend: "",
-    emailToCC: [] as string[]
+    emailToCC: [] as string[],
+    googleDriveFileId: "",
+    googleDriveStorageLinkId: "",
   });
 
   useEffect(() => {
     if (setting) {
       setFormData({
         emailToSend: setting.emailToSend || "",
-        emailToCC: setting.emailToCC || []
+        emailToCC: setting.emailToCC || [],
+        googleDriveFileId: setting.googleDriveFileId || "",
+        googleDriveStorageLinkId: setting.googleDriveStorageLinkId || "",
       });
     }
   }, [setting]);
 
   const handleInputChange = (field: string, value: string | string[]) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -45,7 +49,9 @@ const SettingCard = () => {
     if (setting) {
       setFormData({
         emailToSend: setting.emailToSend || "",
-        emailToCC: setting.emailToCC || []
+        emailToCC: setting.emailToCC || [],
+        googleDriveFileId: setting.googleDriveFileId || "",
+        googleDriveStorageLinkId: setting.googleDriveStorageLinkId || "",
       });
     }
     setIsEditing(false);
@@ -88,12 +94,14 @@ const SettingCard = () => {
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
-              <ProductLabel htmlFor="emailToSend">Email nhận</ProductLabel>
+              <ProductLabel htmlFor="emailToSend" className="font-bold text-lg">Email nhận</ProductLabel>
               {isEditing ? (
                 <Input
                   type="email"
                   value={formData.emailToSend}
-                  onChange={(e) => handleInputChange("emailToSend", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("emailToSend", e.target.value)
+                  }
                   placeholder="Nhập email gửi"
                 />
               ) : (
@@ -104,7 +112,7 @@ const SettingCard = () => {
             </div>
 
             <div>
-              <ProductLabel htmlFor="emailToCC">Email nhận CC</ProductLabel>
+              <ProductLabel htmlFor="emailToCC" className="font-bold text-lg">Email nhận CC</ProductLabel>
               {isEditing ? (
                 <TagInput
                   value={formData.emailToCC}
@@ -131,10 +139,44 @@ const SettingCard = () => {
               )}
             </div>
           </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32 mt-4">
+            <div>
+              <ProductLabel htmlFor="googleDriveFileId" className="font-bold text-lg">Google Drive File ID</ProductLabel>
+              {isEditing ? (
+                <Input
+                  type="text"
+                  value={formData.googleDriveFileId}
+                  onChange={(e) =>
+                    handleInputChange("googleDriveFileId", e.target.value)
+                  }
+                  placeholder="Nhập Google Drive File ID"
+                />
+              ) : (
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {setting?.googleDriveFileId || "Chưa có dữ liệu"}
+                </p>
+              )}
+            </div>
+            <div>
+                <ProductLabel htmlFor="googleDriveStorageLinkId" className="font-bold text-lg">Google Drive Storage Link ID</ProductLabel>
+                {isEditing ? (
+                    <Input
+                        type="text"
+                        value={formData.googleDriveStorageLinkId}
+                        onChange={(e) => handleInputChange("googleDriveStorageLinkId", e.target.value)}
+                        placeholder="Nhập Google Drive File ID"
+                    />
+                ) : (
+                    <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                        {setting?.googleDriveStorageLinkId || "Chưa có dữ liệu"}
+                    </p>
+                )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default observer(SettingCard);
