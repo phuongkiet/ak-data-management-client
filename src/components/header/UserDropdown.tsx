@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { useStore } from '../../app/stores/store.ts'
-import { observer } from 'mobx-react-lite';
-import { SettingIcon } from '../../icons';
+import { useStore } from "../../app/stores/store.ts";
+import { observer } from "mobx-react-lite";
+import { SettingIcon } from "../../icons";
 
 const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const {userStore} = useStore();
+  const { userStore } = useStore();
   const currentUser = userStore.user;
 
   function toggleDropdown() {
@@ -20,7 +20,7 @@ const UserDropdown = () => {
 
   const logout = () => {
     userStore.logout();
-  }
+  };
 
   return (
     <div className="relative">
@@ -29,10 +29,15 @@ const UserDropdown = () => {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src={currentUser?.avatarUrl || "/images/user/avatar_hieuseo.jpg"} alt="User" />
+          <img
+            src={currentUser?.avatarUrl || "/images/user/avatar_hieuseo.jpg"}
+            alt="User"
+          />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{currentUser?.name || "Nhân viên"}</span>
+        <span className="block mr-1 font-medium text-theme-sm">
+          {currentUser?.name || "Nhân viên"}
+        </span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -93,20 +98,23 @@ const UserDropdown = () => {
               Chỉnh sửa hồ sơ
             </DropdownItem>
           </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              tag="a"
-              to="/admin/settings"
-              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              <SettingIcon className="w-[20px] h-[22px] ml-[2px]" />
-              <span className="ml-[2px]">Cài đặt</span>
-            </DropdownItem>
-          </li>
+          {currentUser?.role.includes("Admin") && (
+            <li>
+              <DropdownItem
+                onItemClick={closeDropdown}
+                tag="a"
+                to="/admin/settings"
+                className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+              >
+                <SettingIcon className="w-[20px] h-[22px] ml-[2px]" />
+                <span className="ml-[2px]">Cài đặt</span>
+              </DropdownItem>
+            </li>
+          )}
         </ul>
         <button
-          onClick={logout} className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+          onClick={logout}
+          className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg
             className="fill-gray-500 group-hover:fill-gray-700 dark:group-hover:fill-gray-300"
