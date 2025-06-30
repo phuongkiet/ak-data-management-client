@@ -116,6 +116,7 @@ import {
   LinkStorageDto,
   UpdateLinkStorageDto,
 } from "../models/storage/linkStorage.model.ts";
+import { SettingDto, UpdateSettingDto } from "../models/setting.model.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -797,6 +798,17 @@ const LinkStorage = {
     requests.del<string>(`/links/delete-link?linkId=${linkId}`),
 };
 
+const Setting = {
+  settingList: (term?: string): Promise<ApiResponseModel<SettingDto[]>> => {
+    const params = new URLSearchParams();
+    if (term) params.append("term", term);
+
+    return requests.get<SettingDto[]>(`/settings?${params.toString()}`);
+  },
+  updateSetting: (settingId: number, setting: UpdateSettingDto): Promise<ApiResponseModel<string>> =>
+    requests.put<string>(`/settings/update-setting?settingId=${settingId}`, setting),
+};
+
 const agent = {
   Account,
   UserAdmin,
@@ -818,6 +830,7 @@ const agent = {
   ProductFactory,
   ProductArea,
   LinkStorage,
+  Setting,
 };
 
 export default agent;

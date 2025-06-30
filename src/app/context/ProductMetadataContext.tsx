@@ -43,7 +43,8 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
     areaStore,
     supplierTaxStore,
     roleStore,
-    productStore
+    productStore,
+    settingStore
   } = useStore();
 
   const [metadata, setMetadata] = useState<ProductMetadata>(() => {
@@ -78,7 +79,8 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
         roleDtos: [],
         totalProducts: 0,
         totalPricedProducts: 0,
-        supplierSizeCombinationDtos: []
+        supplierSizeCombinationDtos: [],
+        settingDto: settingStore.setting || null
       },
       loading: true,
       error: null,
@@ -111,6 +113,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       productStore.hasLoadedTotalProducts = true;
       productStore.hasLoadedTotalPricedProducts = true;
       productStore.existingSupplierSizeCombinations = metadata.supplierSizeCombinationDtos;
+      settingStore.setSetting(metadata.settingDto);
     });
   };
 
@@ -137,6 +140,7 @@ export const ProductMetadataProvider: React.FC<{ children: React.ReactNode }> = 
       currentMetadata.supplierTaxDtos = supplierTaxStore.productSupplierTaxList;
       currentMetadata.roleDtos = roleStore.roleList;
       currentMetadata.supplierSizeCombinationDtos = productStore.existingSupplierSizeCombinations;
+      currentMetadata.settingDto = settingStore.setting || null;
       // Lưu lại vào localStorage
       OfflineStorage.saveMetadata(currentMetadata);
       

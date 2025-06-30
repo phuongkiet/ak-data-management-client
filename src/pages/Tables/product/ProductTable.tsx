@@ -41,6 +41,9 @@ function ProductTable() {
 
   const { productSizeList } = sizeStore;
 
+  // Tách state cho input search
+  const [searchInput, setSearchInput] = useState(term ?? "");
+
   useEffect(() => {
     if (!commonStore.token || !isOnline) return;
 
@@ -228,8 +231,13 @@ function ProductTable() {
     }
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setTerm(searchTerm);
+  // Sửa lại logic search
+  const handleSearch = (value: string) => {
+    setSearchInput(value); // chỉ đổi input, không đổi store
+  };
+
+  const handleSearchSubmit = () => {
+    setTerm(searchInput); // chỉ khi bấm nút mới đổi store (trigger search)
   };
 
   return (
@@ -319,7 +327,8 @@ function ProductTable() {
             </>
           }
           onSearch={handleSearch}
-          searchTerm={term ?? ""}
+          onSearchSubmit={handleSearchSubmit}
+          searchTerm={searchInput}
           onPageSizeChange={handlePageSizeChange}
           pageSize={pageSize}
           totalCount={totalCount}

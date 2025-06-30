@@ -41,6 +41,7 @@ import StrategyProductDetail from '../../pages/StrategyProducts/StrategyProductD
 import SupplierDetail from '../../pages/Suppliers/SupplierDetail.tsx'
 import CalculatedUnitTable from '../../pages/Tables/calculated-unit/CalculatedUnitTable.tsx'
 import Pricing from '../../pages/Products/Pricing.tsx'
+import Setting from '../../pages/Setting.tsx'
 // import { ProtectedRoute } from './protectedRoute.tsx'
 
 export const routes: RouteObject[] = [
@@ -131,7 +132,13 @@ export const routes: RouteObject[] = [
             element: (
               <UserTable/>
             ),
-          }
+          },
+          {
+            path: 'settings',
+            element: (
+              <Setting/>
+            ),
+          },
         ]
       },
 
