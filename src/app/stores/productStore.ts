@@ -752,13 +752,15 @@ export default class ProductStore {
     try {
       const response = await agent.Product.generateReport();
       if(response.success) {
-        toast.success(response.data);
+        return true;
       } else {
         toast.error(response.errors?.[0] || "Lỗi khi tạo báo cáo");
+        return false;
       }
     } catch (error) {
       console.error("Error generating report:", error);
       toast.error("Lỗi khi tạo báo cáo");
+      return false;
     } finally {
       runInAction(() => {
         this.loading = false;

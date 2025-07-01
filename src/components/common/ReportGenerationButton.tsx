@@ -1,6 +1,7 @@
 import { Tooltip } from "react-tooltip";
 import { useStore } from "../../app/stores/store";
 import { FileIcon } from "../../icons";
+import { toast } from "react-toastify";
 
 export const ReportGenerationButton: React.FC = () => {
   const { productStore } = useStore();
@@ -8,7 +9,12 @@ export const ReportGenerationButton: React.FC = () => {
 
   const handleGenerateReport = async () => {
     try {
-      await generateReport();
+      if(await generateReport()) {
+        toast.success("Báo cáo đã được tạo thành công");
+      } else {
+        console.error("Lỗi khi tạo báo cáo");
+      }
+
     } catch (error) {
       console.error('Error generating report:', error);
     }
