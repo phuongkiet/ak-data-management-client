@@ -58,6 +58,20 @@ git clone https://github.com/phuongkiet/ak-data-management-client.git
    yarn dev
    ```
 
+## Change Log
+### Version 1.0
+![An Khánh Data Management Preview](./banner.png)
+
+### Version 1.01
+![An Khánh Data Management Preview](./public/images/banner/banner2.png)
+- Thêm các chức năng như:
+  + Tạo excel report gửi qua gmail, thêm các dữ liệu vào metadata để tối ưu hiệu suất và giảm số lần gọi API
+  + Tùy chỉnh lại các bảng danh mục
+  + Supplier (Nhà cung cấp) được điều chỉnh lại để có thể sửa -> Hiển thị các giá cần thiết cho bảng tính giá
+  + Thêm chức năng xem cho SAPO
+  + Thêm thiết lập cho quản trị viên để điều chỉnh Mail nhận bên Gmail, Mail được CC, các FileId của Google Drive
+  + ... sẽ update thêm
+
 ## License
 
 TailAdmin React.js Free Version is released under the MIT License.
