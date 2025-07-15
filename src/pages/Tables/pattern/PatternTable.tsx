@@ -82,7 +82,7 @@ function PatternTable() {
                     placeholder="Nhập tên danh mục (hệ vân/ thiết bị vệ sinh)"
                     value={patternStore.patternForm.name}
                     onChange={(e) =>
-                      patternStore.updatePatternForm("name", e.target.value)
+                      patternStore.updatePatternForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>
@@ -94,8 +94,18 @@ function PatternTable() {
                     onChange={(e) =>
                       patternStore.updatePatternForm(
                         "shortCode",
-                        e.target.value
+                        e.target.value.toUpperCase()
                       )
+                    }
+                  />
+                </div>
+                <div className="col-span-2">
+                  <ProductLabel>Ký hiệu</ProductLabel>
+                  <Input
+                    placeholder="Nhập ký hiệu"
+                    value={patternStore.patternForm.shortName}
+                    onChange={(e) =>
+                      patternStore.updatePatternForm("shortName", e.target.value)
                     }
                   />
                 </div>

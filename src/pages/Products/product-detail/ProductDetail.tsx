@@ -13,8 +13,36 @@ import { useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
+// Hàm sinh displayWebsiteName
+function generateDisplayWebsiteName(
+  autoBarCode: string,
+  product: any,
+  patternStore: any,
+  sizeStore: any,
+  colorStore: any,
+  bodyColorStore: any,
+  materialStore: any,
+  surfaceStore: any
+) {
+  const pattern = patternStore.productPatternList.find((x: any) => x.id === product.brickPatternId);
+  const size = sizeStore.productSizeList.find((x: any) => x.id === product.actualSizeId);
+  const color = colorStore.productColorList.find((x: any) => x.id === product.colorId);
+  const bodyColor = bodyColorStore.productBodyColorList.find((x: any) => x.id === product.brickBodyId);
+  const material = materialStore.productMaterialList.find((x: any) => x.id === product.materialId);
+  const surfaceFeature = surfaceStore.productSurfaceList.find((x: any) => x.id === product.surfaceFeatureId);
+
+  const actualSize = size
+    ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
+    : "";
+
+  if (pattern?.name) {
+    return `${autoBarCode} - ${actualSize} - ${pattern.name} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
+  }
+  return "";
+}
+
 const ProductDetail = () => {
-  const { productStore } = useStore();
+  const { productStore, patternStore, supplierStore, sizeStore, colorStore, bodyColorStore, materialStore, surfaceStore } = useStore();
   const { productDetail, loadProductDetail, editProduct } = productStore;
   const { id } = useParams();
 
@@ -34,10 +62,46 @@ const ProductDetail = () => {
 
   // 3. Handle field change
   const handleFieldChange = (field: string, value: any) => {
-    setUpdateProduct((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setUpdateProduct((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Nếu đổi pattern, cập nhật autoBarCode
+      if (field === "brickPatternId") {
+        const pattern = patternStore.productPatternList.find((x: any) => x.id === value);
+        updated.brickPatternShortName = pattern?.shortCode || "";
+        // Sinh lại autoBarCode với orderNumber hiện tại (không tăng)
+        const supplier = supplierStore.productSupplierList.find((x: any) => x.id === updated.supplierId);
+        const patternCode = pattern?.shortCode || "";
+        const currentOrderNumber = updated.productOrderNumber || "";
+        updated.autoBarCode = supplier?.supplierShortCode
+          ? `${supplier.supplierShortCode}.${currentOrderNumber}${patternCode}`
+          : "";
+      }
+
+      // Nếu đổi các trường ảnh hưởng đến displayWebsiteName
+      const affectDisplayFields = [
+        "brickPatternId",
+        "actualSizeId",
+        "colorId",
+        "brickBodyId",
+        "materialId",
+        "surfaceFeatureId"
+      ];
+      if (affectDisplayFields.includes(field)) {
+        updated.displayWebsiteName = generateDisplayWebsiteName(
+          updated.autoBarCode,
+          updated,
+          patternStore,
+          sizeStore,
+          colorStore,
+          bodyColorStore,
+          materialStore,
+          surfaceStore
+        );
+      }
+
+      return updated;
+    });
   };
 
   if (!id) {

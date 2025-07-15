@@ -70,7 +70,7 @@ function ColorTable() {
                         placeholder="Nhập tên màu sắc"
                         value={colorStore.colorForm.name}
                         onChange={(e) =>
-                          colorStore.updateColorForm("name", e.target.value)
+                          colorStore.updateColorForm("name", e.target.value.toUpperCase())
                         }
                       />
                     </div>

@@ -69,7 +69,7 @@ function CalculatedUnitTable() {
                     type="text"
                     placeholder="Nhập đơn vị tính"
                     value={calculatedUnitStore.calculatedUnitForm.calculatedUnitName.toUpperCase()}
-                    onChange={(e) => calculatedUnitStore.updateCalculatedUnitForm('calculatedUnitName', e.target.value)}
+                    onChange={(e) => calculatedUnitStore.updateCalculatedUnitForm('calculatedUnitName', e.target.value.toUpperCase())}
                     onBlur={() => {}}
                   />
                 </div>
@@ -80,7 +80,7 @@ function CalculatedUnitTable() {
                     type="text"
                     placeholder="Nhập đơn vị tính tự động"
                     value={calculatedUnitStore.calculatedUnitForm.autoCalculatedUnitName.toUpperCase()}
-                    onChange={(e) => calculatedUnitStore.updateCalculatedUnitForm('autoCalculatedUnitName', e.target.value)}
+                    onChange={(e) => calculatedUnitStore.updateCalculatedUnitForm('autoCalculatedUnitName', e.target.value.toUpperCase())}
                     onBlur={() => {}}
                   />
                 </div>

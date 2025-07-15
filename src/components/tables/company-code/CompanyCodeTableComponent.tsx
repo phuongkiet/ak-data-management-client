@@ -83,7 +83,6 @@ const CompanyCodeTableComponent = ({ data }: CompanyCodeTableComponentProps) => 
           <FaEye className="w-6 h-6 hover:opacity-50" />
           <Tooltip id="view-tooltip" className="text-md" />
         </button>
-      ),
         <button
           onClick={() => handleDelete(row)}
           className="text-red-600 hover:underline font-medium"

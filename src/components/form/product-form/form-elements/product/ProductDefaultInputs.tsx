@@ -15,19 +15,25 @@ import { useState, useEffect, useCallback } from "react";
 import FactoryGroup from "../../product-factory/Factory.tsx";
 import { useNetworkStatus } from "../../../../../hooks/useNetworkStatus";
 import { debounce } from "lodash";
-import Button from "../../../../ui/button/Button.tsx";
 import ProcessingPriceModal from "./ProcessingPriceModal";
+import { toast } from "react-toastify";
 
 interface ProductProps {
   product?: ProductDetail;
   isCreateMode: boolean;
-  onChange?: (field: string, value: any) => void;
+  onChange?: (field: string, value: unknown) => void;
+  onValidationChange?: (
+    field: string,
+    isValid: boolean,
+    errorMessage?: string
+  ) => void;
 }
 
 const ProductDefaultInputs = ({
   product,
   isCreateMode,
   onChange,
+  onValidationChange,
 }: ProductProps) => {
   const isOnline = useNetworkStatus();
   const {
@@ -40,6 +46,7 @@ const ProductDefaultInputs = ({
     bodyColorStore,
     materialStore,
     surfaceStore,
+    originStore,
   } = useStore();
 
   const { productSizeList } = sizeStore;
@@ -50,16 +57,15 @@ const ProductDefaultInputs = ({
   const { productBodyColorList } = bodyColorStore;
   const { productMaterialList } = materialStore;
   const { productSurfaceList } = surfaceStore;
+  const { productOriginList } = originStore;
   const { getNextOrderNumberAuto } = productStore;
 
-  const [confirmSupplierItemCode, setConfirmSupplierItemCode] = useState<
-    string | undefined
-  >("");
   const [supplierItemCode, setSupplierItemCode] = useState<string>("");
   const [isValidSupplierCode, setIsValidSupplierCode] = useState<
     boolean | null
   >(null);
   const [websiteProductName, setWebsiteProductName] = useState<string>("");
+  const [sapo, setSapo] = useState<string>("");
   const [otherNote, setOtherNote] = useState<string>(product?.otherNote || "");
   const [deliveryEstimatedDate, setDeliveryEstimatedDate] = useState<string>(
     product?.deliveryEstimatedDate || "1-2 ngày"
@@ -91,38 +97,46 @@ const ProductDefaultInputs = ({
     }
   }, [productStore.productForm.supplierId]);
 
-  const handleConfirmAutoBarCodeChange = () => {
-    if (
-      productStore.productForm.supplierId &&
-      (productStore.productForm.productOrderNumber || manualOrderNumber)
-    ) {
-      const supplier = productSupplierList.find(
-        (x) => x.id === productStore.productForm.supplierId
-      );
-      const pattern = productPatternList.find(
-        (x) => x.id === productStore.productForm.brickPatternId
-      );
-
-      if (supplier?.supplierShortCode) {
-        const patternCode = pattern?.shortCode || "";
-        const orderNumber = isOnline
-          ? productStore.productForm.productOrderNumber
-          : manualOrderNumber;
-        const newBarCode = `${supplier.supplierShortCode}.${orderNumber}${patternCode}`;
-        productStore.updateProductForm("autoBarCode", newBarCode);
-      }
-    }
+  // Hàm sinh autoBarCode mới
+  const handleAutoBarCode = ({
+    supplierId,
+    orderNumber,
+    patternId,
+  }: {
+    supplierId?: number;
+    orderNumber?: string | number | null;
+    patternId?: number;
+  }) => {
+    if (!supplierId || !orderNumber) return "";
+    const supplier = productSupplierList.find((x) => x.id === supplierId);
+    const pattern = productPatternList.find((x) => x.id === patternId);
+    if (!supplier?.supplierShortCode) return "";
+    const patternCode = pattern?.shortCode || "";
+    return `${supplier.supplierShortCode}.${orderNumber}${patternCode}`;
   };
 
-  // Add effect to update barcode when required fields change
+  // Add effect để cập nhật autoBarCode khi các trường liên quan thay đổi
   useEffect(() => {
-    handleConfirmAutoBarCodeChange();
+    if (isCreateMode) {
+      const newBarCode = handleAutoBarCode({
+        supplierId: productStore.productForm.supplierId ?? undefined,
+        orderNumber:
+          (isOnline
+            ? productStore.productForm.productOrderNumber
+            : manualOrderNumber) ?? undefined,
+        patternId: productStore.productForm.brickPatternId ?? undefined,
+      });
+      productStore.updateProductForm("autoBarCode", newBarCode);
+    }
   }, [
+    isCreateMode,
     productStore.productForm.supplierId,
     productStore.productForm.productOrderNumber,
     manualOrderNumber,
-    productStore.productForm.productProcessingId,
     productStore.productForm.brickPatternId,
+    productPatternList,
+    productSupplierList,
+    isOnline,
   ]);
 
   const handleProductCodeChange = () => {
@@ -145,8 +159,11 @@ const ProductDefaultInputs = ({
 
   // Add effect to update product code when supplier or order number changes
   useEffect(() => {
-    handleProductCodeChange();
+    if (isCreateMode) {
+      handleProductCodeChange();
+    }
   }, [
+    isCreateMode,
     productStore.productForm.supplierId,
     productStore.productForm.productOrderNumber,
     manualOrderNumber,
@@ -160,29 +177,32 @@ const ProductDefaultInputs = ({
     const numericValue = parseInt(value) || 0;
     productStore.updateProductForm("productOrderNumber", numericValue);
     handleProductCodeChange();
-    handleConfirmAutoBarCodeChange();
+    handleAutoBarCode({
+      supplierId: productStore.productForm.supplierId ?? undefined,
+      orderNumber: numericValue ?? undefined,
+      patternId: productStore.productForm.brickPatternId ?? undefined,
+    });
   };
 
-  const handleConfirmProductCodeChange = () => {
-    if (productStore.productForm.companyCodeId && supplierItemCode) {
-      const companyCode = productCompanyCodeList.find(
-        (x) => x.id === productStore.productForm.companyCodeId
-      );
+  // const handleConfirmProductCodeChange = () => {
+  //   if (productStore.productForm.companyCodeId && supplierItemCode) {
+  //     const companyCode = productCompanyCodeList.find(
+  //       (x) => x.id === productStore.productForm.companyCodeId
+  //     );
 
-      const lastSixChars = supplierItemCode.slice(-6);
+  //     const lastSixChars = supplierItemCode.slice(-6);
 
-      if (companyCode?.codeName) {
-        const newSkuCode = `${companyCode.codeName} ${lastSixChars}`;
-        setConfirmSupplierItemCode(newSkuCode);
-        productStore.updateProductForm("confirmSupplierItemCode", newSkuCode);
-      }
-    }
-  };
+  //     if (companyCode?.codeName) {
+  //       const newSkuCode = `${companyCode.codeName} ${lastSixChars}`;
+  //       productStore.updateProductForm("confirmSupplierItemCode", newSkuCode);
+  //     }
+  //   }
+  // };
 
   // Add effect to update SKU when supplierItemCode changes
-  useEffect(() => {
-    handleConfirmProductCodeChange();
-  }, [supplierItemCode, productStore.productForm.companyCodeId]);
+  // useEffect(() => {
+  //   handleConfirmProductCodeChange();
+  // }, [supplierItemCode, productStore.productForm.companyCodeId]);
 
   const handleWebsiteProductNameChange = () => {
     if (
@@ -225,7 +245,7 @@ const ProductDefaultInputs = ({
 
       if (pattern?.name) {
         const newWebsiteProductName =
-          `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
+          `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
         setWebsiteProductName(newWebsiteProductName);
         productStore.updateProductForm(
           "displayWebsiteName",
@@ -235,9 +255,110 @@ const ProductDefaultInputs = ({
     }
   };
 
+  const handleSapoNameChange = () => {
+    if (
+      productStore.productForm.brickPatternId &&
+      productStore.productForm.colorId &&
+      productStore.productForm.materialId &&
+      productStore.productForm.surfaceFeatureId &&
+      productStore.productForm.originCountryId &&
+      productStore.productForm.companyCodeId
+    ) {
+      const pattern = productPatternList.find(
+        (x) => x.id === productStore.productForm.brickPatternId
+      );
+
+      const originCountry = productOriginList.find(
+        (x) => x.id === productStore.productForm.originCountryId
+      );
+
+      const color = productColorList.find(
+        (x) => x.id === productStore.productForm.colorId
+      );
+
+      const material = productMaterialList.find(
+        (x) => x.id === productStore.productForm.materialId
+      );
+
+      const surfaceFeature = productSurfaceList.find(
+        (x) => x.id === productStore.productForm.surfaceFeatureId
+      );
+
+      const companyCode = productCompanyCodeList.find(
+        (x) => x.id === productStore.productForm.companyCodeId
+      );
+
+      const codeName = companyCode?.codeName;
+
+      let codeNameResult = "";
+
+      if (codeName) {
+        const akIndex = codeName.indexOf("AK");
+        if (akIndex !== -1) {
+          codeNameResult = codeName.substring(0, akIndex);
+        } else {
+          codeNameResult = codeName;
+        }
+      }
+
+      const surfaceShortCode = surfaceFeature?.shortCode;
+
+      let surfaceFeatureName = "";
+
+      if (surfaceShortCode) {
+        const firstChar = String(surfaceShortCode).charAt(0).toUpperCase();
+
+        switch (firstChar) {
+          case "M":
+            surfaceFeatureName = "MỜ";
+            break;
+          case "G":
+            surfaceFeatureName = "BÓNG";
+            break;
+          case "P":
+            surfaceFeatureName = "SẦN";
+            break;
+          case "L":
+            surfaceFeatureName = "BÁN BÓNG";
+            break;
+          case "D":
+            surfaceFeatureName = "DECOR";
+            break;
+          case "K":
+            surfaceFeatureName = "KEO";
+            break;
+          case "T":
+            surfaceFeatureName = "TOILET";
+            break;
+          case "H":
+            surfaceFeatureName = "NÓNG-LẠNH";
+            break;
+          case "C":
+            surfaceFeatureName = "LẠNH";
+            break;
+        }
+      }
+
+      const productName =
+        productStore.productForm.productSpecialNote ||
+        productStore.productForm.supplierItemCode;
+
+      if (productName) {
+        const newSapoProductName =
+          `${codeNameResult} - ${productName} - ${originCountry?.upperName} - ${material?.shortName} - ${color?.name},${pattern?.shortName},${surfaceFeatureName}`.trim();
+        setSapo(newSapoProductName);
+        productStore.updateProductForm("sapoName", newSapoProductName);
+      }
+    }
+  };
+
   useEffect(() => {
-    handleWebsiteProductNameChange();
+    if (isCreateMode) {
+      handleWebsiteProductNameChange();
+      handleSapoNameChange();
+    }
   }, [
+    isCreateMode,
     productStore.productForm.autoBarCode,
     productStore.productForm.brickPatternId,
     productStore.productForm.actualSizeId,
@@ -245,6 +366,8 @@ const ProductDefaultInputs = ({
     productStore.productForm.brickBodyId,
     productStore.productForm.materialId,
     productStore.productForm.surfaceFeatureId,
+    productStore.productForm.productSpecialNote,
+    productStore.productForm.supplierItemCode,
   ]);
 
   const handleOtherNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -260,7 +383,9 @@ const ProductDefaultInputs = ({
     if (isCreateMode) {
       productStore.updateProductForm("deliveryEstimatedDate", value);
     } else {
-      onChange && onChange("deliveryEstimatedDate", value);
+      if (onChange) {
+        onChange("deliveryEstimatedDate", value);
+      }
     }
   };
 
@@ -276,8 +401,10 @@ const ProductDefaultInputs = ({
     const newConfirmSupplierItemCode = companyCode?.codeName
       ? `${companyCode.codeName} ${lastSixChars}`
       : lastSixChars;
-    onChange && onChange("supplierItemCode", supplierItemCodeValue);
-    onChange && onChange("confirmSupplierItemCode", newConfirmSupplierItemCode);
+    if (onChange) {
+      onChange("supplierItemCode", supplierItemCodeValue);
+      onChange("confirmSupplierItemCode", newConfirmSupplierItemCode);
+    }
   };
 
   // Debounced check function
@@ -285,20 +412,43 @@ const ProductDefaultInputs = ({
     debounce(async (value: string) => {
       if (!value) {
         setIsValidSupplierCode(null);
+        onValidationChange && onValidationChange("supplierItemCode", true);
         return;
       }
       setIsChecking(true);
       try {
         const isValid = await productStore.checkSupplierItemCode(value);
-        setIsValidSupplierCode(!isValid);
+        const isDuplicate = !isValid; // Nếu không valid thì có nghĩa là trùng
+        setIsValidSupplierCode(isDuplicate);
+
+        // Gửi trạng thái validation về component cha
+        if (onValidationChange) {
+          if (isDuplicate) {
+            toast.error("Mã sản phẩm này đã tồn tại trong hệ thống");
+            onValidationChange(
+              "supplierItemCode",
+              false,
+              "Mã sản phẩm này đã tồn tại trong hệ thống"
+            );
+          } else {
+            onValidationChange("supplierItemCode", true);
+          }
+        }
       } catch (error) {
         console.error("Error checking supplier code:", error);
         setIsValidSupplierCode(false);
+        toast.error("Lỗi khi kiểm tra mã sản phẩm");
+        onValidationChange &&
+          onValidationChange(
+            "supplierItemCode",
+            false,
+            "Lỗi khi kiểm tra mã sản phẩm"
+          );
       } finally {
         setIsChecking(false);
       }
     }, 500),
-    []
+    [onValidationChange]
   );
 
   const handleSupplierItemCodeChange = async (
@@ -334,20 +484,6 @@ const ProductDefaultInputs = ({
     };
   }, [debouncedCheck]);
 
-  const editModeSku = (() => {
-    if (!isCreateMode && product?.companyCodeId && product?.supplierItemCode) {
-      const companyCode = productCompanyCodeList.find(
-        (x) => x.id === product.companyCodeId
-      );
-      const lastSixChars = product.supplierItemCode.slice(-6);
-
-      return companyCode?.codeName
-        ? `${companyCode.codeName} ${lastSixChars}`
-        : lastSixChars;
-    }
-    return "";
-  })();
-
   const handleEditQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuantity = Number(e.target.value);
     // Use product?.areaPerUnit, fallback to 0 if not available
@@ -375,171 +511,312 @@ const ProductDefaultInputs = ({
   };
 
   useEffect(() => {
-    if (!isCreateMode && product?.supplierId) {
-      // Khi supplierId thay đổi ở chế độ update
-      const fetchAndUpdate = async () => {
-        await getNextOrderNumberAuto();
-        // Lấy lại productOrderNumber mới nhất từ store
-        const newOrderNumber = productStore.productForm.productOrderNumber;
-        if (onChange) {
-          onChange("productOrderNumber", newOrderNumber);
-        }
-        
-        // Cập nhật productCode và autoBarCode
-        if (product?.supplierId && newOrderNumber) {
-          const supplier = productSupplierList.find(
-            (x) => x.id === product.supplierId
-          );
-          const pattern = productPatternList.find(
-            (x) => x.id === product.brickPatternId
-          );
-
-          if (supplier?.supplierShortCode) {
-            // Cập nhật productCode
-            const newProductCode = `${supplier.supplierShortCode}.${newOrderNumber}`;
-            if (onChange) {
-              onChange("productCode", newProductCode);
-            }
-
-            // Cập nhật autoBarCode
-            const patternCode = pattern?.shortCode || "";
-            const newBarCode = `${supplier.supplierShortCode}.${newOrderNumber}${patternCode}`;
-            if (onChange) {
-              onChange("autoBarCode", newBarCode);
-            }
-          }
-        }
-        
-        // Cập nhật lại displayWebsiteName cho chế độ update
-        if (
-          productStore.productForm.autoBarCode &&
-          product?.supplierId &&
-          product?.brickPatternId &&
-          product?.actualSizeId &&
-          product?.colorId &&
-          product?.brickBodyId &&
-          product?.materialId &&
-          product?.surfaceFeatureId
-        ) {
-          const pattern = productPatternList.find(
-            (x) => x.id === product.brickPatternId
-          );
-
-          const size = productSizeList.find(
-            (x) => x.id === product.actualSizeId
-          );
-
-          const actualSize = size
-            ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
-            : "";
-
-          const color = productColorList.find(
-            (x) => x.id === product.colorId
-          );
-
-          const bodyColor = productBodyColorList.find(
-            (x) => x.id === product.brickBodyId
-          );
-
-          const material = productMaterialList.find(
-            (x) => x.id === product.materialId
-          );
-
-          const surfaceFeature = productSurfaceList.find(
-            (x) => x.id === product.surfaceFeatureId
-          );
-
-          if (pattern?.name) {
-            const newWebsiteProductName =
-              `${productStore.productForm.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
-            
-            if (onChange) {
-              onChange("displayWebsiteName", newWebsiteProductName);
-            }
-          }
-        }
-      };
-      fetchAndUpdate();
+    if (isCreateMode && productStore.productForm.supplierId) {
+      // Tạo mới: luôn lấy orderNumber mới
+      getNextOrderNumberAuto();
+    } else if (
+      !isCreateMode &&
+      product &&
+      product.supplierId !== productStore.productForm.supplierId
+    ) {
+      // Edit: chỉ khi đổi supplier mới lấy orderNumber mới
+      getNextOrderNumberAuto();
     }
-  }, [product?.supplierId]);
+    // Các trường hợp khác KHÔNG gọi getNextOrderNumberAuto!
+  }, [isCreateMode, productStore.productForm.supplierId]);
 
-  // Thêm useEffect để theo dõi thay đổi của các trường khác ở chế độ update
+  // useEffect riêng cho pattern - chỉ cập nhật autoBarCode và displayWebsiteName, không đổi orderNumber
   useEffect(() => {
-    if (!isCreateMode && onChange) {
-      // Cập nhật displayWebsiteName khi các trường thay đổi
-      if (
-        product?.autoBarCode &&
-        product?.supplierId &&
-        product?.brickPatternId &&
-        product?.actualSizeId &&
-        product?.colorId &&
-        product?.brickBodyId &&
-        product?.materialId &&
-        product?.surfaceFeatureId
-      ) {
-        const pattern = productPatternList.find(
-          (x) => x.id === product.brickPatternId
-        );
+    if (!isCreateMode && product?.brickPatternId && product?.supplierId) {
+      const supplier = productSupplierList.find(
+        (x) => x.id === product.supplierId
+      );
+      const pattern = productPatternList.find(
+        (x) => x.id === product.brickPatternId
+      );
 
-        const size = productSizeList.find(
-          (x) => x.id === product.actualSizeId
-        );
+      if (supplier?.supplierShortCode) {
+        // Cập nhật autoBarCode với orderNumber hiện tại (không tăng)
+        const currentOrderNumber = product.productOrderNumber || "";
+        const patternCode = pattern?.shortCode || "";
+        const newBarCode = `${supplier.supplierShortCode}.${currentOrderNumber}${patternCode}`;
+        if (onChange) {
+          onChange("autoBarCode", newBarCode);
+        }
 
-        const actualSize = size
-          ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
-          : "";
+        // Cập nhật displayWebsiteName
+        updateDisplayWebsiteName(currentOrderNumber);
+      }
+    }
+  }, [isCreateMode ? null : product?.brickPatternId]);
 
-        const color = productColorList.find(
-          (x) => x.id === product.colorId
-        );
+  // Hàm helper để cập nhật displayWebsiteName
+  const updateDisplayWebsiteName = (
+    orderNumber: string | number | undefined
+  ) => {
+    if (
+      product?.supplierId &&
+      product?.brickPatternId &&
+      product?.actualSizeId &&
+      product?.colorId &&
+      product?.brickBodyId &&
+      product?.materialId &&
+      product?.surfaceFeatureId &&
+      orderNumber !== undefined
+    ) {
+      const supplier = productSupplierList.find(
+        (x) => x.id === product.supplierId
+      );
+      const pattern = productPatternList.find(
+        (x) => x.id === product.brickPatternId
+      );
+      const size = productSizeList.find((x) => x.id === product.actualSizeId);
+      const color = productColorList.find((x) => x.id === product.colorId);
+      const bodyColor = productBodyColorList.find(
+        (x) => x.id === product.brickBodyId
+      );
+      const material = productMaterialList.find(
+        (x) => x.id === product.materialId
+      );
+      const surfaceFeature = productSurfaceList.find(
+        (x) => x.id === product.surfaceFeatureId
+      );
 
-        const bodyColor = productBodyColorList.find(
-          (x) => x.id === product.brickBodyId
-        );
+      const actualSize = size
+        ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
+        : "";
 
-        const material = productMaterialList.find(
-          (x) => x.id === product.materialId
-        );
+      if (pattern?.name && supplier?.supplierShortCode) {
+        const patternCode = pattern.shortCode || "";
+        const autoBarCode = `${supplier.supplierShortCode}.${orderNumber}${patternCode}`;
+        const newWebsiteProductName =
+          `${autoBarCode} - ${actualSize} - ${pattern.name} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
 
-        const surfaceFeature = productSurfaceList.find(
-          (x) => x.id === product.surfaceFeatureId
-        );
-
-        if (pattern?.name) {
-          const newWebsiteProductName =
-            `${product.autoBarCode} - ${actualSize} - ${pattern.name} ${pattern.description} ${color?.name} ${surfaceFeature?.name} ${material?.name} ${bodyColor?.name}`.trim();
-          
+        if (onChange) {
           onChange("displayWebsiteName", newWebsiteProductName);
         }
       }
     }
+  };
+
+  // Hàm cập nhật tên SAPO cho edit mode
+  const updateSapoNameForEdit = () => {
+    if (
+      product?.brickPatternId &&
+      product?.colorId &&
+      product?.materialId &&
+      product?.surfaceFeatureId &&
+      product?.originCountryId &&
+      product?.companyCodeId
+    ) {
+      const pattern = productPatternList.find(
+        (x) => x.id === product.brickPatternId
+      );
+
+      const originCountry = productOriginList.find(
+        (x) => x.id === product.originCountryId
+      );
+
+      const color = productColorList.find((x) => x.id === product.colorId);
+
+      const material = productMaterialList.find(
+        (x) => x.id === product.materialId
+      );
+
+      const surfaceFeature = productSurfaceList.find(
+        (x) => x.id === product.surfaceFeatureId
+      );
+
+      const companyCode = productCompanyCodeList.find(
+        (x) => x.id === product.companyCodeId
+      );
+
+      const codeName = companyCode?.codeName;
+
+      let codeNameResult = "";
+
+      if (codeName) {
+        const akIndex = codeName.indexOf("AK");
+        if (akIndex !== -1) {
+          codeNameResult = codeName.substring(0, akIndex);
+        } else {
+          codeNameResult = codeName;
+        }
+      }
+
+      const featureName = surfaceFeature?.name;
+
+      let surfaceFeatureName = "";
+
+      if (featureName) {
+        const spaceIndex = featureName.indexOf(" ");
+        if (spaceIndex !== -1) {
+          surfaceFeatureName = featureName.substring(0, spaceIndex);
+        } else {
+          surfaceFeatureName = featureName;
+        }
+      }
+
+      // Sử dụng productSpecialNote (englishName) nếu có, nếu không thì dùng supplierItemCode
+      const productName =
+        product.productSpecialNote || product.supplierItemCode;
+
+      if (productName) {
+        const newSapoProductName =
+          `${codeNameResult} - ${productName} - ${originCountry?.upperName} - ${material?.shortName} - ${color?.name},${pattern?.shortName},${surfaceFeatureName}`.trim();
+
+        if (onChange) {
+          onChange("sapoName", newSapoProductName);
+        }
+      }
+    }
+  };
+
+  // Thêm hàm generateSku
+  const generateSku = ({
+    companyCodeId,
+    supplierId,
+    supplierItemCode,
+    surfaceFeatureId,
+    companyCodeList,
+    supplierList,
+    surfaceList,
+  }: {
+    companyCodeId?: number;
+    supplierId?: number;
+    supplierItemCode?: string;
+    surfaceFeatureId?: number;
+    companyCodeList: any[];
+    supplierList: any[];
+    surfaceList: any[];
+  }) => {
+    const companyCode = companyCodeList.find((x) => x.id === companyCodeId);
+    const supplier = supplierList.find((x) => x.id === supplierId);
+    const surface = surfaceList.find((x) => x.id === surfaceFeatureId);
+    if (!companyCode || !supplier || !supplierItemCode || !surface) return "";
+    return `${companyCode.codeName}-${supplier.supplierCombinedCode}-${supplierItemCode}-${surface.shortCode}`;
+  };
+
+  // Tạo state cho SKU nếu cần
+  const [sku, setSku] = useState("");
+
+  // useEffect cho create mode
+  useEffect(() => {
+    if (isCreateMode) {
+      const newSku = generateSku({
+        companyCodeId: productStore.productForm.companyCodeId ?? undefined,
+        supplierId: productStore.productForm.supplierId ?? undefined,
+        supplierItemCode: supplierItemCode,
+        surfaceFeatureId:
+          productStore.productForm.surfaceFeatureId ?? undefined,
+        companyCodeList: productCompanyCodeList,
+        supplierList: productSupplierList,
+        surfaceList: productSurfaceList,
+      });
+      setSku(newSku);
+      productStore.updateProductForm("confirmSupplierItemCode", newSku);
+    }
   }, [
+    isCreateMode,
+    productStore.productForm.companyCodeId,
+    productStore.productForm.supplierId,
+    supplierItemCode,
+    productStore.productForm.surfaceFeatureId,
+    productCompanyCodeList,
+    productSupplierList,
+    productSurfaceList,
+  ]);
+
+  // useEffect cho edit mode
+  useEffect(() => {
+    if (!isCreateMode && product) {
+      const newSku = generateSku({
+        companyCodeId: product.companyCodeId ?? undefined,
+        supplierId: product.supplierId ?? undefined,
+        supplierItemCode: product.supplierItemCode,
+        surfaceFeatureId: product.surfaceFeatureId ?? undefined,
+        companyCodeList: productCompanyCodeList,
+        supplierList: productSupplierList,
+        surfaceList: productSurfaceList,
+      });
+      setSku(newSku);
+      if (onChange) onChange("confirmSupplierItemCode", newSku);
+    }
+  }, [
+    isCreateMode,
+    product?.companyCodeId,
+    product?.supplierId,
+    product?.supplierItemCode,
+    product?.surfaceFeatureId,
+    productCompanyCodeList,
+    productSupplierList,
+    productSurfaceList,
+  ]);
+
+  // useEffect để cập nhật tên SAPO khi productSpecialNote thay đổi trong edit mode
+  useEffect(() => {
+    if (!isCreateMode && product) {
+      updateSapoNameForEdit();
+    }
+  }, [
+    isCreateMode,
+    product?.productSpecialNote,
+    product?.supplierItemCode,
     product?.brickPatternId,
-    product?.actualSizeId,
     product?.colorId,
-    product?.brickBodyId,
     product?.materialId,
     product?.surfaceFeatureId,
-    product?.autoBarCode,
-    isCreateMode
+    product?.originCountryId,
+    product?.companyCodeId,
+    productPatternList,
+    productColorList,
+    productMaterialList,
+    productSurfaceList,
+    productOriginList,
+    productCompanyCodeList,
   ]);
 
   return (
     <ComponentCard title="Thông tin mã hàng">
       {isCreateMode ? (
         <>
-          {/* Desktop View */}
-          <div className="hidden md:grid md:grid-cols-2 gap-6">
+          {/* PHẦN 1: 2 cột */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Cột trái */}
             <div className="space-y-6">
-              {/* Cột trái */}
-              <div className="space-y-0">
+              <div>
                 <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
                 <CompanyCodeGroup
                   product={product}
                   isCreateMode={isCreateMode}
                 />
               </div>
-
+              <div>
+                <ProductLabel htmlFor="input">Tên tiếng anh</ProductLabel>
+                <Input
+                  type="text"
+                  id="input"
+                  placeholder="English name"
+                  value={
+                    isCreateMode
+                      ? productStore.productForm.productSpecialNote || ""
+                      : product?.productSpecialNote || ""
+                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value.toUpperCase();
+                    if (isCreateMode) {
+                      productStore.updateProductForm(
+                        "productSpecialNote",
+                        value
+                      );
+                    } else {
+                      if (onChange) {
+                        onChange("productSpecialNote", value);
+                      }
+                    }
+                  }}
+                />
+              </div>
               <div>
                 <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
                 <Input
@@ -547,46 +824,11 @@ const ProductDefaultInputs = ({
                   id="input"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={confirmSupplierItemCode}
-                  onChange={handleConfirmProductCodeChange}
+                  value={sku}
+                  onChange={() => {}}
                 />
-              </div>
-
-              <div>
-                <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
-                <Input
-                  type="text"
-                  id="input"
-                  disabled
-                  placeholder="Ô tự động điền"
-                  value={productStore.productForm.autoBarCode}
-                  className="text-red-500"
-                />
-              </div>
-
-              <div>
-                <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
-                <CalculatedUnit product={product} isCreateMode={isCreateMode} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
-                  <StorageGroup product={product} isCreateMode={isCreateMode} />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
-                  <Input
-                    type="text"
-                    id="input"
-                    placeholder="Số ngày giao hàng"
-                    value={deliveryEstimatedDate}
-                    onChange={handleDeliveryEstimatedDateChange}
-                  />
-                </div>
               </div>
             </div>
-
             {/* Cột phải */}
             <div className="space-y-6">
               <div>
@@ -594,19 +836,36 @@ const ProductDefaultInputs = ({
                 <Input
                   type="text"
                   id="input"
-                  value={supplierItemCode}
+                  value={
+                    isCreateMode
+                      ? supplierItemCode
+                      : product?.supplierItemCode || ""
+                  }
                   placeholder="Mã số sản phẩm của nhà cung cấp"
-                  onChange={handleSupplierItemCodeChange}
-                  className={`${
-                    isValidSupplierCode === null
-                      ? ""
-                      : isValidSupplierCode
-                      ? "text-blue-500"
-                      : "text-red-500"
-                  } ${isChecking ? "opacity-50" : ""}`}
+                  onChange={
+                    isCreateMode
+                      ? handleSupplierItemCodeChange
+                      : (e) => {
+                          if (onChange) {
+                            onChange("supplierItemCode", e.target.value);
+                          }
+                        }
+                  }
+                  className={
+                    isCreateMode
+                      ? `
+                    ${
+                      isValidSupplierCode === null
+                        ? ""
+                        : isValidSupplierCode
+                        ? "text-blue-500"
+                        : "text-red-500"
+                    }
+                    ${isChecking ? "opacity-50" : ""}`
+                      : ""
+                  }
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
@@ -639,23 +898,73 @@ const ProductDefaultInputs = ({
                   />
                 </div>
               </div>
-
               <div>
-                <ProductLabel htmlFor="input">
-                  Tên hiển thị website
-                </ProductLabel>
+                <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
                 <Input
                   type="text"
                   id="input"
+                  disabled
                   placeholder="Ô tự động điền"
+                  value={productStore.productForm.autoBarCode}
                   className="text-red-500"
-                  value={
-                    product?.displayWebsiteName || websiteProductName || ""
-                  }
-                  onChange={handleWebsiteProductNameChange}
                 />
               </div>
+            </div>
+          </div>
 
+          {/* PHẦN 2: Tên SAPO và Tên hiển thị website */}
+          <div className="mt-6 space-y-6">
+            <div>
+              <ProductLabel htmlFor="input">Tên SAPO</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Tên SAPO"
+                value={product?.sapoName || sapo || ""}
+                onChange={handleWebsiteProductNameChange}
+              />
+            </div>
+            <div>
+              <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Ô tự động điền"
+                className="text-red-500 w-full"
+                value={product?.displayWebsiteName || websiteProductName || ""}
+                onChange={handleWebsiteProductNameChange}
+              />
+            </div>
+          </div>
+
+          {/* PHẦN 3: 2 cột */}
+          <div className="grid grid-cols-2 gap-6 mt-6">
+            {/* Cột trái */}
+            <div className="space-y-6">
+              <div>
+                <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
+                <CalculatedUnit product={product} isCreateMode={isCreateMode} />
+              </div>
+              {/* Giao hàng tại và Số ngày giao hàng cùng 1 row 2 col */}
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
+                  <StorageGroup product={product} isCreateMode={isCreateMode} />
+                </div>
+                <div>
+                  <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
+                  <Input
+                    type="text"
+                    id="input"
+                    placeholder="Số ngày giao hàng"
+                    value={deliveryEstimatedDate}
+                    onChange={handleDeliveryEstimatedDateChange}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* Cột phải */}
+            <div className="space-y-6">
               <div>
                 <ProductLabel htmlFor="input">Đơn vị tính tự động</ProductLabel>
                 <Input
@@ -667,7 +976,6 @@ const ProductDefaultInputs = ({
                   value={productStore.productForm.autoCalculatedUnit || ""}
                 />
               </div>
-
               <div>
                 <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
                 <FactoryGroup product={product} isCreateMode={isCreateMode} />
@@ -675,146 +983,12 @@ const ProductDefaultInputs = ({
             </div>
           </div>
 
-          {/* Mobile View */}
-          <div className="md:hidden space-y-6">
-            <div className="space-y-0">
-              <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
-              <CompanyCodeGroup product={product} isCreateMode={isCreateMode} />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                value={supplierItemCode}
-                placeholder="Mã số sản phẩm của nhà cung cấp"
-                onChange={handleSupplierItemCodeChange}
-                className={`${
-                  isValidSupplierCode === null
-                    ? ""
-                    : isValidSupplierCode
-                    ? "text-blue-500"
-                    : "text-red-500"
-                } ${isChecking ? "opacity-50" : ""}`}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-              {isOnline && productStore.productForm.productOrderNumber ? (
-                <Input
-                  type="number"
-                  id="input"
-                  placeholder="Số thứ tự tự động"
-                  disabled
-                  value={productStore.productForm.productOrderNumber || ""}
-                />
-              ) : (
-                <Input
-                  type="text"
-                  id="input"
-                  placeholder="Nhập số thứ tự"
-                  value={manualOrderNumber}
-                  onChange={handleManualOrderNumberChange}
-                />
-              )}
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                placeholder="Mã sản phẩm"
-                disabled
-                value={productStore.productForm.productCode || ""}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                disabled
-                placeholder="Ô tự động điền"
-                value={confirmSupplierItemCode}
-                onChange={handleConfirmProductCodeChange}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                disabled
-                placeholder="Ô tự động điền"
-                value={productStore.productForm.autoBarCode}
-                className="text-red-500"
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                placeholder="Ô tự động điền"
-                className="text-red-500"
-                value={product?.displayWebsiteName || websiteProductName || ""}
-                onChange={handleWebsiteProductNameChange}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
-              <CalculatedUnit product={product} isCreateMode={isCreateMode} />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Đơn vị tính tự động</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                disabled
-                placeholder="Ô tự động điền"
-                className="text-red-500"
-                value={productStore.productForm.autoCalculatedUnit || ""}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
-              <StorageGroup product={product} isCreateMode={isCreateMode} />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
-              <Input
-                type="text"
-                id="input"
-                placeholder="Số ngày giao hàng"
-                value={deliveryEstimatedDate}
-                onChange={handleDeliveryEstimatedDateChange}
-              />
-            </div>
-
-            <div>
-              <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
-              <FactoryGroup product={product} isCreateMode={isCreateMode} />
-            </div>
-          </div>
-
-          <div className="grid grid-col-1 gap-6">
+          {/* PHẦN 4: Gia công khác và Ghi chú thêm */}
+          <div className="mt-6 space-y-6">
             <div>
               <ProductLabel>Gia công khác</ProductLabel>
               <ProcessingGroup product={product} isCreateMode={isCreateMode} />
             </div>
-          </div>
-
-          <div className="space-y-6 mt-6">
             <div>
               <ProductLabel htmlFor="input">Ghi chú thêm</ProductLabel>
               <ProductTextArea
@@ -827,11 +1001,11 @@ const ProductDefaultInputs = ({
         </>
       ) : (
         <>
-          {/* Desktop View */}
-          <div className="hidden md:grid md:grid-cols-2 gap-6">
+          {/* PHẦN 1: 2 cột */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Cột trái */}
             <div className="space-y-6">
-              {/* Cột trái */}
-              <div className="space-y-0">
+              <div>
                 <ProductLabel htmlFor="input">Mã An Khánh</ProductLabel>
                 <CompanyCodeGroup
                   product={product}
@@ -839,7 +1013,21 @@ const ProductDefaultInputs = ({
                   onChange={onChange}
                 />
               </div>
-
+              <div>
+                <ProductLabel htmlFor="input">Tên tiếng anh</ProductLabel>
+                <Input
+                  type="text"
+                  id="input"
+                  placeholder="English name"
+                  value={product?.productSpecialNote || ""}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const value = e.target.value.toUpperCase();
+                    if (onChange) {
+                      onChange("productSpecialNote", value);
+                    }
+                  }}
+                />
+              </div>
               <div>
                 <ProductLabel htmlFor="input">Mã SKU</ProductLabel>
                 <Input
@@ -847,10 +1035,67 @@ const ProductDefaultInputs = ({
                   id="input"
                   disabled
                   placeholder="Ô tự động điền"
-                  value={editModeSku}
+                  value={sku}
                 />
               </div>
-
+            </div>
+            {/* Cột phải */}
+            <div className="space-y-6">
+              <div>
+                <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
+                <Input
+                  type="text"
+                  id="input"
+                  value={
+                    isCreateMode
+                      ? supplierItemCode
+                      : product?.supplierItemCode || ""
+                  }
+                  placeholder="Mã số sản phẩm của nhà cung cấp"
+                  onChange={
+                    isCreateMode
+                      ? handleSupplierItemCodeChange
+                      : (e) => {
+                          if (onChange) {
+                            onChange("supplierItemCode", e.target.value);
+                          }
+                        }
+                  }
+                  className={
+                    isCreateMode
+                      ? `${
+                          isValidSupplierCode === null
+                            ? ""
+                            : isValidSupplierCode
+                            ? "text-blue-500"
+                            : "text-red-500"
+                        } ${isChecking ? "opacity-50" : ""}`
+                      : ""
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
+                  <Input
+                    type="number"
+                    id="input"
+                    placeholder="Số thứ tự tự động"
+                    disabled
+                    value={product?.productOrderNumber || ""}
+                  />
+                </div>
+                <div>
+                  <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
+                  <Input
+                    type="text"
+                    id="input"
+                    placeholder="Mã sản phẩm"
+                    disabled
+                    value={product?.productCode || undefined}
+                  />
+                </div>
+              </div>
               <div>
                 <ProductLabel htmlFor="input">Mã barcode sản phẩm</ProductLabel>
                 <Input
@@ -862,7 +1107,45 @@ const ProductDefaultInputs = ({
                   className="text-red-500"
                 />
               </div>
+            </div>
+          </div>
 
+          {/* PHẦN 2: Tên SAPO và Tên hiển thị website */}
+          <div className="mt-6 space-y-6">
+            <div>
+              <ProductLabel htmlFor="input">Tên SAPO</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Tên SAPO"
+                value={product?.sapoName || ""}
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange("sapoName", e.target.value);
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Tên website"
+                value={product?.displayWebsiteName || ""}
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange("displayWebsiteName", e.target.value);
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          {/* PHẦN 3: 2 cột */}
+          <div className="grid grid-cols-2 gap-6 mt-6">
+            {/* Cột trái */}
+            <div className="space-y-6">
               <div>
                 <ProductLabel htmlFor="input">
                   Giá sản phẩm website
@@ -875,12 +1158,13 @@ const ProductDefaultInputs = ({
                   displayType="input"
                   onValueChange={(values) => {
                     const { floatValue } = values;
-                    onChange && onChange("productPrice", floatValue ?? 0);
+                    if (onChange) {
+                      onChange("productPrice", floatValue ?? 0);
+                    }
                   }}
                   className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
                 />
               </div>
-
               <div>
                 <ProductLabel htmlFor="input">Đơn vị tính</ProductLabel>
                 <CalculatedUnit
@@ -889,7 +1173,6 @@ const ProductDefaultInputs = ({
                   onChange={onChange}
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">
@@ -914,7 +1197,7 @@ const ProductDefaultInputs = ({
                   />
                 </div>
               </div>
-
+              {/* Giao hàng tại và Số ngày giao hàng cùng 1 row 2 col */}
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Giao hàng tại</ProductLabel>
@@ -924,7 +1207,6 @@ const ProductDefaultInputs = ({
                     onChange={onChange}
                   />
                 </div>
-
                 <div>
                   <ProductLabel htmlFor="input">Số ngày giao hàng</ProductLabel>
                   <Input
@@ -937,61 +1219,8 @@ const ProductDefaultInputs = ({
                 </div>
               </div>
             </div>
-
             {/* Cột phải */}
             <div className="space-y-6">
-              <div>
-                <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
-                <Input
-                  type="text"
-                  id="input"
-                  value={product?.supplierItemCode || ""}
-                  placeholder="Mã số sản phẩm của nhà cung cấp"
-                  onChange={(e) =>
-                    onChange && onChange("supplierItemCode", e.target.value)
-                  }
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <ProductLabel htmlFor="input">Số thứ tự</ProductLabel>
-                  <Input
-                    type="number"
-                    id="input"
-                    placeholder="Số thứ tự tự động"
-                    disabled
-                    value={product?.productOrderNumber || ""}
-                  />
-                </div>
-                <div>
-                  <ProductLabel htmlFor="input">Mã sản phẩm</ProductLabel>
-                  <Input
-                    type="text"
-                    id="input"
-                    placeholder="Mã sản phẩm"
-                    disabled
-                    value={product?.productCode || undefined}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ProductLabel htmlFor="input">
-                  Tên hiển thị website
-                </ProductLabel>
-                <Input
-                  type="text"
-                  id="input"
-                  placeholder="Ô tự động điền"
-                  className="text-red-500"
-                  value={product?.displayWebsiteName || ""}
-                  onChange={(e) =>
-                    onChange && onChange("displayWebsiteName", e.target.value)
-                  }
-                />
-              </div>
-
               <div>
                 <ProductLabel htmlFor="input">Giá khuyến mãi</ProductLabel>
                 <NumericFormat
@@ -1002,12 +1231,13 @@ const ProductDefaultInputs = ({
                   displayType="input"
                   onValueChange={(values) => {
                     const { floatValue } = values;
-                    onChange && onChange("discountedPrice", floatValue ?? 0);
+                    if (onChange) {
+                      onChange("discountedPrice", floatValue ?? 0);
+                    }
                   }}
                   className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
                 />
               </div>
-
               <div>
                 <ProductLabel htmlFor="input">Đơn vị tính tự động</ProductLabel>
                 <Input
@@ -1019,7 +1249,6 @@ const ProductDefaultInputs = ({
                   value={product?.autoCalculatedUnit || ""}
                 />
               </div>
-
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <ProductLabel htmlFor="input">Diện tích 1 viên</ProductLabel>
@@ -1032,7 +1261,6 @@ const ProductDefaultInputs = ({
                     value={product?.areaPerUnit}
                   />
                 </div>
-
                 <div>
                   <ProductLabel htmlFor="input">Diện tích 1 thùng</ProductLabel>
                   <Input
@@ -1045,7 +1273,6 @@ const ProductDefaultInputs = ({
                   />
                 </div>
               </div>
-
               <div>
                 <ProductLabel htmlFor="factory">Nhà máy</ProductLabel>
                 <FactoryGroup
@@ -1069,14 +1296,51 @@ const ProductDefaultInputs = ({
             </div>
 
             <div>
+              <ProductLabel htmlFor="input">Tên tiếng anh</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="English name"
+                value={product?.productSpecialNote || ""}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  const value = e.target.value.toUpperCase();
+                  if (onChange) {
+                    onChange("productSpecialNote", value);
+                  }
+                }}
+              />
+            </div>
+
+            <div>
               <ProductLabel htmlFor="input">Mã số nhà cung cấp</ProductLabel>
               <Input
                 type="text"
                 id="input"
-                value={product?.supplierItemCode || ""}
+                value={
+                  isCreateMode
+                    ? supplierItemCode
+                    : product?.supplierItemCode || ""
+                }
                 placeholder="Mã số sản phẩm của nhà cung cấp"
-                onChange={(e) =>
-                  onChange && onChange("supplierItemCode", e.target.value)
+                onChange={
+                  isCreateMode
+                    ? handleSupplierItemCodeChange
+                    : (e) => {
+                        if (onChange) {
+                          onChange("supplierItemCode", e.target.value);
+                        }
+                      }
+                }
+                className={
+                  isCreateMode
+                    ? `${
+                        isValidSupplierCode === null
+                          ? ""
+                          : isValidSupplierCode
+                          ? "text-blue-500"
+                          : "text-red-500"
+                      } ${isChecking ? "opacity-50" : ""}`
+                    : ""
                 }
               />
             </div>
@@ -1110,7 +1374,7 @@ const ProductDefaultInputs = ({
                 id="input"
                 disabled
                 placeholder="Ô tự động điền"
-                value={editModeSku}
+                value={sku}
               />
             </div>
 
@@ -1127,6 +1391,21 @@ const ProductDefaultInputs = ({
             </div>
 
             <div>
+              <ProductLabel htmlFor="input">Tên SAPO</ProductLabel>
+              <Input
+                type="text"
+                id="input"
+                placeholder="Tên SAPO"
+                value={product?.sapoName || ""}
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange("sapoName", e.target.value);
+                  }
+                }}
+              />
+            </div>
+
+            <div>
               <ProductLabel htmlFor="input">Tên hiển thị website</ProductLabel>
               <Input
                 type="text"
@@ -1134,9 +1413,11 @@ const ProductDefaultInputs = ({
                 placeholder="Ô tự động điền"
                 className="text-red-500"
                 value={product?.displayWebsiteName || ""}
-                onChange={(e) =>
-                  onChange && onChange("displayWebsiteName", e.target.value)
-                }
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange("displayWebsiteName", e.target.value);
+                  }
+                }}
               />
             </div>
 
@@ -1191,8 +1472,9 @@ const ProductDefaultInputs = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-10">
+          {/* PHẦN 4: Gia công khác và Ghi chú thêm */}
+          <div className="mt-6 space-y-6">
+            <div>
               <ProductLabel>Gia công khác</ProductLabel>
               <ProcessingGroup
                 product={product}
@@ -1200,13 +1482,17 @@ const ProductDefaultInputs = ({
                 onChange={onChange}
               />
             </div>
-            <div className="col-span-2 flex items-end">
-              <Button
-                className="w-full max-h-[44px] text-md font-semibold bg-[#334355] hover:bg-[#283849] text-white"
-                onClick={() => setIsProcessingPriceModalOpen(true)}
-              >
-                Xem giá
-              </Button>
+            <div>
+              <ProductLabel htmlFor="input">Ghi chú thêm</ProductLabel>
+              <ProductTextArea
+                placeholder="Ghi chú thêm"
+                value={product?.otherNote || ""}
+                onChange={(e) => {
+                  if (onChange) {
+                    onChange("otherNote", e.target.value);
+                  }
+                }}
+              />
             </div>
           </div>
 
@@ -1215,19 +1501,6 @@ const ProductDefaultInputs = ({
             onClose={() => setIsProcessingPriceModalOpen(false)}
             product={product}
           />
-
-          <div className="space-y-6 mt-6">
-            <div>
-              <ProductLabel htmlFor="input">Ghi chú thêm</ProductLabel>
-              <ProductTextArea
-                placeholder="Ghi chú thêm"
-                value={product?.otherNote || ""}
-                onChange={(e) =>
-                  onChange && onChange("otherNote", e.target.value)
-                }
-              />
-            </div>
-          </div>
         </>
       )}
     </ComponentCard>

@@ -94,6 +94,7 @@ export default class ProcessingStore extends BaseStore {
             if (processing.id != null) this.productProcessingRegistry.set(processing.id, processing);
           });
         }
+        this.loading = false;
       });
     } catch (error) {
       runInAction(() => {

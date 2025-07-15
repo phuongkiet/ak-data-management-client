@@ -33,6 +33,7 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
     setSelectedItem(surface);
     surfaceStore.surfaceFormUpdate = {
       name: surface.name,
+      shortCode: surface.shortCode,
       description: surface.description || '',
     };
     setIsModalOpen(true);
@@ -56,6 +57,11 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
     {
       name: 'Tên',
       selector: row => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Mã ngắn',
+      selector: row => row.shortCode,
       sortable: true,
     },
     {
@@ -135,6 +141,13 @@ const SurfaceTableComponent = ({ data }: SurfaceTableComponentProps) => {
               <ProductInputField
                 value={surfaceStore.surfaceFormUpdate.name}
                 onChange={(e) => surfaceStore.updateSurfaceFormUpdate('name', e.target.value)}
+              />
+            </div>
+            <div>
+              <ProductLabel className="block text-sm font-medium mb-1">Mã ngắn</ProductLabel>
+              <ProductInputField
+                value={surfaceStore.surfaceFormUpdate.shortCode}
+                onChange={(e) => surfaceStore.updateSurfaceFormUpdate('shortCode', e.target.value)}
               />
             </div>
             <div>

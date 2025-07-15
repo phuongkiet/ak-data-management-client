@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
 import PageMeta from "../../../components/common/PageMeta.tsx";
@@ -13,17 +13,18 @@ import { useApi } from "../../../hooks/useApi.ts";
 
 function ProcessingTable() {
   const { processingStore } = useStore();
-  const { productProcessingList, loading } = processingStore;
+  const { loading } = processingStore;
   const { isOnline } = useApi();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalOpen = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
   const [searchTerm, setSearchTerm] = useState("");
-  // useEffect(() => {
-  //   if (isOnline) {
-  //     loadProcessings();
-  //   }
-  // }, [isOnline]);
+  
+  useEffect(() => {
+    if (isOnline) {
+      processingStore.loadAllProcessings();
+    }
+  }, [isOnline, processingStore]);
 
   const handleSubmit = async () => {
     const result = await processingStore.addProcessing();
@@ -69,7 +70,7 @@ function ProcessingTable() {
                     placeholder="Nhập mã gia công"
                     value={processingStore.processingForm.processingCode}
                     onChange={(e) =>
-                      processingStore.updateProcessingForm("processingCode", e.target.value)
+                      processingStore.updateProcessingForm("processingCode", e.target.value.toUpperCase())
                     }
                   />
                 </div>
@@ -129,12 +130,12 @@ function ProcessingTable() {
           isOnline={isOnline}
         >
           <ProcessingTableComponent
-            data={productProcessingList}
+            data={processingStore.displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}
             onPageChange={() => {}}
-            totalCount={productProcessingList.length}
+            totalCount={processingStore.displayList.length}
             searchTerm={searchTerm}
           />
         </TableComponentCard>

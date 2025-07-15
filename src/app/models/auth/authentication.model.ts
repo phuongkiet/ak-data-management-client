@@ -16,4 +16,10 @@ export interface ResendEmailConfirmModel {
     email: string;
 }
 
+export interface HardResetPasswordModel {
+    oldPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+}
+
 

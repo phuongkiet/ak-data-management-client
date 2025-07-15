@@ -26,9 +26,9 @@ const FactoryTable = () => {
 
   const handleFactoryNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    setRawFactoryName(inputValue);
+    setRawFactoryName(inputValue.toUpperCase());
     const supplierName = selectedSupplier?.label || "";
-    const name = supplierName ? `${supplierName}/${inputValue}` : inputValue;
+    const name = supplierName ? `${supplierName}/${inputValue.toUpperCase()}` : inputValue.toUpperCase();
     factoryStore.updateFactoryForm("name", name);
   };
 
@@ -206,7 +206,7 @@ const FactoryTable = () => {
           isOnline={isOnline}
         >
           <FactoryTableComponent
-            data={productFactoryList}
+            data={factoryStore.displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}

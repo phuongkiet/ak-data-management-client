@@ -27,6 +27,7 @@ export default class ProductStore {
   strategyProductList: StrategyProductDto[] = [];
   productMetadata: ProductMetadataDto = {} as ProductMetadataDto;
   loading = false;
+  reportGenerationLoading = false;
   totalPages = 0;
   totalCount = 0;
   absoluteTotalCount = 0;
@@ -38,8 +39,8 @@ export default class ProductStore {
   term: string | null = null;
   supplierId: number | null = null;
   sizeId: number | null = null;
-  reportTemplatePath: string | null = "https://docs.google.com/spreadsheets/d/1Wh_sasdQiKNeGO6xaxzcll7IzBJuv2E4/edit?gid=1423339376#gid=1423339376";
-
+  uploadWebsiteStatuses: UploadWebsiteStatus[] = [];
+  isPriced: boolean | null = null;
   productForm: AddProductDto = {} as AddProductDto;
   productDetail: ProductDetail = {} as ProductDetail;
   strategyProductDetail: StrategyProductDetailDto = {} as StrategyProductDetailDto;
@@ -58,7 +59,7 @@ export default class ProductStore {
         this.bulkUpdateStrategyProductsLoading = false;
         toast.success(result.data);
         // Reload lại danh sách sản phẩm sau khi cập nhật
-        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
+        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.supplierId ?? undefined, this.sizeId ?? undefined, this.uploadWebsiteStatuses, this.term ?? undefined, this.isPriced ?? undefined);
         return true;
       });
     } catch (error) {
@@ -128,6 +129,7 @@ export default class ProductStore {
         hardnessMOHS: 0,
         otherNote: "",
         deliveryEstimatedDate: "",
+        sapoName: ""
       };
     });
   };
@@ -171,11 +173,11 @@ export default class ProductStore {
     this.hasLoadedTotalPricedProducts = true;
   };
 
-  setSupplierId = (id: number | null) => {
+  setSupplierId = (id: number) => {
     this.supplierId = id;
   };
 
-  setSizeId = (id: number | null) => {
+  setSizeId = (id: number) => {
     this.sizeId = id;
   };
 
@@ -202,14 +204,13 @@ export default class ProductStore {
 
   setFilters = (filters: Partial<AdvancedSearchDto>) => {
     runInAction(() => {
-      // Sử dụng runInAction để cập nhật nhiều observable
-      if (filters.pageNumber !== undefined)
-        this.pageNumber = filters.pageNumber;
-      if (filters.pageSize !== undefined) this.pageSize = filters.pageSize;
-      if (filters.term !== undefined) this.term = filters.term;
-      if (filters.supplierId !== undefined)
-        this.supplierId = filters.supplierId;
-      if (filters.sizeId !== undefined) this.sizeId = filters.sizeId;
+      if ('pageNumber' in filters) this.pageNumber = filters.pageNumber ?? 1;
+      if ('pageSize' in filters) this.pageSize = filters.pageSize ?? 10;
+      if ('term' in filters) this.term = filters.term ?? "";
+      if ('supplierId' in filters) this.supplierId = filters.supplierId ?? null;
+      if ('sizeId' in filters) this.sizeId = filters.sizeId ?? null;
+      if ('uploadWebsiteStatuses' in filters) this.uploadWebsiteStatuses = filters.uploadWebsiteStatuses ?? [];
+      if ('isPriced' in filters) this.isPriced = filters.isPriced ?? null;
     });
   };
 
@@ -221,7 +222,9 @@ export default class ProductStore {
         this.pageNumber,
         this.term ?? undefined,
         this.supplierId ?? undefined,
-        this.sizeId ?? undefined
+        this.sizeId ?? undefined,
+        this.uploadWebsiteStatuses,
+        this.isPriced ?? undefined
       );
       runInAction(() => {
         this.productList = result.data?.results || [];
@@ -264,14 +267,22 @@ export default class ProductStore {
   loadStrategyProducts = async (
     pageSize: number,
     pageNumber: number,
-    term?: string
+    supplierId?: number,
+    sizeId?: number,
+    uploadWebsiteStatuses?: UploadWebsiteStatus[],
+    term?: string,
+    isPriced?: boolean
   ) => {
     this.loading = true;
     try {
       const result = await agent.Product.strategyProductList(
         pageSize,
         pageNumber,
-        term
+        supplierId ?? undefined,
+        sizeId ?? undefined,
+        uploadWebsiteStatuses,
+        isPriced ?? undefined,
+        term,
       );
       runInAction(() => {
         this.strategyProductList = result.data?.results || [];
@@ -570,7 +581,7 @@ export default class ProductStore {
     // 3. RetailPrice
     const policyStandard = Number(product.policyStandard) || 0;
     const policyStandardNumber = 1 + policyStandard / 100;
-    let rawRetailPrice = supplierEstimatedPayableAmount * policyStandardNumber;
+    const rawRetailPrice = supplierEstimatedPayableAmount * policyStandardNumber;
     product.retailPrice = listPrice > 0 ? Math.round(rawRetailPrice / 1000) * 1000 : 0;
 
     // 4. EstimatedPurchasePriceAfterSupplierDiscount
@@ -657,7 +668,7 @@ export default class ProductStore {
           toast.success(response.data);
           // Sau khi lưu thành công, load lại detail để lấy các giá trị được tính toán từ backend
           this.loadStrategyProductDetail(productId);
-          this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
+          this.loadStrategyProducts(this.pageSize, this.pageNumber, this.supplierId ?? undefined, this.sizeId ?? undefined, this.uploadWebsiteStatuses, this.term ?? undefined);
           this.loading = false;
         });
         return true;
@@ -711,7 +722,7 @@ export default class ProductStore {
       const response = await agent.Product.updateBatchProduct(file);
       if(response.success) {
         toast.success(response.data);
-        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.term ?? undefined);
+        this.loadStrategyProducts(this.pageSize, this.pageNumber, this.supplierId ?? undefined, this.sizeId ?? undefined, this.uploadWebsiteStatuses, this.term ?? undefined);
       } else {
         toast.error(response.errors?.[0] || "Lỗi khi cập nhật sản phẩm");
       }
@@ -748,7 +759,9 @@ export default class ProductStore {
   };
 
   generateReport = async () => {
-    this.loading = true;
+    runInAction(() => {
+      this.reportGenerationLoading = true;
+    });
     try {
       const response = await agent.Product.generateReport();
       if(response.success) {
@@ -763,8 +776,23 @@ export default class ProductStore {
       return false;
     } finally {
       runInAction(() => {
-        this.loading = false;
+        this.reportGenerationLoading = false;
       });
+    }
+  }
+
+  updateColor = async (file: File) => {
+    try {
+      const response = await agent.Product.updateColor(file);
+      if(response.success) {
+        toast.success(response.data);
+        this.loadProducts();
+      } else {
+        toast.error(response.errors?.[0] || "Lỗi khi cập nhật màu sắc");
+      }
+    } catch (error) {
+      console.error("Error updating color:", error);
+      toast.error("Lỗi khi cập nhật màu sắc");
     }
   }
 }

@@ -98,3 +98,17 @@ export const customDarkTheme = createTheme(
   },
   'dark'
 );
+
+export function convertKgPerM2(weightPerBox: number, areaPerBox: number): number {
+  if (!areaPerBox || areaPerBox === 0) return 0;
+  const divisionResult = weightPerBox / areaPerBox;
+  const integerPart = Math.floor(divisionResult);
+  const rawDecimalPart = divisionResult - integerPart;
+  const roundedDecimalPart = Math.round(rawDecimalPart * 1e9) / 1e9;
+
+  if (roundedDecimalPart <= 0.5) {
+    return integerPart + 0.5;
+  } else {
+    return integerPart + 1;
+  }
+}

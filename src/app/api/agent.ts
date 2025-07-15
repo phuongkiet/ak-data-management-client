@@ -26,6 +26,7 @@ import {
 import {
   ProductSupplierDto,
   SupplierDetailDto,
+  SupplierInformation,
   UpdateSupplierForStrategyDto,
 } from "../models/product/productSupplier.model.ts";
 import {
@@ -107,6 +108,7 @@ import {
 } from "../models/product/productArea.model.ts";
 import {
   ForgotPasswordModel,
+  HardResetPasswordModel,
   ResendEmailConfirmModel,
   ResetPasswordModel,
   VerifyEmailModel,
@@ -117,6 +119,7 @@ import {
   UpdateLinkStorageDto,
 } from "../models/storage/linkStorage.model.ts";
 import { SettingDto, UpdateSettingDto } from "../models/setting.model.ts";
+import { UploadWebsiteStatus } from "../models/product/enum/product.enum.ts";
 
 export interface ApiResponseModel<T> {
   success: boolean;
@@ -235,8 +238,8 @@ const Account = {
     dto: ResendEmailConfirmModel
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>(`/auth/resend-verification-otp`, dto),
-  // changePassword: (values: any): Promise<ApiResponseModel<string>> =>
-  //   requests.post<string>(`/auth/changeUserPassword`, values),
+  hardResetPassword: (dto: HardResetPasswordModel): Promise<ApiResponseModel<string>> =>
+    requests.post<string>(`/auth/hard-reset-password`, dto),
   updateAvatar: (request: {
     userEmail: string;
     file: File;
@@ -276,14 +279,18 @@ const Product = {
     pageNumber?: number,
     term?: string,
     supplierId?: number,
-    sizeId?: number
+    sizeId?: number,
+    uploadWebsiteStatuses?: UploadWebsiteStatus[],
+    isPriced?: boolean
   ): Promise<ApiResponseModel<PagedModel<ProductDto>>> => {
     const params = new URLSearchParams();
-    if (pageSize) params.append("PageSize", pageSize.toString());
-    if (pageNumber) params.append("PageNumber", pageNumber.toString());
-    if (supplierId) params.append("SupplierId", supplierId.toString());
-    if (sizeId) params.append("SizeId", sizeId.toString());
-    if (term) params.append("Term", term);
+    if (pageSize) params.append("pageSize", pageSize.toString());
+    if (pageNumber) params.append("pageNumber", pageNumber.toString());
+    if (supplierId) params.append("supplierId", supplierId.toString());
+    if (sizeId) params.append("sizeId", sizeId.toString());
+    if (uploadWebsiteStatuses && uploadWebsiteStatuses.length > 0) params.append("uploadWebsiteStatusString", uploadWebsiteStatuses.join(","));
+    if (typeof isPriced === "boolean") params.append("IsPriced", isPriced.toString());
+    if (term) params.append("term", term);
 
     return requests.get<PagedModel<ProductDto>>(
       `/products?${params.toString()}`
@@ -300,11 +307,19 @@ const Product = {
   strategyProductList: (
     pageSize?: number,
     pageNumber?: number,
+    supplierId?: number,
+    sizeId?: number,
+    uploadWebsiteStatuses?: UploadWebsiteStatus[],
+    isPriced?: boolean,
     term?: string
   ): Promise<ApiResponseModel<PagedModel<StrategyProductDto>>> => {
     const params = new URLSearchParams();
     if (pageSize) params.append("pageSize", pageSize.toString());
     if (pageNumber) params.append("pageNumber", pageNumber.toString());
+    if (supplierId) params.append("supplierId", supplierId.toString());
+    if (sizeId) params.append("sizeId", sizeId.toString());
+    if (uploadWebsiteStatuses && uploadWebsiteStatuses.length > 0) params.append("uploadWebsiteStatusString", uploadWebsiteStatuses.join(","));
+    if (typeof isPriced === "boolean") params.append("IsPriced", isPriced.toString());
     if (term) params.append("term", term);
 
     return requests.get<PagedModel<StrategyProductDto>>(
@@ -389,6 +404,12 @@ const Product = {
 
   generateReport: (): Promise<ApiResponseModel<string>> =>
     requests.get<string>(`/products/generate-report`),
+
+  updateColor: (file: File): Promise<ApiResponseModel<string>> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return requests.put<string>("/products/update-color", formData);
+  },
 };
 
 const ProductSupplier = {
@@ -406,8 +427,8 @@ const ProductSupplier = {
     requests.post<string>("/suppliers/add-supplier", supplier),
   getNextSupplierOrderNumber: (
     term: string
-  ): Promise<ApiResponseModel<number>> =>
-    requests.get<number>(`/suppliers/get-order?term=${term}`),
+  ): Promise<ApiResponseModel<SupplierInformation>> =>
+    requests.get<SupplierInformation>(`/suppliers/get-order?term=${term}`),
   updateSupplier: (
     id: number,
     supplier: UpdateSupplierForStrategyDto
@@ -511,15 +532,15 @@ const CompanyCode = {
   ): Promise<ApiResponseModel<string>> =>
     requests.post<string>("/company-codes/add-company-code", companyCode),
   updateCompanyCode: (
-    companyCodeId: number,
+    cpnCodeId: number,
     companyCode: UpdateCompanyCodeDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(
-      `/company-codes/update-company-code?companyCodeId=${companyCodeId}`,
+      `/company-codes/update-company-code?companyCodeId=${cpnCodeId}`,
       companyCode
     ),
-  deleteCompanyCode: (companyCodeId: number): Promise<ApiResponseModel<string>> =>
-    requests.del<string>(`/company-codes/delete-company-code?companyCodeId=${companyCodeId}`),
+  deleteCompanyCode: (cpnCodeId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/company-codes/delete-company-code?companyCodeId=${cpnCodeId}`),
 };
 
 const CalculatedUnit = {
@@ -541,15 +562,15 @@ const CalculatedUnit = {
       calculatedUnit
     ),
   updateCalculatedUnit: (
-    calculatedUnitId: number,
+    calId: number,
     calculatedUnit: UpdateCalculatedUnitDto
   ): Promise<ApiResponseModel<string>> =>
     requests.put<string>(
-      `/calculated-units/update-calculated-unit?calculatedUnitId=${calculatedUnitId}`,
+      `/calculated-units/update-calculated-unit?calculatedUnitId=${calId}`,
       calculatedUnit
     ),
-  deleteCalculatedUnit: (calculatedUnitId: number): Promise<ApiResponseModel<string>> =>
-    requests.del<string>(`/calculated-units/delete-calculated-unit?calculatedUnitId=${calculatedUnitId}`),
+  deleteCalculatedUnit: (calId: number): Promise<ApiResponseModel<string>> =>
+    requests.del<string>(`/calculated-units/delete-calculated-unit?calculatedUnitId=${calId}`),
 };
 
 const AntiSlippery = {

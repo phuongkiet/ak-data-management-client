@@ -14,11 +14,13 @@ export default class MaterialStore extends BaseStore {
 
   materialForm: AddMaterialDto = {
     name: "",
+    shortName: "",
     description: null
   };
 
   materialFormUpdate: UpdateMaterialDto = {
     name: "",
+    shortName: "",
     description: null
   };
 
@@ -124,6 +126,7 @@ export default class MaterialStore extends BaseStore {
   resetMaterialForm = () => {
     this.materialForm = {
       name: "",
+      shortName: "",
       description: null
     };
   }
@@ -146,6 +149,7 @@ export default class MaterialStore extends BaseStore {
         const newItem: ProductMaterialDto = {
           id: Date.now(),
           name: this.materialForm.name,
+          shortName: this.materialForm.shortName,
           description: this.materialForm.description
         };
         this.addItemToMetadata(newItem);
@@ -171,6 +175,7 @@ export default class MaterialStore extends BaseStore {
         const updatedItem: ProductMaterialDto = {
           id: id,
           name: this.materialFormUpdate.name,
+          shortName: this.materialFormUpdate.shortName,
           description: this.materialFormUpdate.description
         };
         this.addItemToMetadata(updatedItem);

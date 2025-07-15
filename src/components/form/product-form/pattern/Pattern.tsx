@@ -2,7 +2,7 @@ import ComponentCard from "../../../common/ComponentCard.tsx";
 import ProductLabel from "../ProductLabel.tsx";
 import Input from "../input/product/ProductInputField.tsx";
 import { useStore } from "../../../../app/stores/store.ts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactSelect from "react-select";
 // import { ProductPatternDto } from '../../../../app/models/product/productPattern.model.ts'
 import { observer } from "mobx-react-lite";
@@ -25,6 +25,13 @@ const PatternGroup = ({ product, isCreateMode, onChange }: ProductProps) => {
   const { productPatternList } = patternStore
   const [selectedPatternShortCode, setSelectedPatternShortCode] = useState<string>("");
 
+  // Đồng bộ shortCode khi đổi pattern ở edit mode
+  useEffect(() => {
+    if (!isCreateMode && product?.brickPatternId) {
+      const pattern = productPatternList.find(x => x.id === product.brickPatternId);
+      setSelectedPatternShortCode(pattern?.shortCode || "");
+    }
+  }, [isCreateMode, product?.brickPatternId, productPatternList]);
 
   // Mapping list
   const patternOptions: Option[] = productPatternList.map((pattern) => ({

@@ -131,7 +131,7 @@ export default class CompanyCodeStore extends BaseStore {
         this.loading = false;
         return true;
       }else{
-        toast.error("Lỗi khi thêm mã công ty.")
+        toast.error(result.errors[0])
         this.loading = false;
         return false;
       }
@@ -159,11 +159,17 @@ export default class CompanyCodeStore extends BaseStore {
         this.resetCompanyCodeForm();
         this.loading = false;
         return true;
+      }else{
+        toast.error(result.errors[0])
+        this.loading = false;
+        return false;
       }
     } catch (error) {
       runInAction(() => {
         this.loading = false;
       });
+      console.error("Failed to update company code", error);
+      toast.error("Lỗi khi cập nhật mã công ty.")
     }
   }
 

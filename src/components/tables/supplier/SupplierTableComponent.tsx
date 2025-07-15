@@ -49,6 +49,11 @@ export default function SupplierTableComponent({ data }: SupplierTableComponentP
       sortable: true,
     },
     {
+      name: 'Ký hiệu NCC',
+      selector: row => row.supplierCombinedCode,
+      sortable: true, 
+    },
+    {
       name: 'Hành động',
       cell: row => (
         <button

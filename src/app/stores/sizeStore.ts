@@ -74,8 +74,8 @@ export default class SizeStore extends BaseStore {
     this.term = term;
   }
 
-  searchSize = async () => {
-    await this.loadSizes(this.term);
+  searchSize = async (term?: string) => {
+    await this.loadSizes(term ?? this.term);
   }
 
   loadAllSizes = async () => {
@@ -147,7 +147,7 @@ export default class SizeStore extends BaseStore {
         this.addItemToMetadata(newItem);
         return true;
       }else{
-        toast.error("Lỗi khi thêm kích thước.");
+        toast.error(result.errors[0]);
         this.loading = false;
         return false;
       }

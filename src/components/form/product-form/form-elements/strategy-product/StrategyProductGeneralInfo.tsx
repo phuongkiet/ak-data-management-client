@@ -93,9 +93,7 @@ const StrategyProductGeneralInfo = ({ product }: ProductProps) => {
                   onChange={(e) => {
                     const weightPerUnit = parseFloat(e.target.value) ?? 0;
                     update("weightPerUnit", weightPerUnit);
-                    if (form.quantityPerBox) {
-                      update("weightPerUnit", weightPerUnit * form.quantityPerBox);
-                    }
+                    // Không update lại weightPerUnit * quantityPerBox ở đây!
                   }}
                 />
               </div>

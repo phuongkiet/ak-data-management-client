@@ -133,7 +133,7 @@ export default class LinkStorageStore extends BaseStore {
     try {
       const result = await agent.LinkStorage.addLinkStorage(this.linkStorageForm);
       if (result.success) {
-        toast.success("Nhà máy đã được tạo thành công.");
+        toast.success("Kho đồ đã được tạo thành công.");
         // Thêm mới vào list hiện tại
         const newItem = { id: Number(result.data), ...this.linkStorageForm };
         this.linkStorageList = [...this.linkStorageList, newItem];

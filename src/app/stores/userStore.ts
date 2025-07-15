@@ -12,6 +12,7 @@ import { router } from "../router/route.tsx";
 import { toast } from "react-toastify";
 import {
   ForgotPasswordModel,
+  HardResetPasswordModel,
   ResendEmailConfirmModel,
   VerifyEmailModel,
 } from "../models/auth/authentication.model.ts";
@@ -253,6 +254,23 @@ export default class UserStore {
     } catch (error) {
       console.error("updateAvatar error", error);
       toast.error("Lỗi khi cập nhật ảnh đại diện");
+      this.loading = false;
+      return false;
+    }
+  };
+
+  hardResetPassword = async (dto: HardResetPasswordModel) => {
+    this.loading = true;
+    try {
+      const result = await agent.Account.hardResetPassword(dto);
+      if (result.success) {
+        toast.success(result.data || "Đổi mật khẩu thành công");
+        this.loading = false;
+        return true;
+      }
+    } catch (error) {
+      console.error("hardResetPassword error", error);
+      toast.error("Lỗi khi đổi mật khẩu");
       this.loading = false;
       return false;
     }

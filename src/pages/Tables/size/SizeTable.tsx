@@ -118,7 +118,7 @@ function SizeTable() {
                     disabled={true}
                   />
                 </div>
-                <div>
+                <div className="w-full">
                   <ProductLabel>Mã công ty</ProductLabel>
                   <ReactSelect
                     placeholder="Chọn mã công ty"
@@ -220,10 +220,13 @@ function SizeTable() {
           onSearch={(term) => {
             handleSearch(term);
           }}
+          onSearchSubmit={() => {
+            sizeStore.searchSize();
+          }}
           isOnline={isOnline}
         >
           <SizeTableComponent
-            data={productSizeList}
+            data={sizeStore.displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}

@@ -71,7 +71,7 @@ function SurfaceTable() {
                     placeholder="Nhập mã bề mặt"
                     value={surfaceStore.surfaceForm.name}
                     onChange={(e) =>
-                      surfaceStore.updateSurfaceForm("name", e.target.value)
+                      surfaceStore.updateSurfaceForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>
@@ -131,7 +131,7 @@ function SurfaceTable() {
           isOnline={isOnline}
         >
           <SurfaceTableComponent
-            data={productSurfaceList}
+            data={surfaceStore.displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}

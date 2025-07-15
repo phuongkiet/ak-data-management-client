@@ -7,24 +7,46 @@ import { useStore } from "../../../app/stores/store.ts";
 import TableComponentCard from "../../../components/common/product/TableComponentCard.tsx";
 import Button from "../../../components/ui/button/Button.tsx";
 import Modal from "../../../components/ui/modal/index.tsx";
-import { ProductSupplierDto } from "../../../app/models/product/productSupplier.model.ts";
-import { ProductSizeDto } from "../../../app/models/product/productSize.model.ts";
 import { useApi } from "../../../hooks/useApi";
+import { UploadWebsiteStatus } from "../../../app/models/product/enum/product.enum";
 
 function ProductTable() {
   const { productStore, supplierStore, sizeStore, commonStore } = useStore();
   const { isOnline } = useApi();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(productStore.pageSize || 10);
+  const [pageNumber, setPageNumber] = useState(
+    parseInt(localStorage.getItem("pageNumber") ?? "2")
+  );
+  const [pageSize, setPageSize] = useState(() => {
+    const saved = localStorage.getItem("pageSize");
+    return saved ? parseInt(saved) : 10;
+  });
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
-  const [isAdvancedActive, setIsAdvancedActive] = useState(false);
-  const [tempSelectedSupplier, setTempSelectedSupplier] = useState<
-    number | null
-  >(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<UploadWebsiteStatus[]>([]);
+  const [tempSelectedSupplier, setTempSelectedSupplier] = useState<number | null>(null);
   const [tempSelectedSize, setTempSelectedSize] = useState<number | null>(null);
+  const [tempSelectedStatuses, setTempSelectedStatuses] = useState<UploadWebsiteStatus[]>([]);
+  const [isAdvancedActive, setIsAdvancedActive] = useState(false);
+  const [selectedIsPriced, setSelectedIsPriced] = useState<boolean | null>(null);
+  const [tempSelectedIsPriced, setTempSelectedIsPriced] = useState<boolean | null>(null);
+  const [filtersInitialized, setFiltersInitialized] = useState(false);
+  const [pageNumberInitialized, setPageNumberInitialized] = useState(false);
+  // Tạo list uploadWebsiteStatus với thông tin hiển thị
+  const uploadWebsiteStatusList = [
+    { id: UploadWebsiteStatus.Uploaded, name: "Đã up web", color: "bg-green-400 hover:bg-green-500" },
+    { id: UploadWebsiteStatus.Captured, name: "Đã chụp", color: "bg-blue-400 hover:bg-blue-500" },
+    { id: UploadWebsiteStatus.Named, name: "Đã đặt tên", color: "bg-purple-400 hover:bg-purple-500" },
+    { id: UploadWebsiteStatus.ReAdded, name: "Thêm lại", color: "bg-yellow-400 hover:bg-yellow-500" },
+    { id: UploadWebsiteStatus.ReNameSupplier, name: "Đổi tên NCC", color: "bg-orange-400 hover:bg-orange-500" },
+    { id: UploadWebsiteStatus.NotCaptured, name: "Chưa chụp", color: "bg-red-400 hover:bg-red-500" },
+    { id: UploadWebsiteStatus.Cancel, name: "Hủy", color: "bg-gray-400 hover:bg-gray-500" },
+    { id: UploadWebsiteStatus.RecheckSupplierCode, name: "Kiểm tra lại", color: "bg-indigo-400 hover:bg-indigo-500" },
+    { id: UploadWebsiteStatus.Dropped, name: "Đã bỏ", color: "bg-pink-400 hover:bg-pink-500" },
+    { id: UploadWebsiteStatus.Stopped, name: "Dừng", color: "bg-red-500 hover:bg-red-600" },
+    { id: UploadWebsiteStatus.VideoMissing, name: "Thiếu video", color: "bg-amber-400 hover:bg-amber-500" },
+  ];
 
   const {
     productList,
@@ -33,8 +55,9 @@ function ProductTable() {
     term,
     totalCount,
     importProducts,
+    // updateColor,
     loading,
-    existingSupplierSizeCombinations, // Lấy danh sách combinations từ store
+    existingSupplierSizeCombinations,
   } = productStore;
 
   const { productSupplierList } = supplierStore;
@@ -46,39 +69,62 @@ function ProductTable() {
 
   useEffect(() => {
     if (!commonStore.token || !isOnline) return;
-
+    const savedPageNumber = localStorage.getItem("pageNumber");
+    if (savedPageNumber && parseInt(savedPageNumber) !== pageNumber) {
+      setPageNumber(parseInt(savedPageNumber));
+      setTimeout(() => setPageNumberInitialized(true), 0);
+    } else {
+      setPageNumberInitialized(true);
+    }
     // Lấy filter từ localStorage
     const savedSupplier = localStorage.getItem("selectedSupplier");
     const savedSize = localStorage.getItem("selectedSize");
-    const savedPageNumber = localStorage.getItem("pageNumber");
+    const savedStatuses = localStorage.getItem("selectedStatuses");
     const savedPageSize = localStorage.getItem("pageSize");
+    const savedIsPriced = localStorage.getItem("selectedIsPriced");
+    const savedTerm = localStorage.getItem("term");
     const initialSupplierId = savedSupplier ? parseInt(savedSupplier) : null;
     const initialSizeId = savedSize ? parseInt(savedSize) : null;
-
+    const initialStatuses = savedStatuses ? JSON.parse(savedStatuses) : [];
+    const initialIsPriced = savedIsPriced ? JSON.parse(savedIsPriced) : null;
     setSelectedSupplier(initialSupplierId);
     setTempSelectedSupplier(initialSupplierId);
     setSelectedSize(initialSizeId);
     setTempSelectedSize(initialSizeId);
-    setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null);
-    setPageNumber(savedPageNumber ? parseInt(savedPageNumber) : 1);
-    setPageSize(savedPageSize ? parseInt(savedPageSize) : 10);
-
+    setSelectedStatuses(initialStatuses);
+    setTempSelectedStatuses(initialStatuses);
+    setSelectedIsPriced(initialIsPriced);
+    setTempSelectedIsPriced(initialIsPriced);
+    setIsAdvancedActive(initialSupplierId !== null || initialSizeId !== null || initialStatuses.length > 0 || initialIsPriced !== null);
+    if (savedPageSize && parseInt(savedPageSize) !== pageSize) {
+      setPageSize(parseInt(savedPageSize));
+    }
+    setSearchInput(savedTerm ?? "");
+    if (savedTerm !== null && savedTerm !== term) {
+      setTerm(savedTerm);
+    }
+    setFiltersInitialized(true);
   }, [commonStore.token, isOnline]);
 
   useEffect(() => {
     if (
       !isOnline ||
       supplierStore.loading ||
-      sizeStore.loading
-        )
+      sizeStore.loading ||
+      !filtersInitialized ||
+      !pageSize ||
+      !pageNumberInitialized
+    )
       return;
 
     productStore.setFilters({
       pageNumber,
       pageSize,
       term,
-      supplierId: isAdvancedActive ? selectedSupplier : null,
-      sizeId: isAdvancedActive ? selectedSize : null,
+      supplierId: isAdvancedActive && selectedSupplier !== null ? selectedSupplier : undefined,
+      sizeId: isAdvancedActive && selectedSize !== null ? selectedSize : undefined,
+      uploadWebsiteStatuses: isAdvancedActive ? selectedStatuses : [],
+      isPriced: isAdvancedActive ? selectedIsPriced : undefined,
     });
     loadProducts();
   }, [
@@ -87,20 +133,28 @@ function ProductTable() {
     term,
     selectedSupplier,
     selectedSize,
+    selectedStatuses,
+    selectedIsPriced,
     isAdvancedActive,
     isOnline,
     supplierStore.loading,
     sizeStore.loading,
+    filtersInitialized,
+    pageNumberInitialized
   ]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
+    localStorage.setItem("pageNumber", page.toString());
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
+    if (newPageSize === pageSize) return; // Không làm gì nếu không đổi pageSize
     productStore.pageSize = newPageSize;
     setPageSize(newPageSize);
     setPageNumber(1); // Reset to first page
+    localStorage.setItem("pageSize", newPageSize.toString());
+    localStorage.setItem("pageNumber", "1"); // Reset page về 1
   };
 
   const handleImportClick = () => {
@@ -124,6 +178,9 @@ function ProductTable() {
   const handleAdvancedOpen = () => {
     setTempSelectedSupplier(selectedSupplier);
     setTempSelectedSize(selectedSize);
+    setTempSelectedStatuses(selectedStatuses);
+    setSelectedIsPriced(selectedIsPriced);
+    setTempSelectedIsPriced(selectedIsPriced);
     setIsAdvancedOpen(true);
   };
   const handleAdvancedClose = () => {
@@ -131,25 +188,32 @@ function ProductTable() {
   };
 
   const handleResetFilters = () => {
-    // Reset state filter local
     setIsAdvancedActive(false);
     setSelectedSupplier(null);
     setSelectedSize(null);
+    setSelectedStatuses([]);
+    setSelectedIsPriced(null);
+    setTempSelectedIsPriced(null);
     setTempSelectedSupplier(null);
     setTempSelectedSize(null);
-    setPageNumber(1); // Reset state pageNumber local
+    setTempSelectedStatuses([]);
+    setTerm("");
+    setPageNumber(1);
     setIsAdvancedOpen(false);
-
-    // Xóa/cập nhật localStorage
     localStorage.removeItem("selectedSupplier");
     localStorage.removeItem("selectedSize");
-    localStorage.setItem("productPageNumber", "1");
+    localStorage.removeItem("selectedStatuses");
+    localStorage.removeItem("selectedIsPriced");
+    localStorage.removeItem("term");
+    localStorage.setItem("pageNumber", "1"); // Reset page về 1 khi reset filter
   };
 
   const handleApplyFilters = () => {
     const hasChanges =
       selectedSupplier !== tempSelectedSupplier ||
       selectedSize !== tempSelectedSize ||
+      JSON.stringify(selectedStatuses) !== JSON.stringify(tempSelectedStatuses) ||
+      selectedIsPriced !== tempSelectedIsPriced ||
       !isAdvancedActive;
 
     if (!hasChanges) {
@@ -157,16 +221,18 @@ function ProductTable() {
       return;
     }
 
-    // Cập nhật state filter local
     setSelectedSupplier(tempSelectedSupplier);
     setSelectedSize(tempSelectedSize);
-    setIsAdvancedActive(true);
-
-    // Nếu có thay đổi thì reset page (cập nhật state pageNumber local)
+    setSelectedStatuses(tempSelectedStatuses);
+    setSelectedIsPriced(tempSelectedIsPriced);
+    setIsAdvancedActive(
+      tempSelectedSupplier !== null ||
+      tempSelectedSize !== null ||
+      tempSelectedStatuses.length > 0 ||
+      tempSelectedIsPriced !== null
+    );
     const newPageNumber = 1;
     setPageNumber(newPageNumber);
-
-    // Lưu vào localStorage
     localStorage.setItem("pageNumber", newPageNumber.toString());
     if (tempSelectedSupplier !== null) {
       localStorage.setItem("selectedSupplier", tempSelectedSupplier.toString());
@@ -178,7 +244,8 @@ function ProductTable() {
     } else {
       localStorage.removeItem("selectedSize");
     }
-
+    localStorage.setItem("selectedStatuses", JSON.stringify(tempSelectedStatuses));
+    localStorage.setItem("selectedIsPriced", tempSelectedIsPriced?.toString() || "");
     setIsAdvancedOpen(false);
   };
 
@@ -190,47 +257,6 @@ function ProductTable() {
     );
   };
 
-  // Hàm helper để xác định class cho nút Supplier
-  const getSupplierButtonClass = (supplier: ProductSupplierDto) => {
-    const isSelected = tempSelectedSupplier === supplier.id;
-    const otherFilterSelected = tempSelectedSize !== null;
-
-    if (isSelected) {
-      return "bg-blue-600 text-white"; // Màu đậm khi được chọn
-    } else if (otherFilterSelected) {
-      // Nếu Size đã được chọn, kiểm tra xem supplier này có combination với size đó không
-      const isAvailableCombination = combinationExists(
-        supplier.id,
-        tempSelectedSize
-      );
-      return isAvailableCombination
-        ? "bg-blue-400 text-white hover:bg-blue-500"
-        : "bg-gray-400 text-white hover:bg-gray-500"; // Màu nhạt hoặc xám nếu không có combination
-    } else {
-      return "bg-blue-400 text-white hover:bg-blue-500"; // Màu mặc định khi chưa chọn filter nào khác
-    }
-  };
-
-  // Hàm helper để xác định class cho nút Size
-  const getSizeButtonClass = (size: ProductSizeDto) => {
-    const isSelected = tempSelectedSize === size.id;
-    const otherFilterSelected = tempSelectedSupplier !== null;
-
-    if (isSelected) {
-      return "bg-green-600 text-white";
-    } else if (otherFilterSelected) {
-      const isAvailableCombination = combinationExists(
-        Number(tempSelectedSupplier),
-        Number(size.id)
-      );
-      return isAvailableCombination
-        ? "bg-green-400 text-white hover:bg-green-500"
-        : "bg-gray-400 text-white hover:bg-gray-500";
-    } else {
-      return "bg-green-400 text-white hover:bg-green-500";
-    }
-  };
-
   // Sửa lại logic search
   const handleSearch = (value: string) => {
     setSearchInput(value); // chỉ đổi input, không đổi store
@@ -239,6 +265,23 @@ function ProductTable() {
   const handleSearchSubmit = () => {
     setTerm(searchInput); // chỉ khi bấm nút mới đổi store (trigger search)
   };
+
+  // const handleUpdateColor = () => {
+  //   fileInputRef.current?.click();
+  // };
+
+  // const handleUpdateColorFileChange = async (
+  //   event: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     await updateColor(file);
+  //     // Reset the file input
+  //     if (fileInputRef.current) {
+  //       fileInputRef.current.value = "";
+  //     }
+  //   }
+  // };
 
   return (
     <>
@@ -262,6 +305,13 @@ function ProductTable() {
                 accept=".xlsx,.xls"
                 className="hidden"
               />
+              {/* <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleUpdateColorFileChange}
+                accept=".xlsx,.xls"
+                className="hidden"
+              /> */}
               {/* Desktop: Button text */}
               <div className="hidden md:inline-flex md:mr-2 py-2">
                 <Button
@@ -270,6 +320,12 @@ function ProductTable() {
                 >
                   Nhập file
                 </Button>
+                {/* <Button
+                  onClick={handleUpdateColor}
+                  className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
+                >
+                  Cập nhật màu sắc
+                </Button> */}
                 <Button
                   onClick={handleAdvancedOpen}
                   className="ml-2 h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white"
@@ -342,6 +398,7 @@ function ProductTable() {
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
             totalCount={totalCount}
+            pageSize={pageSize}
           />
         </TableComponentCard>
       </div>
@@ -349,54 +406,102 @@ function ProductTable() {
         isOpen={isAdvancedOpen}
         onClose={handleAdvancedClose}
         showCloseButton={false}
-        className="p-8 w-full max-w-[800px]"
+        className="p-8 w-full max-w-[1000px]"
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-12 gap-4">
           {/* Supplier Column */}
-          <div>
+          <div className="col-span-5">
             <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Nhà Cung Cấp</h2>
-            {supplierStore.loading ? ( 
+            {supplierStore.loading ? (
               <p>Đang tải nhà cung cấp...</p>
             ) : (
               <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-                {productSupplierList.map((supplier) => (
-                  <button
-                    key={supplier.id}
-                    className={`px-2 py-2  text-xs min-w-[250px] md:px-4 md:py-2 md:text-base md:min-w-[180px] rounded text-left whitespace-nowrap ${getSupplierButtonClass(supplier)}`}
-                    onClick={() => {
-                      setTempSelectedSupplier(
-                        tempSelectedSupplier === supplier.id ? null : supplier.id
-                      );
-                    }}
-                  >
-                    {supplier.supplierCodeName}
-                  </button>
-                ))}
+                {productSupplierList.map((supplier) => {
+                  const disabled = tempSelectedSize !== null && !combinationExists(supplier.id, tempSelectedSize);
+                  return (
+                    <button
+                      key={supplier.id}
+                      disabled={disabled}
+                      className={`px-2 py-2 text-xs min-w-[250px] md:px-4 md:py-2 md:text-base md:min-w-[180px] rounded text-left whitespace-nowrap ${disabled ? "bg-gray-400 text-white" : tempSelectedSupplier === supplier.id ? "bg-blue-600 text-white" : "bg-blue-400 text-white hover:bg-blue-500"}`}
+                      onClick={() => {
+                        if (disabled) return;
+                        setTempSelectedSupplier(tempSelectedSupplier === supplier.id ? null : supplier.id);
+                      }}
+                    >
+                      {supplier.supplierCodeName}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
           {/* Size Column */}
-          <div>
+          <div className="col-span-3">
             <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Kích Thước</h2>
-            {sizeStore.loading ? ( // Hiển thị loading state
+            {sizeStore.loading ? (
               <p>Đang tải kích thước...</p>
             ) : (
               <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
-                {productSizeList.map((size) => (
-                  <button
-                    key={size.id}
-                    className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${getSizeButtonClass(size)}`}
-                    onClick={() => {
-                      setTempSelectedSize(
-                        tempSelectedSize === size.id ? null : size.id
-                      );
-                    }}
-                  >
-                    {size.wide}x{size.length}
-                  </button>
-                ))}
+                {productSizeList.map((size) => {
+                  const disabled = tempSelectedSupplier !== null && !combinationExists(tempSelectedSupplier, size.id);
+                  return (
+                    <button
+                      key={size.id}
+                      disabled={disabled}
+                      className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${disabled ? "bg-gray-400 text-white" : tempSelectedSize === size.id ? "bg-green-600 text-white" : "bg-green-400 text-white hover:bg-green-500"}`}
+                      onClick={() => {
+                        if (disabled) return;
+                        setTempSelectedSize(tempSelectedSize === size.id ? null : size.id);
+                      }}
+                    >
+                      {size.wide}x{size.length}
+                    </button>
+                  );
+                })}
               </div>
             )}
+          </div>
+          {/* Status Column */}
+          <div className="col-span-4">
+            <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Trạng Thái</h2>
+            <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+              {uploadWebsiteStatusList.map((statusItem) => (
+                <button
+                  key={statusItem.id}
+                  className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${tempSelectedStatuses.includes(statusItem.id) ? "bg-[#334355] text-white font-semibold" : `${statusItem.color} text-white`}`}
+                  onClick={() => {
+                    setTempSelectedStatuses((prev) =>
+                      prev.includes(statusItem.id)
+                        ? prev.filter((id) => id !== statusItem.id)
+                        : [...prev, statusItem.id]
+                    );
+                  }}
+                >
+                  {statusItem.name}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="col-span-4">
+            <h2 className="font-bold mb-2 text-sm md:text-lg">Chọn Trạng Thái Giá</h2>
+            <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+              <button
+                className={`flex items-center justify-center px-2 py-2 text-xs text-center min-w-[100px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[100px] md:w-[111px] ${tempSelectedIsPriced === true ? 'bg-blue-600 text-white font-semibold' : 'bg-blue-400 text-white hover:bg-blue-500'}`}
+                onClick={() => {
+                  setTempSelectedIsPriced(tempSelectedIsPriced === true ? null : true);
+                }}
+              >
+                Đã có giá
+              </button>
+              <button
+                className={`flex items-center justify-center px-2 py-2 text-xs text-center min-w-[100px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[100px] md:w-[111px] ${tempSelectedIsPriced === false ? 'bg-blue-600 text-white font-semibold' : 'bg-blue-400 text-white hover:bg-blue-500'}`}
+                onClick={() => {
+                  setTempSelectedIsPriced(tempSelectedIsPriced === false ? null : false);
+                }}
+              >
+                Chưa có giá
+              </button>
+            </div>
           </div>
         </div>
         <div className="flex justify-start mt-4 gap-2">

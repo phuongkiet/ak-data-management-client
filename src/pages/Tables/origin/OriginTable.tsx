@@ -80,7 +80,7 @@ function OriginTable() {
                     placeholder="Nhập tên xuất xứ"
                     value={originStore.originForm.name}
                     onChange={(e) =>
-                      originStore.updateOriginForm("name", e.target.value)
+                      originStore.updateOriginForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>
@@ -90,7 +90,7 @@ function OriginTable() {
                     placeholder="Nhập mã xuất xứ"
                     value={originStore.originForm.upperName}
                     onChange={(e) =>
-                      originStore.updateOriginForm("upperName", e.target.value)
+                      originStore.updateOriginForm("upperName", e.target.value.toUpperCase())
                     }
                   />
                 </div>

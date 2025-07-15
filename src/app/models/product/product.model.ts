@@ -45,6 +45,7 @@ export interface ProductDto {
   deliveryEstimatedDate: string;
   creator: string;
   modifier: string;
+  sapoName: string;
 
   // Foreign key display names
   originCountryName: string;
@@ -72,6 +73,7 @@ export interface StrategyProductDto {
   id: number;
   companyItemCode: string;
   supplierItemCode: string;
+  confirmSupplierItemCode: string;
   size: string;
   supplierName: string;
   displayWebsiteName: string;
@@ -187,6 +189,9 @@ export interface ProductDetail {
   otherNote: string;
   deliveryEstimatedDate: string;
   autoCalculatedUnit: string;
+  sapoName: string;
+  confirmListPrice: number | null ;
+  retailPrice: number | null;
 
   originCountryId: number;
   actualSizeId: number;
@@ -273,6 +278,7 @@ export interface AddProductDto {
   hardnessMOHS: number | null;
   otherNote: string;
   deliveryEstimatedDate: string;
+  sapoName: string;
 }
 
 export interface EditProductDto {
@@ -363,6 +369,7 @@ export interface EditProductDto {
   otherNote?: string | null;
   deliveryEstimatedDate?: string | null;
   productSpecialExtraNote?: string | null;
+  sapoName?: string | null;
 }
 
 export interface SupplierSizeCombinationDto {

@@ -61,7 +61,7 @@ function CompanyCodeTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo chất liệu</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo mã công ty An Khánh</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
                   <ProductLabel>Mã An Khánh</ProductLabel>
@@ -119,7 +119,7 @@ function CompanyCodeTable() {
           isOnline={isOnline}
         > 
           <CompanyCodeTableComponent
-            data={productCompanyCodeList}
+            data={companyCodeStore.displayList}
             loading={loading}
             totalPages={1}
             currentPage={1}

@@ -72,7 +72,7 @@ function BodyColorTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo chất liệu</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo màu thân gạch</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
                   <ProductLabel>Tên màu thân gạch</ProductLabel>
@@ -80,7 +80,7 @@ function BodyColorTable() {
                     placeholder="Nhập tên màu thân gạch"
                     value={bodyColorStore.bodyColorForm.name}
                     onChange={(e) =>
-                      bodyColorStore.updateBodyColorForm("name", e.target.value)
+                      bodyColorStore.updateBodyColorForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>

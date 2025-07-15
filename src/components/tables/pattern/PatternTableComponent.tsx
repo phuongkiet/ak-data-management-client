@@ -34,6 +34,7 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
       name: pattern.name,
       description: pattern.description || '',
       shortCode: pattern.shortCode,
+      shortName: pattern.shortName
     };
     setIsModalOpen(true);
   };
@@ -61,6 +62,11 @@ const PatternTableComponent = ({ data }: PatternTableComponentProps) => {
     {
       name: 'Mã ngắn',
       selector: row => row.shortCode,
+      sortable: true,
+    },
+    {
+      name: 'Ký hiệu',
+      selector: row => row.shortName,
       sortable: true,
     },
     {

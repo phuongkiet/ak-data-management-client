@@ -1,5 +1,4 @@
 import { useStore } from "../../../../app/stores/store.ts";
-import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import ReactSelect from "react-select";
 import { ProductDetail } from "../../../../app/models/product/product.model.ts";
@@ -16,12 +15,12 @@ interface ProductProps {
 
 const AreaGroup = ({ isCreateMode }: ProductProps) => {
   const { areaStore, supplierStore } = useStore();
-  const { loadAreas, productAreaList } =
+  const { productAreaList } =
   areaStore;
   const { theme } = useTheme();
-  useEffect(() => {
-    loadAreas();
-  }, []);
+  // useEffect(() => {
+  //   loadAreas();
+  // }, []);
 
   // Mapping list
   const areaOptions: Option[] = productAreaList.map(

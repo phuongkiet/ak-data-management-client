@@ -68,7 +68,7 @@ function StorageTable() {
                     placeholder="Nhập tên kho"
                     value={storageStore.storageForm.name}
                     onChange={(e) =>
-                      storageStore.updateStorageForm("name", e.target.value)
+                      storageStore.updateStorageForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>

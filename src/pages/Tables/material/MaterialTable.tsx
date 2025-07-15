@@ -81,7 +81,7 @@ function MaterialTable() {
                     placeholder="Nhập mã chất liệu"
                     value={materialStore.materialForm.name}
                     onChange={(e) =>
-                      materialStore.updateMaterialForm("name", e.target.value)
+                      materialStore.updateMaterialForm("name", e.target.value.toUpperCase())
                     }
                   />
                 </div>

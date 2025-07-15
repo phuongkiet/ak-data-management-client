@@ -51,8 +51,12 @@ const StrategyProductTableComponent = ({ data, loading, currentPage, onPageChang
       }
     },
     {
-      name: 'Mã nhà cung cấp',
-      selector: row => row.supplierItemCode,
+      name: 'Tên nhà cung cấp',
+      selector: row => row.companyItemCode,
+    },
+    {
+      name: 'Mã SKU',
+      selector: row => row.confirmSupplierItemCode,
     },
     {
       name: 'Tên hiển thị website',

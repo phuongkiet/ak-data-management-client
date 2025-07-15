@@ -55,11 +55,11 @@ function SupplierTable() {
     if (areaValue.shortCode && customerClassification && orderNumber) {
       const shortCode = `${areaValue.shortCode}${customerClassification}${orderNumber}`;
       const supplierName = supplierStore.supplierForm.supplierName;
-      
+
       // Update both fields in a single runInAction to prevent multiple re-renders
       runInAction(() => {
         supplierStore.updateSupplierForm("supplierShortCode", shortCode);
-        
+
         if (supplierName && productSupplier) {
           const codeName = `${supplierName}-${productSupplier}-${shortCode}`;
           supplierStore.updateSupplierForm("supplierCodeName", codeName);
@@ -73,7 +73,13 @@ function SupplierTable() {
         supplierStore.updateSupplierForm("supplierCodeName", "");
       });
     }
-  }, [areaValue.shortCode, customerClassification, orderNumber, supplierStore.supplierForm.supplierName, productSupplier]);
+  }, [
+    areaValue.shortCode,
+    customerClassification,
+    orderNumber,
+    supplierStore.supplierForm.supplierName,
+    productSupplier,
+  ]);
 
   const resetForm = () => {
     setCustomerClassification("");
@@ -120,9 +126,15 @@ function SupplierTable() {
       <PageBreadcrumb pageTitle="Nhà cung cấp" />
       <div className="space-y-6">
         {!isOnline && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
             <strong className="font-bold">Không có kết nối mạng!</strong>
-            <span className="block sm:inline"> Vui lòng kiểm tra kết nối mạng của bạn.</span>
+            <span className="block sm:inline">
+              {" "}
+              Vui lòng kiểm tra kết nối mạng của bạn.
+            </span>
           </div>
         )}
         <TableComponentCard
@@ -137,7 +149,9 @@ function SupplierTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo nhà cung cấp</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">
+                Tạo nhà cung cấp
+              </h1>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -150,7 +164,9 @@ function SupplierTable() {
                       type="text"
                       placeholder="Nhập sản phẩm của nhà cung cấp"
                       value={productSupplier}
-                      onChange={(e) => setProductSupplier(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setProductSupplier(e.target.value.toUpperCase())
+                      }
                     />
                   </div>
                   <div>
@@ -164,7 +180,10 @@ function SupplierTable() {
                       placeholder="Nhập tên nhà cung cấp"
                       value={supplierStore.supplierForm.supplierName}
                       onChange={(e) =>
-                        updateSupplierForm("supplierName", e.target.value.toUpperCase())
+                        updateSupplierForm(
+                          "supplierName",
+                          e.target.value.toUpperCase()
+                        )
                       }
                     />
                   </div>
@@ -191,7 +210,7 @@ function SupplierTable() {
                         value={customerClassification}
                         onChange={(e) => {
                           const val = e.target.value.toUpperCase();
-                          if (val === '' || /^[DFCP]$/.test(val)) {
+                          if (val === "" || /^[DFCP]$/.test(val)) {
                             setCustomerClassification(val);
                           }
                         }}
@@ -215,19 +234,35 @@ function SupplierTable() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <ProductLabel htmlFor="supplierShortCode">
-                      Mã ngắn nhà cung cấp
-                    </ProductLabel>
-                    <Input
-                      id="supplierShortCode"
-                      name="supplierShortCode"
-                      type="text"
-                      value={supplierStore.supplierForm.supplierShortCode}
-                      disabled
-                      className="bg-gray-100"
-                      onChange={() => {}}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <ProductLabel htmlFor="supplierShortCode">
+                        Mã ngắn nhà cung cấp
+                      </ProductLabel>
+                      <Input
+                        id="supplierShortCode"
+                        name="supplierShortCode"
+                        type="text"
+                        value={supplierStore.supplierForm.supplierShortCode}
+                        disabled
+                        className="bg-gray-100"
+                        onChange={() => {}}
+                      />
+                    </div>
+                    <div>
+                      <ProductLabel htmlFor="supplierCombinedCode">
+                        Ký hiệu nhà cung cấp
+                      </ProductLabel>
+                      <Input
+                        id="supplierCombinedCode"
+                        name="supplierCombinedCode"
+                        type="text"
+                        value={supplierStore.supplierForm.supplierCombinedCode}
+                        disabled
+                        className="bg-gray-100"
+                        onChange={() => {}}
+                      />
+                    </div>
                   </div>
                   <div>
                     <ProductLabel htmlFor="supplierCodeName">

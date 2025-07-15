@@ -49,7 +49,8 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
   onSearchSubmit,
   searchPlaceholder = "Tìm kiếm...",
   searchTerm,
-  isOnline
+  isOnline,
+  loading
 }) => {
   const [internalIsModalOpen, setInternalIsModalOpen] = useState(false);
   const isModalOpen = externalIsModalOpen !== undefined ? externalIsModalOpen : internalIsModalOpen;
@@ -136,7 +137,7 @@ const TableComponentCard: React.FC<ComponentCardProps> = ({
               onClick={() => onSearchSubmit && onSearchSubmit()}
               className="font-semibold bg-sky-700 hover:bg-sky-800 text-white px-3 py-2 rounded h-[40px] w-10 md:w-auto flex items-center justify-center"
               aria-label="Tìm kiếm"
-              disabled={!isOnline}
+              disabled={loading}
             >
               <span className="md:hidden">
                 <svg

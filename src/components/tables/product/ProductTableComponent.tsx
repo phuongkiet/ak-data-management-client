@@ -8,6 +8,7 @@ import {
 import { useNavigate } from "react-router";
 import {
   appCurrency,
+  convertKgPerM2,
   uploadWebsiteStatusToVietnamese,
 } from "../../../app/common/common";
 import Modal from "../../ui/modal/index.tsx";
@@ -29,8 +30,9 @@ interface ProductTableComponentProps {
   loading: boolean;
   currentPage: number;
   onPageChange: (page: number) => void;
-  onPageSizeChange: (newPageSize: number, page: number) => void;
+  onPageSizeChange: (newPageSize: number) => void;
   totalCount: number;
+  pageSize?: number;
 }
 
 const ProductTableComponent = ({
@@ -40,6 +42,7 @@ const ProductTableComponent = ({
   onPageChange,
   onPageSizeChange,
   totalCount,
+  pageSize,
 }: ProductTableComponentProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSapoModalOpen, setIsSapoModalOpen] = useState(false);
@@ -69,7 +72,6 @@ const ProductTableComponent = ({
     bodyColorStore,
     supplierStore,
     calculatedUnitStore,
-    originStore,
   } = useStore();
   const { theme } = useTheme();
   useEffect(() => {
@@ -101,7 +103,9 @@ const ProductTableComponent = ({
     );
     setProductMaterial(material?.name ?? "");
 
-    const color = colorStore.productColorList.find(c => c.id == selectedProduct?.colorId);
+    const color = colorStore.productColorList.find(
+      (c) => c.id == selectedProduct?.colorId
+    );
     setProductColor(color?.name ?? "");
 
     const pattern = patternStore.productPatternList.find(
@@ -120,10 +124,11 @@ const ProductTableComponent = ({
       ? `${Number(size.wide) / 10} x ${Number(size.length) / 10} cm`
       : "";
 
+    const sapoActualSize = size?.autoSized;  
     const displayWebsiteSize =
       actualSize + " x " + selectedProduct.thicknessSize + " | mm";
     setProductSize(displayWebsiteSize);
-    setProductSizeSapo(actualSize);
+    setProductSizeSapo(sapoActualSize ?? actualSize);
 
     setDisplayWebsiteName(
       `${selectedProduct.autoBarCode} - ${actualSize} - ${pattern?.name} ${color?.name} ${surface?.name} ${material?.name} ${bodyColor?.name}`.trim()
@@ -213,18 +218,19 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       maxWidth: "80px",
       cell: (row) => {
         return (
-          <button className="text-blue-600 dark:text-white hover:underline" onClick={() => handleView(row)}>
+          <button
+            className="text-blue-600 dark:text-white hover:underline"
+            onClick={() => handleView(row)}
+          >
             {row.id}
           </button>
         );
-      }
+      },
     },
     {
       name: "Ngày đăng",
       selector: (row) =>
-        new Date(
-          row.createdDate
-        ).toLocaleDateString("vi-VN", {
+        new Date(row.createdDate).toLocaleDateString("vi-VN", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -240,14 +246,16 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
         const isUploaded =
           Number(row.uploadWebsiteStatus) === 1 ||
           row.uploadWebsiteStatus === "Uploaded";
-        return (
-          isUploaded ? (
-            <a href={`https://ankhanhhouse.com/san-pham/${row.confirmAutoBarCode}`} target="_blank" rel="noopener noreferrer" >
-              <span className="underline">{row.confirmAutoBarCode}</span>
-            </a>
-          ) : (
-            <span>{row.confirmAutoBarCode}</span>
-          )
+        return isUploaded ? (
+          <a
+            href={`https://ankhanhhouse.com/san-pham/${row.confirmAutoBarCode}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="underline">{row.confirmAutoBarCode}</span>
+          </a>
+        ) : (
+          <span>{row.confirmAutoBarCode}</span>
         );
       },
     },
@@ -257,12 +265,17 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
       minWidth: "150px",
       cell: (row) => {
         return (
-          <div className="" data-tooltip-id="view-tooltip" data-tooltip-content={row.supplierCode}>
-            {row.supplierCode.slice(0, 10)}...
-            <Tooltip id="view-tooltip" className="text-md" />
+          <div
+            className=""
+            data-tooltip-id="view-tooltip"
+            data-tooltip-content={row.supplierCode}
+          >
+            {row.supplierCode
+              ? row.supplierCode.slice(0, 10) + "..."
+              : "Chưa có"}
           </div>
         );
-      }
+      },
     },
     {
       name: "Mã của NCC",
@@ -326,7 +339,6 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
             data-tooltip-content="Website"
           >
             <CgWebsite className="w-6 h-6 hover:opacity-50" />
-            <Tooltip id="view-tooltip" className="text-md" />
           </button>
           <button
             onClick={() => handleViewUploadSapo(row.id)}
@@ -335,7 +347,6 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
             data-tooltip-content="Sapo"
           >
             <TbCircleLetterS className="w-6 h-6 hover:opacity-50" />
-            <Tooltip id="view-tooltip" className="text-md" />
           </button>
           <button
             onClick={() => handleView(row)}
@@ -344,7 +355,6 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
             data-tooltip-content="Chi tiết"
           >
             <FaEye className="w-6 h-6 hover:opacity-50" />
-            <Tooltip id="view-tooltip" className="text-md" />
           </button>
         </div>
       ),
@@ -358,17 +368,19 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
     <>
       <div className="w-full overflow-x-auto rounded-xl overflow-hidden border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] p-2 md:p-4">
         <DataTable
-          theme={theme === 'dark' ? 'customDark' : 'default'}
+          theme={theme === "dark" ? "customDark" : "default"}
           columns={columns}
           data={data}
           pagination
           paginationServer
           paginationTotalRows={totalCount}
-          paginationPerPage={10}
-          paginationRowsPerPageOptions={[10, 20, 50, 100]}
+          paginationPerPage={pageSize || 10}
+          paginationRowsPerPageOptions={[10, 20, 50, 100, 200, 500]}
           paginationDefaultPage={currentPage}
           onChangePage={onPageChange}
-          onChangeRowsPerPage={onPageSizeChange}
+          onChangeRowsPerPage={(newPageSize) => {
+            onPageSizeChange(newPageSize);
+          }}
           responsive
           highlightOnHover
           striped
@@ -394,6 +406,9 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
         />
       </div>
 
+      {/* Chỉ render 1 Tooltip duy nhất ở cuối component */}
+      <Tooltip id="view-tooltip" className="text-md" />
+
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -408,7 +423,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
               <div className="grid grid-cols-2 gap-4">
                 {/* First row - Short Code and Supplier Item Code */}
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Mã ngắn - sản phẩm:
                   </ProductLabel>
                   <ProductInputField
@@ -417,7 +432,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md text-red-500 mb-1">
+                  <ProductLabel className="text-md font-bold text-red-500 mb-1">
                     Mã kiểm kho:
                   </ProductLabel>
                   <ProductInputField
@@ -428,7 +443,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
                 {/* Second row - Product Code */}
                 <div className="col-span-2">
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Mã sản phẩm:
                   </ProductLabel>
                   <ProductInputField
@@ -439,7 +454,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
                 {/* Third row - Unit and Delivery Date */}
                 <div>
-                  <ProductLabel className="text-md text-red-500 mb-1">
+                  <ProductLabel className="text-md font-bold text-red-500 mb-1">
                     ĐVT:
                   </ProductLabel>
                   <ProductInputField
@@ -452,7 +467,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Thời gian giao hàng:
                   </ProductLabel>
                   <ProductInputField
@@ -468,7 +483,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
                 {/* Technical Info */}
                 <div className="col-span-2">
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Thông tin kỹ thuật:
                   </ProductLabel>
                   <ProductTextArea
@@ -663,18 +678,42 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
               <div className="grid grid-cols-2 gap-4">
                 {/* Row 1: Tên phiên bản sản phẩm */}
                 <div className="col-span-2">
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Tên phiên bản sản phẩm:
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={displayWebsiteName}
+                    value={selectedProduct.sapoName}
                   />
                 </div>
-
+                <div>
+                  <ProductLabel className="text-md font-bold mb-1">
+                    Mã sản phẩm của NCC | NSX:
+                  </ProductLabel>
+                  <ProductInputField
+                    className="h-8 text-md w-full"
+                    value={selectedProduct.supplierItemCode}
+                  />
+                </div>
+                <div>
+                  <ProductLabel className="text-md font-bold mb-1">
+                    Mô tả sản phẩm:
+                  </ProductLabel>
+                  <ProductInputField
+                    className="h-8 text-md w-full"
+                    value={
+                      productSizeSapo +
+                      " ( " +
+                      selectedProduct.quantityPerBox +
+                      "Viên/" +
+                      selectedProduct.areaPerBox +
+                      "m2/thùng)"
+                    }
+                  />
+                </div>
                 {/* Row 2: Mã sản phẩm và Mã vạch */}
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Mã sản phẩm / SKU:
                   </ProductLabel>
                   <ProductInputField
@@ -683,7 +722,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Mã vạch / Barcode:
                   </ProductLabel>
                   <ProductInputField
@@ -694,89 +733,77 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
 
                 {/* Row 3: Khối lượng và Đơn vị tính */}
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Khối lượng:
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={selectedProduct.weightPerBox + " Kg / Thùng"}
+                    value={convertKgPerM2(selectedProduct.weightPerBox, selectedProduct.areaPerBox) + " Kg / M2"}
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Đơn vị tính:
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full italic text-red-500"
-                    value={calculatedUnitStore.productCalculatedUnitList.find(
-                      (x) => x.id === selectedProduct?.calculatedUnitId
-                    )?.calculatedUnitName ?? "Chưa xác định"}
+                    value={
+                      calculatedUnitStore.productCalculatedUnitList.find(
+                        (x) => x.id === selectedProduct?.calculatedUnitId
+                      )?.calculatedUnitName ?? "Chưa xác định"
+                    }
                   />
                 </div>
 
                 {/* Row 4: Nhãn hiệu và Tag */}
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Nhãn hiệu:
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
                     value={
-                      supplier?.supplierShortCode ?? "Chưa xác định"
+                      supplier
+                        ? `${supplier.supplierName ?? ""}-${supplier.supplierCombinedCode ?? ""}`
+                        : "Chưa xác định"
                     }
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md mb-1">
-                    Tag:
-                  </ProductLabel>
+                  <ProductLabel className="text-md font-bold mb-1">Tag:</ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={supplier?.supplierCodeName ?? "Chưa xác định"}
+                    value={
+                      supplier
+                        ? `${supplier.supplierCodeName ?? ""}-${supplier.supplierCombinedCode ?? ""}`
+                        : "Chưa xác định"
+                    }
                   />
                 </div>
 
                 {/* Row 5: Giá bán lẻ vnd/m2 và Mô tả sản phẩm */}
                 <div>
-                  <ProductLabel className="text-md mb-1">
+                  <ProductLabel className="text-md font-bold mb-1">
                     Giá bán lẻ (VND/m2):
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={selectedProduct.productPrice ? `${selectedProduct.productPrice.toLocaleString()} VND/m2` : "Chưa có giá"}
+                    value={
+                      selectedProduct.retailPrice
+                        ? `${selectedProduct.retailPrice.toLocaleString()} VND/m2`
+                        : "Chưa có giá"
+                    }
                   />
                 </div>
                 <div>
-                  <ProductLabel className="text-md mb-1">
-                    Mô tả sản phẩm:
-                  </ProductLabel>
+                  <ProductLabel className="text-md font-bold mb-1">Giá mua:</ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={productSizeSapo +" ( " + selectedProduct.quantityPerBox + "Viên/" + selectedProduct.areaPerBox + "m2/thùng)" }
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-12 gap-4">
-                {/* Quantity and Weight Information */}
-                <div className="col-span-6">
-                  <ProductLabel className="text-md font-bold mb-1">
-                    Xuất xứ:
-                  </ProductLabel>
-                  <ProductInputField
-                    className="h-8 text-md w-full"
-                    value={originStore.productOriginList.find(
-                      (x) => x.id === selectedProduct?.originCountryId
-                    )?.upperName ?? "Chưa xác định"}
-                  />
-                </div>
-                <div className="col-span-6">
-                  <ProductLabel className="text-md font-bold mb-1">
-                    Chất liệu:
-                  </ProductLabel>
-                  <ProductInputField
-                    className="h-8 text-md w-full"
-                    value={productMaterial}
+                    value={
+                      selectedProduct.confirmListPrice
+                        ? `${selectedProduct.confirmListPrice.toLocaleString()} VND/m2`
+                        : "Chưa có giá"
+                    }
                   />
                 </div>
               </div>
@@ -787,9 +814,7 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                 </ProductLabel>
                 <ProductInputField
                   className="h-8 text-md w-full font-bold dark:text-white "
-                  value={new Date(
-                    Date.now()
-                  ).toLocaleDateString("vi-VN", {
+                  value={new Date(Date.now()).toLocaleDateString("vi-VN", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -806,129 +831,25 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={patternStore.productPatternList.find(
-                      (x) => x.id === selectedProduct?.brickPatternId
-                    )?.name ?? "Chưa xác định"}
+                    value={
+                      patternStore.productPatternList.find(
+                        (x) => x.id === selectedProduct?.brickPatternId
+                      )?.name ?? "Chưa xác định"
+                    }
                   />
                 </div>
                 <div className="col-span-6">
                   <ProductLabel className="text-md font-bold mb-1">
-                    Số viên / thùng:
+                    Số lượng vân:
                   </ProductLabel>
                   <ProductInputField
                     className="h-8 text-md w-full"
-                    value={selectedProduct.quantityPerBox + " Viên/Thùng"}
+                    value={selectedProduct.patternQuantity}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-12 gap-4">
-                {/* Price Information */}
-                <div className="col-span-4">
-                  <ProductLabel className="text-md font-bold mb-1">
-                    Giá sản phẩm:
-                  </ProductLabel>
-                  {selectedProduct.productPrice ? (
-                    <NumericFormat
-                      value={selectedProduct.productPrice ?? 0}
-                      thousandSeparator={isEditing ? false : true}
-                      prefix={isEditing ? "" : appCurrency}
-                      onFocus={() => setIsEditing(true)}
-                      onBlur={() => setIsEditing(false)}
-                      allowNegative={false}
-                      displayType="input"
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  ) : (
-                    <ProductInputField
-                      value={"Chưa có giá"}
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  )}
-                </div>
-                <div className="col-span-4">
-                  <ProductLabel className="text-md font-bold mb-1">
-                    Giá khuyến mãi 1:
-                  </ProductLabel>
-                  {selectedProduct.discountedPrice ? (
-                    <NumericFormat
-                      value={selectedProduct.discountedPrice ?? 0}
-                      thousandSeparator={isEditing ? false : true}
-                      prefix={isEditing ? "" : appCurrency}
-                      onFocus={() => setIsEditing(true)}
-                      onBlur={() => setIsEditing(false)}
-                      allowNegative={false}
-                      displayType="input"
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  ) : (
-                    <ProductInputField
-                      value={"Chưa có giá"}
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  )}
-                </div>
-                <div className="col-span-4">
-                  <ProductLabel className="text-md font-bold mb-1">
-                    Giá khuyến mãi 2:
-                  </ProductLabel>
-                  {selectedProduct.secondDiscountedPrice ? (
-                    <NumericFormat
-                      value={selectedProduct.secondDiscountedPrice ?? 0}
-                      thousandSeparator={isEditing ? false : true}
-                      prefix={isEditing ? "" : appCurrency}
-                      onFocus={() => setIsEditing(true)}
-                      onBlur={() => setIsEditing(false)}
-                      allowNegative={false}
-                      displayType="input"
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  ) : (
-                    <ProductInputField
-                      value={"Chưa có giá"}
-                      className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-md shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:border-gray-700 dark:focus:border-brand-800"
-                    />
-                  )}
-                </div>
-              </div>
-
               {/* Product Details */}
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Số lượng vân:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={selectedProduct.patternQuantity}
-                />
-              </div>
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Thời gian giao hàng:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={selectedProduct.deliveryEstimatedDate}
-                />
-              </div>
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Tình trạng:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={storageName}
-                />
-              </div>
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Bề mặt:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={productSurface}
-                />
-              </div>
               <div>
                 <ProductLabel className="text-md font-bold mb-1">
                   Kích thước danh nghĩa:
@@ -936,24 +857,6 @@ Sản phẩm mài cạnh: ${selectedProduct.isEdgeGrinding ? "✅" : "❌"}`
                 <ProductInputField
                   className="h-8 text-md w-full"
                   value={productSize}
-                />
-              </div>
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Kích thước:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={productSizeSapo}
-                />
-              </div>
-              <div>
-                <ProductLabel className="text-md font-bold mb-1">
-                  Màu sắc:
-                </ProductLabel>
-                <ProductInputField
-                  className="h-8 text-md w-full"
-                  value={productColor}
                 />
               </div>
             </div>

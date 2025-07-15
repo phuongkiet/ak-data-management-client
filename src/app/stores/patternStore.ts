@@ -19,12 +19,14 @@ export default class PatternStore extends BaseStore {
   patternForm: AddPatternDto = {
     name: '',
     shortCode: '',
+    shortName: '',
     description: ''
   };
 
   patternFormUpdate: UpdatePatternDto = {
     name: '',
     shortCode: '',
+    shortName: '',
     description: ''
   };
 
@@ -83,6 +85,7 @@ export default class PatternStore extends BaseStore {
     this.patternForm = {
       name: '',
       shortCode: '',
+      shortName: '',
       description: ''
     };
   };
@@ -139,6 +142,7 @@ export default class PatternStore extends BaseStore {
           id: Date.now(),
           name: this.patternForm.name,
           shortCode: this.patternForm.shortCode,
+          shortName: this.patternForm.shortName,
           description: this.patternForm.description
         };
         this.addItemToMetadata(newItem);
@@ -170,6 +174,7 @@ export default class PatternStore extends BaseStore {
           id: id,
           name: this.patternFormUpdate.name,
           shortCode: this.patternFormUpdate.shortCode,
+          shortName: this.patternFormUpdate.shortName,
           description: this.patternFormUpdate.description
         };
         this.addItemToMetadata(updatedItem);

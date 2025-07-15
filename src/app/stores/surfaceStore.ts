@@ -18,11 +18,13 @@ export default class SurfaceStore extends BaseStore {
 
   surfaceForm: AddSurfaceDto = {
     name: "",
+    shortCode: "",
     description: null,
   };
 
   surfaceFormUpdate: UpdateSurfaceDto = {
     name: "",
+    shortCode: "",
     description: null,
   };
 
@@ -63,6 +65,7 @@ export default class SurfaceStore extends BaseStore {
   resetSurfaceForm = () => {
     this.surfaceForm = {
       name: "",
+      shortCode: "",
       description: null,
     };
   };
@@ -134,6 +137,7 @@ export default class SurfaceStore extends BaseStore {
         const newItem: ProductSurfaceDto = {
           id: Date.now(),
           name: this.surfaceForm.name,
+          shortCode: this.surfaceForm.shortCode,
           description: this.surfaceForm.description
         };
         this.addItemToMetadata(newItem);
@@ -165,6 +169,7 @@ export default class SurfaceStore extends BaseStore {
         const updatedItem: ProductSurfaceDto = {
           id: id,
           name: this.surfaceFormUpdate.name,
+          shortCode: this.surfaceFormUpdate.shortCode,
           description: this.surfaceFormUpdate.description
         };
         this.addItemToMetadata(updatedItem);

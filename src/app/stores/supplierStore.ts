@@ -29,6 +29,7 @@ export default class SupplierStore extends BaseStore {
     supplierName: "",
     supplierCodeName: "",
     supplierShortCode: "",
+    supplierCombinedCode: "",
   };
 
   supplierDetail: SupplierDetailDto = {} as SupplierDetailDto;
@@ -74,6 +75,7 @@ export default class SupplierStore extends BaseStore {
         supplierName: "",
         supplierCodeName: "",
         supplierShortCode: "",
+        supplierCombinedCode: "",
         taxId: null,
         supplierFactories: [],
         productServices: ProductService.ReceiveAtStorage,
@@ -175,6 +177,7 @@ export default class SupplierStore extends BaseStore {
         supplierName: "",
         supplierCodeName: "",
         supplierShortCode: "",
+        supplierCombinedCode: "",
       };
     });
   };
@@ -196,6 +199,7 @@ export default class SupplierStore extends BaseStore {
             supplierName: this.supplierForm.supplierName,
             supplierCodeName: this.supplierForm.supplierCodeName,
             supplierShortCode: this.supplierForm.supplierShortCode,
+            supplierCombinedCode: this.supplierForm.supplierCombinedCode,
             shippingFee: null,
             discount: null,
             taxId: null,
@@ -240,7 +244,8 @@ export default class SupplierStore extends BaseStore {
       );
       if (response.data !== undefined) {
         runInAction(() => {
-          this.orderNumber = response.data || 0;
+          this.orderNumber = response.data?.supplierNextOrder || 0;
+          this.supplierForm.supplierCombinedCode = response.data?.supplierNextCombinedCode || "";
         });
       } else {
         toast.error(
@@ -275,6 +280,7 @@ export default class SupplierStore extends BaseStore {
           supplierName: result.data?.supplierName ?? "",
           supplierCodeName: result.data?.supplierCodeName ?? "",
           supplierShortCode: result.data?.supplierShortCode ?? "",
+          supplierCombinedCode: result.data?.supplierCombinedCode ?? "",
           shippingFee: result.data?.shippingFee ?? null,
           discount: result.data?.discount ?? null,
           priceDiscountAtStorage: result.data?.priceDiscountAtStorage ?? null,
@@ -338,6 +344,7 @@ export default class SupplierStore extends BaseStore {
             supplierName: this.supplierFormDetail.supplierName,
             supplierCodeName: this.supplierFormDetail.supplierCodeName,
             supplierShortCode: this.supplierFormDetail.supplierShortCode,
+            supplierCombinedCode: this.supplierFormDetail.supplierCombinedCode,
             shippingFee: this.supplierFormDetail.shippingFee ?? null,
             discount: this.supplierFormDetail.discount ?? null,
             taxId: this.supplierFormDetail.taxId ?? null,

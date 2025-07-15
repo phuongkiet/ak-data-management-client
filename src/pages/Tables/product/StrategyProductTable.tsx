@@ -12,9 +12,10 @@ import ProductInputField from "../../../components/form/product-form/input/produ
 import ReactSelect from "react-select";
 import { toast } from "react-toastify";
 import { useApi } from "../../../hooks/useApi";
+import { UploadWebsiteStatus } from "../../../app/models/product/enum/product.enum.ts";
 
 const StrategyProductTable = () => {
-  const { productStore, supplierTaxStore } = useStore();
+  const { productStore, supplierTaxStore, supplierStore, sizeStore } = useStore();
   const [pageSize, setPageSize] = useState(productStore.pageSize || 10);
   const {
     strategyProductList,
@@ -24,15 +25,44 @@ const StrategyProductTable = () => {
     setPageNumber,
     totalCount,
     term,
+    supplierId,
+    sizeId,
+    uploadWebsiteStatuses,
+    existingSupplierSizeCombinations,
   } = productStore;
   const { isOnline } = useApi();
+  const { productSupplierList } = supplierStore;
+  const { productSizeList } = sizeStore;
   const { productSupplierTaxList } = supplierTaxStore;
+  
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<number | null>(null);
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<UploadWebsiteStatus[]>([]);
+  const [tempSelectedSupplier, setTempSelectedSupplier] = useState<number | null>(null);
+  const [tempSelectedSize, setTempSelectedSize] = useState<number | null>(null);
+  const [tempSelectedStatuses, setTempSelectedStatuses] = useState<UploadWebsiteStatus[]>([]);
+  const [isAdvancedActive, setIsAdvancedActive] = useState(false);
 
+  const uploadWebsiteStatusList = [
+    { id: UploadWebsiteStatus.Uploaded, name: "Đã up web", color: "bg-green-400 hover:bg-green-500" },
+    { id: UploadWebsiteStatus.Captured, name: "Đã chụp", color: "bg-blue-400 hover:bg-blue-500" },
+    { id: UploadWebsiteStatus.Named, name: "Đã đặt tên", color: "bg-purple-400 hover:bg-purple-500" },
+    { id: UploadWebsiteStatus.ReAdded, name: "Thêm lại", color: "bg-yellow-400 hover:bg-yellow-500" },
+    { id: UploadWebsiteStatus.ReNameSupplier, name: "Đổi tên NCC", color: "bg-orange-400 hover:bg-orange-500" },
+    { id: UploadWebsiteStatus.NotCaptured, name: "Chưa chụp", color: "bg-red-400 hover:bg-red-500" },
+    { id: UploadWebsiteStatus.Cancel, name: "Hủy", color: "bg-gray-400 hover:bg-gray-500" },
+    { id: UploadWebsiteStatus.RecheckSupplierCode, name: "Kiểm tra lại", color: "bg-indigo-400 hover:bg-indigo-500" },
+    { id: UploadWebsiteStatus.Dropped, name: "Đã bỏ", color: "bg-pink-400 hover:bg-pink-500" },
+    { id: UploadWebsiteStatus.Stopped, name: "Dừng", color: "bg-red-500 hover:bg-red-600" },
+    { id: UploadWebsiteStatus.VideoMissing, name: "Thiếu video", color: "bg-amber-400 hover:bg-amber-500" },
+  ];
+  
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
@@ -53,8 +83,8 @@ const StrategyProductTable = () => {
   };
 
   useEffect(() => {
-    loadStrategyProducts(pageSize, pageNumber, term ?? undefined);
-  }, [pageSize, pageNumber, term]);
+    loadStrategyProducts(pageSize, pageNumber, supplierId ?? undefined, sizeId ?? undefined, uploadWebsiteStatuses, term ?? undefined);
+  }, [pageSize, pageNumber, supplierId, sizeId, uploadWebsiteStatuses, term]);
 
   const handlePageChange = (page: number) => {
     setPageNumber(page);
@@ -69,6 +99,76 @@ const StrategyProductTable = () => {
   const handleSearch = (term: string) => {
     setSearchTerm(term);
     productStore.setTerm(term);
+  };
+
+  const handleAdvancedOpen = () => {
+    setTempSelectedSupplier(supplierId);
+    setTempSelectedSize(sizeId);
+    setTempSelectedStatuses(uploadWebsiteStatuses);
+    setIsAdvancedOpen(true);
+  };
+  const handleAdvancedClose = () => {
+    setIsAdvancedOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setIsAdvancedActive(false);
+    setSelectedSupplier(null);
+    setSelectedSize(null);
+    setSelectedStatuses([]);
+    setTempSelectedSupplier(null);
+    setTempSelectedSize(null);
+    setTempSelectedStatuses([]);
+    setPageNumber(1);
+    setIsAdvancedOpen(false);
+    localStorage.removeItem("selectedSupplier");
+    localStorage.removeItem("selectedSize");
+    localStorage.removeItem("selectedStatuses");
+  };
+
+  const handleApplyFilters = () => {
+    const hasChanges =
+      selectedSupplier !== tempSelectedSupplier ||
+      selectedSize !== tempSelectedSize ||
+      JSON.stringify(selectedStatuses) !== JSON.stringify(tempSelectedStatuses) ||
+      !isAdvancedActive;
+
+    if (!hasChanges) {
+      setIsAdvancedOpen(false);
+      return;
+    }
+
+    setSelectedSupplier(tempSelectedSupplier);
+    setSelectedSize(tempSelectedSize);
+    setSelectedStatuses(tempSelectedStatuses);
+    setIsAdvancedActive(
+      tempSelectedSupplier !== null ||
+      tempSelectedSize !== null ||
+      tempSelectedStatuses.length > 0
+    );
+    const newPageNumber = 1;
+    setPageNumber(newPageNumber);
+    localStorage.setItem("pageNumber", newPageNumber.toString());
+    if (tempSelectedSupplier !== null) {
+      localStorage.setItem("selectedSupplier", tempSelectedSupplier.toString());
+    } else {
+      localStorage.removeItem("selectedSupplier");
+    }
+    if (tempSelectedSize !== null) {
+      localStorage.setItem("selectedSize", tempSelectedSize.toString());
+    } else {
+      localStorage.removeItem("selectedSize");
+    }
+    localStorage.setItem("selectedStatuses", JSON.stringify(tempSelectedStatuses));
+    setIsAdvancedOpen(false);
+  };
+
+  // Hàm helper để kiểm tra nếu một cặp (supplierId, sizeId) tồn tại
+  const combinationExists = (supId: number | null, szId: number | null) => {
+    if (supId === null || szId === null) return false;
+    return existingSupplierSizeCombinations.some(
+      (combo) => combo.supplierId === supId && combo.sizeId === szId
+    );
   };
 
   return (
@@ -99,6 +199,12 @@ const StrategyProductTable = () => {
                 >
                   {isImporting ? "Đang xử lý..." : "Cập nhật sản phẩm"}
                 </Button>
+                <Button
+                  className="h-8 py-5 font-semibold rounded bg-sky-700 hover:bg-sky-800 text-white md:mr-2"
+                  onClick={handleAdvancedOpen}
+                >
+                  Nâng cao
+                </Button>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -110,8 +216,16 @@ const StrategyProductTable = () => {
               {/* Mobile: chỉ hiện icon SVG, không dùng Button */}
               <div className="flex md:hidden gap-2">
                 <div
-                  onClick={selectedIds.length === 0 ? undefined : () => setIsBulkModalOpen(true)}
-                  className={`bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center${selectedIds.length === 0 ? ' opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={
+                    selectedIds.length === 0
+                      ? undefined
+                      : () => setIsBulkModalOpen(true)
+                  }
+                  className={`bg-sky-700 hover:bg-sky-800 text-white rounded-lg flex items-center justify-center${
+                    selectedIds.length === 0
+                      ? " opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
                   style={{ width: 35, height: 35, cursor: "pointer" }}
                   aria-label="Cập nhật giá"
                 >
@@ -539,6 +653,134 @@ const StrategyProductTable = () => {
                 </Button>
               </div>
             </form>
+          </Modal>
+          <Modal
+            isOpen={isAdvancedOpen}
+            onClose={handleAdvancedClose}
+            showCloseButton={false}
+            className="p-8 w-full max-w-[800px]"
+          >
+            <div className="grid grid-cols-12 gap-4">
+              {/* Supplier Column */}
+              <div className="col-span-5">
+                <h2 className="font-bold mb-2 text-sm text-black md:text-lg">
+                  Chọn Nhà Cung Cấp
+                </h2>
+                {supplierStore.loading ? (
+                  <p>Đang tải nhà cung cấp...</p>
+                ) : (
+                  <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                    {productSupplierList.map((supplier) => {
+                      const disabled =
+                        tempSelectedSize !== null &&
+                        !combinationExists(supplier.id, tempSelectedSize);
+                      return (
+                        <button
+                          key={supplier.id}
+                          disabled={disabled}
+                          className={`px-2 py-2 text-xs min-w-[250px] md:px-4 md:py-2 md:text-base md:min-w-[180px] rounded text-left whitespace-nowrap ${
+                            disabled
+                              ? "bg-gray-400 text-white"
+                              : tempSelectedSupplier === supplier.id
+                              ? "bg-blue-600 text-white"
+                              : "bg-blue-400 text-white hover:bg-blue-500"
+                          }`}
+                          onClick={() => {
+                            if (disabled) return;
+                            setTempSelectedSupplier(
+                              tempSelectedSupplier === supplier.id
+                                ? null
+                                : supplier.id
+                            );
+                          }}
+                        >
+                          {supplier.supplierCodeName}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              {/* Size Column */}
+              <div className="col-span-3">
+                <h2 className="font-bold mb-2 text-sm text-black md:text-lg">
+                  Chọn Kích Thước
+                </h2>
+                {sizeStore.loading ? (
+                  <p>Đang tải kích thước...</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+                    {productSizeList.map((size) => {
+                      const disabled =
+                        tempSelectedSupplier !== null &&
+                        !combinationExists(tempSelectedSupplier, size.id);
+                      return (
+                        <button
+                          key={size.id}
+                          disabled={disabled}
+                          className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${
+                            disabled
+                              ? "bg-gray-400 text-white"
+                              : tempSelectedSize === size.id
+                              ? "bg-green-600 text-white"
+                              : "bg-green-400 text-white hover:bg-green-500"
+                          }`}
+                          onClick={() => {
+                            if (disabled) return;
+                            setTempSelectedSize(
+                              tempSelectedSize === size.id ? null : size.id
+                            );
+                          }}
+                        >
+                          {size.wide}x{size.length}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              {/* Status Column */}
+              <div className="col-span-4">
+                <h2 className="font-bold mb-2 text-sm text-black md:text-lg">
+                  Chọn Trạng Thái
+                </h2>
+                <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto">
+                  {uploadWebsiteStatusList.map((statusItem) => (
+                    <button
+                      key={statusItem.id}
+                      className={`px-2 py-2 text-xs min-w-[90px] md:px-4 md:py-2 md:text-base md:min-w-[111px] rounded whitespace-nowrap w-[90px] md:w-[111px] ${
+                        tempSelectedStatuses.includes(statusItem.id)
+                          ? "bg-[#334355] text-white font-semibold"
+                          : `${statusItem.color} text-white`
+                      }`}
+                      onClick={() => {
+                        setTempSelectedStatuses((prev) =>
+                          prev.includes(statusItem.id)
+                            ? prev.filter((id) => id !== statusItem.id)
+                            : [...prev, statusItem.id]
+                        );
+                      }}
+                    >
+                      {statusItem.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-start mt-4 gap-2">
+              <Button
+                onClick={handleApplyFilters}
+                className="bg-blue-700 text-white px-4 py-2 rounded"
+              >
+                Áp dụng
+              </Button>
+              <Button
+                onClick={handleResetFilters}
+                className="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                Xóa bộ lọc
+              </Button>
+            </div>
           </Modal>
         </TableComponentCard>
       </div>

@@ -75,15 +75,15 @@ function AntiSlipperyTable() {
           className="text-white"
           modalContent={
             <div>
-              <h1 className="text-2xl font-bold mb-2 text-black">Tạo chất liệu</h1>
+              <h1 className="text-2xl font-bold mb-2 text-black">Tạo mức độ chống trượt</h1>
               <div className="grid grid-cols-2 gap-4 space-y-2">
                 <div className="col-span-2">
-                  <ProductLabel>Mã chất liệu</ProductLabel>
+                  <ProductLabel>Mã mức độ chống trượt</ProductLabel>
                   <Input
                     placeholder="Nhập mã mức độ chống trượt"
                     value={antiSlipperyStore.antiSlipperyForm.antiSlipLevel}
                     onChange={(e) =>
-                      antiSlipperyStore.updateAntiSlipperyForm("antiSlipLevel", e.target.value)
+                      antiSlipperyStore.updateAntiSlipperyForm("antiSlipLevel", e.target.value.toUpperCase())
                     }
                   />
                 </div>
